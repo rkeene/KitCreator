@@ -30,7 +30,7 @@ LIBS="${SAVE_LIBS}"
 dnl Find zlib
 AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
 	CFLAGS="${CFLAGS} -I${with_zlib}/include -I${with_zlib}"
-	LDFLAGS="${CFLAGS} -L${with_zlib}/lib -L${with_zlib}"
+	LDFLAGS="${LDFLAGS} -L${with_zlib}/lib -L${with_zlib}"
 ])
 AC_SEARCH_LIBS(inflate, z zlib,, [ AC_MSG_WARN([Couldn't find inflate (normally in zlib)!]) ])
 

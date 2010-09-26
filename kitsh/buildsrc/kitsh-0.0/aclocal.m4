@@ -36,13 +36,11 @@ AC_DEFUN(DC_DO_TCL, [
 
 		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
-		LDFLAGS="${LDFLAGS}"
 		LIBS="${LIBS} ${TCL_LIBS}"
 	fi
 
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
-	AC_SUBST(LDFLAGS)
 	AC_SUBST(LIBS)
 
 	AC_MSG_RESULT([$tclconfigsh])
@@ -86,13 +84,11 @@ AC_DEFUN(DC_DO_TK, [
 
 		CFLAGS="${CFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
 		CPPFLAGS="${CPPFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
-		LDFLAGS="${LDFLAGS}"
 		LIBS="${LIBS} ${TK_LIBS}"
 	fi
 
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
-	AC_SUBST(LDFLAGS)
 	AC_SUBST(LIBS)
 
 	AC_MSG_RESULT([$tkconfigsh])
@@ -200,4 +196,5 @@ AC_DEFUN(DC_STATIC_LIBGCC, [
 		AC_MSG_RESULT([not needed])
 	fi
 
+	AC_SUBST(LDFLAGS)
 ])
