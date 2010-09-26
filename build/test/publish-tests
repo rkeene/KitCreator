@@ -92,7 +92,7 @@ proc pretty_print_buildinfo {buildinfo} {
 proc pretty_print_size {size} {
 	foreach unit [list "" K M G T P] {
 		if {$size < 1024} {
-			if {$size < 10} {
+			if {$size < 10 && $unit != ""} {
 				set size [expr {round($size * 10) / 10.0}]
 			} else {
 				set size [expr {round($size)}]
