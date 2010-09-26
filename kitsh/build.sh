@@ -44,12 +44,18 @@ mkdir 'out' 'inst' || exit 1
 	cp 'boot.tcl' 'starpack.vfs/'
 
 	# Intall VFS onto kit
-	## Copy installed data for packages
-	mkdir "installed-pkgs"
-	cp -r "${OTHERPKGSDIR}"/*/inst/* 'installed-pkgs/'
+	if echo 'exit 0' | tclkit >/dev/null 2>/dev/null; then
+		## Install using existing Tclkit
+		tclkit installvfs.tcl kit starpack.vfs
+	else
+		## Bootstrap
+		### Copy installed data for packages
+		mkdir "installed-pkgs"
+		cp -r "${OTHERPKGSDIR}"/*/inst/* 'installed-pkgs/'
 
-	## Call installer
-	${TCLCONFIGDIR}/tclsh installvfs.tcl kit starpack.vfs
+		### Call installer
+		${TCLCONFIGDIR}/tclsh installvfs.tcl kit starpack.vfs
+	fi
 
 ) || exit 1
 

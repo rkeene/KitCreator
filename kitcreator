@@ -11,7 +11,7 @@ if [ "$1" = "distclean" ]; then
 	mode="distclean"
 fi
 
-for pkg in tcl tk itcl mk4tcl tclvfs; do
+for pkg in tcl tk itcl mk4tcl tclvfs memchan kitsh; do
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
 	fi
