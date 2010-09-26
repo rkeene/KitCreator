@@ -92,7 +92,7 @@ fi
 	${MAKE:-make} install
 
 	mkdir "${OUTDIR}/lib" || exit 1
-	cp -r "${INSTDIR}/lib"/itcl*/ "${OUTDIR}/lib/"
+	cp -r "${INSTDIR}/lib"/itcl* "${OUTDIR}/lib/"
 
 	"${STRIP:-strip}" -g "${OUTDIR}"/lib/itcl*/*.so >/dev/null 2>/dev/null
 

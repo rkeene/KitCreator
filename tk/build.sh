@@ -150,7 +150,7 @@ fi
 		done
 
 		mkdir "${OUTDIR}/lib" || exit 1
-		cp -r "${INSTDIR}/lib"/tk*/ "${OUTDIR}/lib/"
+		cp -r "${INSTDIR}/lib"/tk* "${OUTDIR}/lib/"
 		cp -r "${INSTDIR}/lib"/libtk* "${OUTDIR}/lib"/tk*/
 		rm -rf "${OUTDIR}/lib"/tk*/demos
 

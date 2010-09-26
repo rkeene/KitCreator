@@ -82,7 +82,7 @@ fi
 	${MAKE:-make} install
 
 	mkdir "${OUTDIR}/lib" || exit 1
-	cp -r "${INSTDIR}/lib"/vfs*/ "${OUTDIR}/lib/"
+	cp -r "${INSTDIR}/lib"/vfs* "${OUTDIR}/lib/"
 	rm -f "${OUTDIR}/lib"/vfs*/*.a "${OUTDIR}/lib"/vfs*/*.so
 
 	exit 0
