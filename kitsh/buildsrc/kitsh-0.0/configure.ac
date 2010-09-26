@@ -32,7 +32,13 @@ AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
 	CFLAGS="${CFLAGS} -I${with_zlib}/include -I${with_zlib}"
 	LDFLAGS="${LDFLAGS} -L${with_zlib}/lib -L${with_zlib}"
 ])
-AC_SEARCH_LIBS(inflate, z zlib,, [ AC_MSG_WARN([Couldn't find inflate (normally in zlib)!]) ])
+DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
+	DC_DO_STATIC_LINK_LIB(zlib, -lzlib,, [
+		AC_SEARCH_LIBS(inflate, z zlib,, [
+			AC_MSG_WARN([Couldn't find inflate (normally in zlib)!])
+		])
+	])
+])
 
 dnl Produce output
 AC_OUTPUT(Makefile)

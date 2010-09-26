@@ -94,29 +94,47 @@ AC_DEFUN(DC_DO_TK, [
 	AC_MSG_RESULT([$tkconfigsh])
 ])
 
-AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
-	AC_MSG_CHECKING([for how to statically link to libstdc++])
+AC_DEFUN(DC_DO_STATIC_LINK_LIB, [
+	AC_MSG_CHECKING([for how to statically link to $1])
 
 	SAVELIBS="${LIBS}"
-	staticlibcxx=""
+	staticlib=""
+	found="0"
 	dnl HP/UX uses -Wl,-a,archive -lstdc++ -Wl,-a,shared_archive
 	dnl Linux and Solaris us -Wl,-Bstatic ... -Wl,-Bdynamic
-	dnl
-	dnl Sun Studio uses -lCstd -lCrun, most platforms use -lstdc++
-	for trylink in "-Wl,-a,archive -lstdc++ -Wl,-a,shared_archive" "-Wl,-Bstatic -lCstd -lCrun -Wl,-Bdynamic" "-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic" "-lCstd -lCrun" "-lstdc++"; do
+	for trylink in "-Wl,-a,archive $2 -Wl,-a,shared_archive" "-Wl,-Bstatic $2 -Wl,-Bdynamic" "$2"; do
 		LIBS="${SAVELIBS} ${trylink}"
 
 		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []), [
-			staticlibcxx="${trylink}"
+			staticlib="${trylink}"
+			found="1"
 
 			break
 		])
 	done
-	LIBS="${SAVELIBS} ${staticlibcxx}"
 
-	AC_MSG_RESULT([${staticlibcxx}])
+	if test "${found}" = "1"; then
+		LIBS="${SAVELIBS} ${staticlib}"
 
-	AC_SUBST(LIBS)
+		AC_MSG_RESULT([${staticlib}])
+
+		AC_SUBST(LIBS)
+
+		$3
+	else
+		LIBS="${SAVELIBS}"
+
+		AC_MSG_RESULT([cant])
+
+		$4
+	fi
+])
+
+AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
+	dnl Sun Studio uses -lCstd -lCrun, most platforms use -lstdc++
+	DC_DO_STATIC_LINK_LIB([C++ Library (Sun Studio)], [-lCstd -lCrun],, [
+		DC_DO_STATIC_LINK_LIB([C++ Library (UNIX)], [-lstdc++])
+	])
 ])
 
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
