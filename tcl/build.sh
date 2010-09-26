@@ -70,6 +70,7 @@ fi
 		cp -r "${INSTDIR}/lib"/* "${OUTDIR}/lib/"
 		rm -rf "${OUTDIR}/lib/pkgconfig"
 		rm -f "${OUTDIR}"/lib/* >/dev/null 2>/dev/null
+		find "${OUTDIR}" -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
 
 		break
 	done
