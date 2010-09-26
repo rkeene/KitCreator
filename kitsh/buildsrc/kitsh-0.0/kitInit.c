@@ -213,7 +213,7 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 #ifdef HAVE_ACCEPTABLE_DLADDR
 	Dl_info syminfo;
 	int dladdr_ret;
-#endif /*aHAVE_ACCEPTABLE_DLADDR */ 
+#endif /* HAVE_ACCEPTABLE_DLADDR */ 
 
 #ifdef HAVE_READLINK
 	if (Tcl_GetNameOfExecutable() == NULL) {
