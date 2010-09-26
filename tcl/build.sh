@@ -78,7 +78,7 @@ fi
 			rm -f Makefile.new
 
 			${MAKE:-make} install TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
-		)
+		) || exit 1
 
 		mkdir "${OUTDIR}/lib" || exit 1
 		cp -r "${INSTDIR}/lib"/* "${OUTDIR}/lib/"
