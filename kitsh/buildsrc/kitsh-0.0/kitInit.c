@@ -226,9 +226,16 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 }
 
 int TclKit_AppInit(Tcl_Interp *interp) {
+#ifdef KIT_INCLUDES_TK
+#  ifdef _WIN32
+#    ifndef _WIN32_WCE
+	char msgBuf[2049];
+#    endif /* !_WIN32_WCE */
+#  endif /* _WIN32 */
+#endif /* KIT_INCLUDES_TK */
 #ifdef TCLKIT_CAN_SET_ENCODING
 	Tcl_DString encodingName;
-#endif
+#endif /* TCLKIT_CAN_SET_ENCODING */
 
 #ifdef KIT_INCLUDES_ITCL
 	Tcl_StaticPackage(0, "Itcl", Itcl_Init, NULL);
@@ -316,8 +323,13 @@ error:
 #  ifdef _WIN32
 	MessageBeep(MB_ICONEXCLAMATION);
 #    ifndef _WIN32_WCE
-	MessageBox(NULL, Tcl_GetStringResult(interp), "Error in TclKit",
-	           MB_ICONSTOP | MB_OK | MB_TASKMODAL | MB_SETFOREGROUND);
+	snprintf(msgBuf, sizeof(msgBuf),
+		"A critical error has occurred.  Please report this to the Tclkit vendor.\nInterpreter Returned: %s\nError Info: %s",
+		Tcl_GetStringResult(interp),
+		Tcl_GetVar(interp, "errorInfo", TCL_GLOBAL_ONLY));
+
+	MessageBox(NULL, msgBuf, "Error in TclKit",
+		MB_ICONSTOP | MB_OK | MB_TASKMODAL | MB_SETFOREGROUND);
 
 	ExitProcess(1);
 #    endif /* !_WIN32_WCE */
