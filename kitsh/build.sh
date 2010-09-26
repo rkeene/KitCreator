@@ -51,12 +51,11 @@ mkdir 'out' 'inst' || exit 1
 		tclkit installvfs.tcl kit starpack.vfs
 	else
 		## Bootstrap (cannot cross-compile)
-		### Copy installed data for packages
-		mkdir "installed-pkgs"
-		cp -r "${OTHERPKGSDIR}"/*/inst/* 'installed-pkgs/'
-
 		### Call installer
-		${TCLCONFIGDIR}/tclsh installvfs.tcl kit starpack.vfs
+		cp kit runkit
+		echo 'set argv [list kit starpack.vfs]' > setup.tcl
+		echo 'source installvfs.tcl' >> setup.tcl
+		echo | ./runkit
 	fi
 
 ) || exit 1

@@ -1,21 +1,34 @@
 #! /usr/bin/env tclsh
 
-lappend auto_path [file join installed-pkgs lib]
-package require vfs::mk4
-
 if {[llength $argv] != 2} {
 	puts stderr "Usage: installvfs.tcl <kitfile> <vfsdir>"
 
 	exit 1
 }
 
+set kitfile [lindex $argv 0]
+set vfsdir [lindex $argv 1]
+
+if {[catch {
+	package require vfs::mk4
+}]} {
+	catch {
+		load "" vfs
+		load "" Mk4tcl
+
+		source [file join $vfsdir lib/vfs/vfsUtils.tcl]
+		source [file join $vfsdir lib/vfs/vfslib.tcl]
+		source [file join $vfsdir lib/vfs/mk4vfs.tcl]
+	}
+}
+
 proc copy_file {srcfile destfile} {
 	switch -glob -- $srcfile {
-		"*.tcl" {
+		"*.tcl" - "*.txt" {
 			set ifd [open $srcfile r]
 			set ofd [open $destfile w]
 
-			fcopy $ifd $ofd
+			set ret [fcopy $ifd $ofd]
 
 			close $ofd
 			close $ifd
@@ -24,8 +37,6 @@ proc copy_file {srcfile destfile} {
 			file copy -- $srcfile $destfile
 		}
 	}
-
-	puts "Copied $srcfile to $destfile"
 }
 
 proc recursive_copy {srcdir destdir} {
@@ -49,11 +60,8 @@ proc recursive_copy {srcdir destdir} {
 	}
 }
 
-set kitfile [lindex $argv 0]
-set vfsdir [lindex $argv 1]
-
-set handle [vfs::mk4::Mount $kitfile /kit]
+set handle [vfs::mk4::Mount $kitfile /kit -nocommit]
 
 recursive_copy $vfsdir /kit
 
-vfs::mk4::Unmount $handle /kit
+vfs::unmount /kit
