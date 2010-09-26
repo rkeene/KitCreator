@@ -37,15 +37,21 @@ if [ ! -f "${SRC}" ]; then
 
 			tar -cf - "tk${TCLVERS}" | gzip -c > "../${SRC}"
 		)
-	else    
-		wget -O "${SRC}" "${SRCURL}" || exit 1
+	else
+		rm -f "${SRC}.tmp"
+		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
+		mv "${SRC}.tmp" "${SRC}"
 	fi
 fi
 
 (
 	cd 'build' || exit 1
 
-	gzip -dc "../${SRC}" | tar -xf -
+	if [ ! -d '../buildsrc' ]; then
+		gzip -dc "../${SRC}" | tar -xf -
+	else    
+		cp -rp ../buildsrc/* './'
+	fi
 
 	cd "${BUILDDIR}" || exit 1
 	for dir in unix win macosx; do

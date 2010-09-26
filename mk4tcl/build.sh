@@ -32,13 +32,19 @@ export TCL_VERSION
 if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
-	wget -O "${SRC}" "${SRCURL}" || exit 1
+	rm -f "${SRC}.tmp"
+	wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
+	mv "${SRC}.tmp" "${SRC}"
 fi
 
 (
 	cd 'build' || exit 1
 
-	gzip -dc "../${SRC}" | tar -xf -
+	if [ ! -d '../buildsrc' ]; then
+		gzip -dc "../${SRC}" | tar -xf -
+	else    
+		cp -rp ../buildsrc/* './'
+	fi
 
 	# Apply required patches
 	cd "${BUILDDIR}" || exit 1
