@@ -34,8 +34,23 @@ mkdir 'out' 'inst' || exit 1
 	# Cleanup, just incase the incoming directory was not pre-cleaned
 	${MAKE:-make} distclean >/dev/null 2>/dev/null
 
+	# Figure out if zlib compiled
+	ZLIBDIR=$(cd "${OTHERPKGSDIR}/zlib/inst"; pwd)
+	export ZLIBDIR
+	if [ ! -f "${ZLIBDIR}/lib/libz.a" ]; then
+		unset ZLIBDIR
+	fi
+
 	# Compile Kitsh
-	./configure --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+	if [ -z "${ZLIBDIR}" ]; then
+		echo "./configure --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
+
+		./configure --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+	else
+		echo "./configure --with-tcl=\"${TCLCONFIGDIR}\" --with-zlib=\"${ZLIBDIR}\" ${CONFIGUREEXTRA}"
+
+		./configure --with-tcl="${TCLCONFIGDIR}" --with-zlib="${ZLIBDIR}" ${CONFIGUREEXTRA}
+	fi
 	${MAKE:-make} || exit 1
 
 	# Strip the kit of all symbols, if possible

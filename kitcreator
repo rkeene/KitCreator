@@ -25,7 +25,7 @@ export CONFIGUREEXTRA
 
 failedpkgs=""
 buildfailed="0"
-for pkg in tcl tk itcl mk4tcl tclvfs kitsh; do
+for pkg in tcl tk itcl mk4tcl tclvfs zlib kitsh; do
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
 	fi
