@@ -35,11 +35,25 @@ mkdir 'out' 'inst' || exit 1
 	${MAKE:-make} distclean >/dev/null 2>/dev/null
 
 	# Figure out if zlib compiled
-	ZLIBDIR=$(cd "${OTHERPKGSDIR}/zlib/inst"; pwd)
+	ZLIBDIR="$(cd "${OTHERPKGSDIR}/zlib/inst" 2>/dev/null && pwd)"
 	export ZLIBDIR
-	if [ ! -f "${ZLIBDIR}/lib/libz.a" ]; then
+	if [ -z "${ZLIBDIR}" -o ! -f "${ZLIBDIR}/lib/libz.a" ]; then
 		unset ZLIBDIR
 	fi
+
+	# Include extra objects as required
+	## Initialize list of extra objects
+	EXTRA_OBJS=""
+
+	## Tk Resources (needed for Win32 support)
+	TKDIR="$(cd "${OTHERPKGSDIR}/tk/inst" && pwd)"
+	TKRSRC="${TKDIR}/lib/tkbase.res.o"
+	if [ -n "${TKDIR}" -a -f "${TKRSRC}" ]; then
+		EXTRA_OBJS="${EXTRA_OBJS} ${TKRSRC}"
+	fi
+
+	## Export to the environment, to be picked up by the "configure" script
+	export EXTRA_OBJS
 
 	# Compile Kitsh
 	if [ -z "${ZLIBDIR}" ]; then
