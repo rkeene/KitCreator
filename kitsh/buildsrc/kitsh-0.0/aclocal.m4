@@ -82,8 +82,8 @@ AC_DEFUN(DC_DO_TK, [
 	if test -f "${tkconfigsh}"; then
 		. "${tkconfigsh}"
 
-		CFLAGS="${CFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
-		CPPFLAGS="${CPPFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
+		CFLAGS="${CFLAGS} ${TK_INCLUDE_SPEC} -I${tkconfigshdir} -I${TK_SRC_DIR}/generic -I${TK_SRC_DIR}/xlib"
+		CPPFLAGS="${CPPFLAGS} ${TK_INCLUDE_SPEC} -I${tkconfigshdir} -I${TK_SRC_DIR}/generic -I${TK_SRC_DIR}/xlib"
 		LIBS="${LIBS} ${TK_LIBS}"
 	fi
 
