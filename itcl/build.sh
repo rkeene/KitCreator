@@ -35,7 +35,7 @@ fi
 	gzip -dc "../${SRC}" | tar -xf -
 
 	cd "${BUILDDIR}" || exit 1
-	./configure --enable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+	./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
 	"${MAKE:-make}" || exit 1
 
@@ -43,6 +43,10 @@ fi
 
 	mkdir "${OUTDIR}/lib" || exit 1
 	cp -r "${INSTDIR}/lib"/itcl*/ "${OUTDIR}/lib/"
+
+	strip -g "${OUTDIR}"/lib/itcl*/*.so >/dev/null 2>/dev/null
+
+	exit 0
 ) || exit 1
 
 exit 0

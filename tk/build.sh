@@ -39,7 +39,7 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
-		./configure --enable-shared --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+		./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
 		"${MAKE:-make}" || continue
 
@@ -56,8 +56,12 @@ fi
 		cp -r "${INSTDIR}/lib"/tk*/ "${OUTDIR}/lib/"
 		cp -r "${INSTDIR}/lib"/libtk* "${OUTDIR}/lib"/tk*/
 
+		strip -g "${OUTDIR}"/lib/tk*/*.so >/dev/null 2>/dev/null
+
 		break
 	done
+
+	exit 0
 ) || exit 1
 
 exit 0
