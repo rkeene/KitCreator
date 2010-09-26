@@ -60,7 +60,17 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
-		./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+		if [ "${dir}" != "win" ]; then
+			# Statically link Tk to Tclkit if we are compiling for
+			# Windows
+			STATICTK="1"
+		fi
+
+		if [ "${STATICTK}" = "1" ]; then
+			./configure --disable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+		else
+			./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+		fi
 
 		${MAKE:-make} || continue
 
@@ -79,6 +89,7 @@ fi
 		rm -rf "${OUTDIR}/lib"/tk*/demos
 
 		strip -g "${OUTDIR}"/lib/tk*/*.so >/dev/null 2>/dev/null
+		find "${OUTDIR}" -type f -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
 
 		break
 	done
