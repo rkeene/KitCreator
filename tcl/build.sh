@@ -64,7 +64,21 @@ fi
 
 		${MAKE:-make} || continue
 
-		${MAKE:-make} install
+		${MAKE:-make} install || (
+			# Work with Tcl 8.6.x's TCLSH_NATIVE solution for
+			# cross-compile installs
+
+			${MAKE:-make} install TCLSH_NATIVE="${TCLKIT:-tclkit}"
+		) || (
+			# Make install can fail if cross-compiling using Tcl 8.5.x
+			# because the Makefile calls "$(TCLSH)".  We can't simply
+			# redefine TCLSH because it also uses TCLSH as a build target
+			sed 's@^$(TCLSH)@blah@' Makefile > Makefile.new
+			cat Makefile.new > Makefile
+			rm -f Makefile.new
+
+			${MAKE:-make} install TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
+		)
 
 		mkdir "${OUTDIR}/lib" || exit 1
 		cp -r "${INSTDIR}/lib"/* "${OUTDIR}/lib/"

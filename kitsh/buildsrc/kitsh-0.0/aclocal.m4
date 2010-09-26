@@ -126,13 +126,14 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
 		libdir="../../../${proj}/inst"
-		libfiles="`find "${libdir}" -name '*.a' | grep -v 'stub' | tr "\n" ' '`"
+		libfiles="`find "${libdir}" -name '*.a' | tr "\n" ' '`"
+		libfilesnostub="`find "${libdir}" -name '*.a' | grep -v 'stub' | tr "\n" ' '`"
 
 		ARCHS="${ARCHS} ${libfiles}"
 
 		AC_MSG_RESULT([${libfiles}])
 
-		if test "${libfiles}" != ""; then
+		if test "${libfilesnostub}" != ""; then
 			if test "${proj}" = "mk4tcl"; then
 				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
 				DC_DO_STATIC_LINK_LIBCXX
