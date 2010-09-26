@@ -40,6 +40,7 @@ LIBS="${SAVE_LIBS}"
 
 dnl Find zlib
 AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
+	CPPFLAGS="${CPPFLAGS} -I${with_zlib}/include -I${with_zlib}"
 	CFLAGS="${CFLAGS} -I${with_zlib}/include -I${with_zlib}"
 	LDFLAGS="${LDFLAGS} -L${with_zlib}/lib -L${with_zlib}"
 ])
@@ -49,6 +50,38 @@ DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
 			AC_MSG_WARN([Couldn't find inflate (normally in zlib)!])
 		])
 	])
+])
+
+dnl Determine which storage mechanism to use
+AC_MSG_CHECKING([which Tclkit Storage mechanism to use])
+AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4}], [Use mk4 for storage (default: auto)]), [
+	case "$enableval" in
+		mk4)
+			AC_MSG_RESULT([mk4])
+			AC_DEFINE([KIT_STORAGE_MK4], [1], [Define if you are going to use Metakit4 for kit storage])
+			;;
+		zip)
+			AC_MSG_RESULT([zip])
+			AC_DEFINE([KIT_STORAGE_ZIP], [1], [Define if you are going to use ZIP for kit storage])
+			;;
+		yes)
+			# If they just want to enable kit storage, but nothing specifically, do nothing
+			AC_MSG_RESULT([auto])
+			;;
+		auto)
+			# Auto is how it works by default
+			AC_MSG_RESULT([auto])
+			;;
+		no)
+			# You can't disable kit storage
+			AC_MSG_RESULT([fail])
+			AC_MSG_ERROR([Kit Storage cannot be disabled])
+			;;
+		*)
+			AC_MSG_RESULT([fail])
+			AC_MSG_ERROR([Unknown kit storage type: $enableval])
+			;;
+	esac
 ])
 
 dnl Produce output
