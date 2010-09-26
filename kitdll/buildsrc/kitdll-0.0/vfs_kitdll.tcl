@@ -16,16 +16,6 @@ proc ::vfs::kitdll::Unmount {local} {
 }
 
 # Implementation
-
-## Filesystem Data
-proc ::vfs::kitdll::data::getData {hashkey file {start 0} {end "end"}} {
-	if {![info exists ::vfs::kitdll::data($file)]} {
-		return -code error "Invalid operation"
-	}
-
-	return [string range $::vfs::kitdll::data($file) $start $end]
-}
-
 ## VFS and Chan I/O
 ### Dispatchers
 proc ::vfs::kitdll::vfshandler {hashkey subcmd args} {
