@@ -636,9 +636,6 @@ if {[string range $v 0 8] == "get_view "} {
 # XXX: ?!?!?: TODO: FIX
 set v 1
 }
-	    catch {
-		set v [zlib decompress $v]
-	    }
 	    if {$sized} {
 		lappend r [string length $v]
 	    } else {
@@ -1128,7 +1125,7 @@ namespace eval mkcl_vfs {
     variable compress 1     ;# HACK - needs to be part of "Super-Block"
     variable flush    5000  ;# Auto-Commit frequency
     variable direct   0	    ;# read through a memchan, or from Mk4tcl if zero
-    variable zstreamed 0    ;# decompress on the fly (needs zlib 1.1)
+    variable zstreamed 1    ;# decompress on the fly (needs zlib 1.1)
 
     namespace eval v {
 	variable seq      0
