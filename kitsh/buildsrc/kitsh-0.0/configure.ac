@@ -41,6 +41,9 @@ dnl Check for the ability to get the current system encoding
 AC_CHECK_FUNCS(Tcl_GetEncodingNameFromEnvironment Tcl_SetSystemEncoding)
 LIBS="${SAVE_LIBS}"
 
+dnl Check for optional system calls
+AC_CHECK_FUNCS(readlink)
+
 dnl Find zlib
 AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
 	CPPFLAGS="${CPPFLAGS} -I${with_zlib}/include -I${with_zlib}"

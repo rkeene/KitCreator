@@ -161,6 +161,28 @@ static const char initScript[] =
    Hack to get around Tcl bug 1224888.
 */
 void SetExecName(Tcl_Interp *interp) {
+#if defined(HAVE_READLINK)
+	if (tclExecutableName == NULL) {
+		ssize_t readlink_ret;
+		char procpath[PATH_MAX + 1];
+		char exe_buf[PATH_MAX + 1];
+		int snprintf_ret;
+
+		snprintf_ret = snprintf(procpath, sizeof(procpath), "/proc/%lu/exe", (unsigned long) getpid());
+		if (snprintf_ret < sizeof(procpath)) {
+			readlink_ret = readlink(procpath, exe_buf, sizeof(exe_buf) - 1);
+
+			if (readlink_ret > 0 && readlink_ret < (sizeof(exe_buf) - 1)) {
+				exe_buf[readlink_ret] = '\0';
+
+				tclExecutableName = strdup(exe_buf);
+
+				return;
+			}
+		}
+	}
+#endif
+
 	if (tclExecutableName == NULL) {
 		int len = 0;
 		Tcl_Obj *execNameObj;
@@ -170,7 +192,11 @@ void SetExecName(Tcl_Interp *interp) {
 		execNameObj = Tcl_FSJoinToPath(Tcl_FSGetCwd(interp), 1, lobjv);
 
 		tclExecutableName = strdup(Tcl_GetStringFromObj(execNameObj, &len));
+
+		return;
 	}
+
+	return;
 }
 
 int TclKit_AppInit(Tcl_Interp *interp) {
