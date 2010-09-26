@@ -45,7 +45,7 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 
 	SAVELIBS="${LIBS}"
 	staticlibcxx=""
-	for trylink in "-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic" "-Wl,-Bstatic -lCstd -lCrun -Wl,-Bdynamic" "-lstdc++" "-lCstd -lCrun"; do
+	for trylink in "-Wl,-Bstatic -lCstd -lCrun -Wl,-Bdynamic" "-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic" "-lCstd -lCrun" "-lstdc++"; do
 		LIBS="${SAVELIBS} ${trylink}"
 
 		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []), [
