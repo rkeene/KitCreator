@@ -32,7 +32,7 @@ AC_DEFUN(DC_DO_TCL, [
 	fi
 
 	if test -f "${tclconfigsh}"; then
-		source "${tclconfigsh}"
+		. "${tclconfigsh}"
 
 		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
@@ -82,7 +82,7 @@ AC_DEFUN(DC_DO_TK, [
 	fi
 
 	if test -f "${tkconfigsh}"; then
-		source "${tkconfigsh}"
+		. "${tkconfigsh}"
 
 		CFLAGS="${CFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
 		CPPFLAGS="${CPPFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
@@ -103,7 +103,11 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 
 	SAVELIBS="${LIBS}"
 	staticlibcxx=""
-	for trylink in "-Wl,-Bstatic -lCstd -lCrun -Wl,-Bdynamic" "-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic" "-lCstd -lCrun" "-lstdc++"; do
+	dnl HP/UX uses -Wl,-a,archive -lstdc++ -Wl,-a,shared_archive
+	dnl Linux and Solaris us -Wl,-Bstatic ... -Wl,-Bdynamic
+	dnl
+	dnl Sun Studio uses -lCstd -lCrun, most platforms use -lstdc++
+	for trylink in "-Wl,-a,archive -lstdc++ -Wl,-a,shared_archive" "-Wl,-Bstatic -lCstd -lCrun -Wl,-Bdynamic" "-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic" "-lCstd -lCrun" "-lstdc++"; do
 		LIBS="${SAVELIBS} ${trylink}"
 
 		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []), [
@@ -173,4 +177,27 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 			CFLAGS="${CFLAGS} -mms-bitfields"
 			;;
 	esac
+])
+
+AC_DEFUN(DC_STATIC_LIBGCC, [
+	AC_MSG_CHECKING([how to link statically against libgcc])
+
+	SAVELDFLAGS="${LDFLAGS}"
+	staticlibgcc=""
+	for trylink in "-static-libgcc"; do
+		LDFLAGS="${SAVELDFLAGS} ${trylink}"
+		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []), [
+			staticlibgcc="${trylink}"
+
+			break
+		])
+	done
+	if test -n "${staticlibgcc}"; then
+		LDFLAGS="${SAVELDFLAGS} ${staticlibgcc}"
+		AC_MSG_RESULT([${staticlibgcc}])
+	else
+		LDFLAGS="${SAVELDFLAGS}"
+		AC_MSG_RESULT([not needed])
+	fi
+
 ])

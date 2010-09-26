@@ -12,6 +12,9 @@ dnl Find the appropriate libraries to link to
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
 AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl)!]) ])
 
+dnl Figure out how to statically link to libgcc, if needed
+DC_STATIC_LIBGCC
+
 dnl Find the appropriate Tcl headers and libraries
 DC_DO_TCL
 
