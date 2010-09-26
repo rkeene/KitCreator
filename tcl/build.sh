@@ -94,6 +94,15 @@ fi
 			rm -f Makefile.new
 
 			${MAKE:-make} install TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
+		) || (
+			# Make install can fail if cross-compiling using Tcl 8.5.9
+			# because the Makefile calls "${TCL_EXE}".  We can't simply
+			# redefine TCL_EXE because it also uses TCL_EXE as a build target
+			sed 's@^${TCL_EXE}@blah@' Makefile > Makefile.new
+			cat Makefile.new > Makefile
+			rm -f Makefile.new
+
+			${MAKE:-make} install TCL_EXE="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
 		) || exit 1
 
 		mkdir "${OUTDIR}/lib" || exit 1
