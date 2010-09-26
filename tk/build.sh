@@ -39,14 +39,22 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
-		./configure --disable-shared --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+		./configure --enable-shared --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
 		"${MAKE:-make}" || continue
 
 		"${MAKE:-make}" install
 
+		# Update pkgIndex to load libtk from the local directory rather
+		# than the parent directory
+		for pkgIndex in "${INSTDIR}"/lib/tk*/pkgIndex.tcl; do
+			sed 's@ \.\. @ @g' "${pkgIndex}" > "${pkgIndex}.new"
+			mv "${pkgIndex}.new" "${pkgIndex}"
+		done
+
 		mkdir "${OUTDIR}/lib" || exit 1
 		cp -r "${INSTDIR}/lib"/tk*/ "${OUTDIR}/lib/"
+		cp -r "${INSTDIR}/lib"/libtk* "${OUTDIR}/lib"/tk*/
 
 		break
 	done
