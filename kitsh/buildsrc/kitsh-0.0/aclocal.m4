@@ -161,7 +161,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 				DC_DO_TK
 				AC_DEFINE(KIT_INCLUDES_TK, [1], [Specify this if we link statically to Tk])
 
-				if test "$host_os" = "mingw32msvc"; then
+				if test "$host_os" = "mingw32msvc" -o "$host_os" = "mingw32"; then
 					AC_DEFINE(KITSH_NEED_WINMAIN, [1], [Define if you need WinMain (Windows)])
 					CFLAGS="${CFLAGS} -mwindows"
 				fi
@@ -179,7 +179,7 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 	AC_MSG_RESULT($host_os)
   
 	case $host_os in
-		mingw32msvc*)
+		mingw32*)
 			CFLAGS="${CFLAGS} -mno-cygwin -mms-bitfields"
 
 			dnl If we are building for Win32, we need to define "BUILD_tcl" so that
