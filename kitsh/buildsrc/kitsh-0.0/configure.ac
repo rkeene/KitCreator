@@ -23,5 +23,11 @@ AC_SEARCH_LIBS(inflate, z zlib,, [ AC_MSG_WARN([Couldn't find inflate (normally 
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
 AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl)!]) ])
 
+dnl Determine if we have "Tcl_SetStartupScript" (8.6.x) or "TclSetStartupScriptPath" (8.4.x)
+SAVE_LIBS="${LIBS}"
+LIBS="${ARCHS} ${LIBS}"
+AC_CHECK_FUNCS(Tcl_SetStartupScript TclSetStartupScriptPath)
+LIBS="${SAVE_LIBS}"
+
 dnl Produce output
 AC_OUTPUT(Makefile)

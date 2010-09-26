@@ -178,8 +178,16 @@ TclKit_AppInit(Tcl_Interp *interp)
 
       /* messy because TclSetStartupScriptPath is called slightly too late */
     if (Tcl_Eval(interp, initScript) == TCL_OK) {
-        Tcl_Obj* path = TclGetStartupScriptPath();
+        Tcl_Obj* path;
+#ifdef HAVE_TCLSETSTARTUPSCRIPTPATH
+        path = TclGetStartupScriptPath();
 	TclSetStartupScriptPath(Tcl_GetObjResult(interp));
+#else
+#  ifdef HAVE_TCL_SETSTARTUPSCRIPT
+        path = Tcl_GetStartupScriptPath(NULL);
+	TclSetStartupScriptPath(Tcl_GetObjResult(interp));
+#  endif
+#endif
 	if (path == NULL)
 	  Tcl_Eval(interp, "incr argc -1; set argv [lrange $argv 1 end]");
     }
