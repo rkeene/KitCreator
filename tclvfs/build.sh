@@ -17,10 +17,17 @@ SRCURL="http://sourceforge.net/projects/tclvfs/files/tclvfs/tclvfs-${TCLVFSVERS}
 BUILDDIR="$(pwd)/build/tclvfs-${TCLVFSVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export TCLVFSVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
+PATCHDIR="$(pwd)/patches"
+export TCLVFSVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHDIR
 
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
+
+TCL_VERSION="unknown"
+if [ -f "${TCLCONFIGDIR}/tclConfig.sh" ]; then
+	source "${TCLCONFIGDIR}/tclConfig.sh"
+fi
+export TCL_VERSION
 
 if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
@@ -34,6 +41,16 @@ fi
 	gzip -dc "../${SRC}" | tar -xf -
 
 	cd "${BUILDDIR}" || exit 1
+
+        # Apply required patches
+	for patch in "${PATCHDIR}/all"/tclvfs-${TCLVFSVERS}-*.diff "${PATCHDIR}/${TCL_VERSION}"/tclvfs-${TCLVFSVERS}-*.diff; do
+		if [ ! -f "${patch}" ]; then
+			continue
+		fi
+
+		echo "Applying: ${patch}"
+		patch -p1 < "${patch}"
+	done                                                                                                                               
 
 	cp generic/vfs.c .
 
