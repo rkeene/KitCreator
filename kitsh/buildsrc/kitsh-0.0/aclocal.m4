@@ -43,15 +43,26 @@ AC_DEFUN(DC_DO_TCL, [
 AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 	AC_MSG_CHECKING([for how to statically link to libstdc++])
 
-	STATICLIBCXX="-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic"
-	LIBS="${LIBS} ${STATICLIBCXX}"
+	SAVELIBS="${LIBS}"
+	staticlibcxx=""
+	for trylink in "-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic" "-Wl,-Bstatic -lCstd -lCrun -Wl,-Bdynamic" "-lstdc++" "-lCstd -lCrun"; do
+		LIBS="${SAVELIBS} ${trylink}"
+
+		AC_LINK_IFELSE(, [
+			staticlibcxx="${trylink}"
+
+			break
+		])
+	done
+	LIBS="${SAVELIBS} ${staticlibcxx}"
+
+	AC_MSG_RESULT([${staticlibcxx}])
 
 	AC_SUBST(LIBS)
-
-	AC_MSG_RESULT([${STATICLIBCXX}])
 ])
 
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
+
 	for proj in mk4tcl tcl tclvfs; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
@@ -61,6 +72,16 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		ARCHS="${ARCHS} ${libfiles}"
 
 		AC_MSG_RESULT([${libfiles}])
+
+		if test "${libfiles}" != ""; then
+			upperproj=`echo "${proj}" | dd conv=ucase 2>/dev/null`
+
+			AC_DEFINE(KIT_INCLUDES_$upperproj)
+
+			if test "${proj}" = "mk4tcl"; then
+				DC_DO_STATIC_LINK_LIBCXX
+			fi
+		fi
 	done
 
 	AC_SUBST(ARCHS)

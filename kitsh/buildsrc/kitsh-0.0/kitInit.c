@@ -36,7 +36,10 @@
 #ifdef KIT_INCLUDES_ITCL
 Tcl_AppInitProc	Itcl_Init;
 #endif
-Tcl_AppInitProc	Mk4tcl_Init, Vfs_Init, Rechan_Init, Zlib_Init;
+#ifdef KIT_INCLUDES_MK4TCL
+Tcl_AppInitProc	Mk4tcl_Init
+#endif
+Tcl_AppInitProc Vfs_Init, Rechan_Init, Zlib_Init;
 #if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
 Tcl_AppInitProc	Pwb_Init;
 #endif
@@ -75,7 +78,7 @@ static char *preInitCmd =
 #endif
 "proc tclKitInit {} {\n"
     "rename tclKitInit {}\n"
-    "load {} Mk4tcl\n"
+    "catch { load {} Mk4tcl }\n"
     "mk::file open exe [info nameofexecutable] -readonly\n"
     "set n [mk::select exe.dirs!0.files name boot.tcl]\n"
     "if {$n != \"\"} {\n"
@@ -133,7 +136,9 @@ TclKit_AppInit(Tcl_Interp *interp)
 #ifdef KIT_INCLUDES_ITCL
     Tcl_StaticPackage(0, "Itcl", Itcl_Init, NULL);
 #endif 
+#ifdef KIT_INCLUDES_MK4TCL
     Tcl_StaticPackage(0, "Mk4tcl", Mk4tcl_Init, NULL);
+#endif
 #if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
     Tcl_StaticPackage(0, "pwb", Pwb_Init, NULL);
 #endif 
