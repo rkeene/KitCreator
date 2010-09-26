@@ -34,6 +34,8 @@ done
 
 # We're all done if we're in clean or distclean mode
 if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
+	rm -f tclkit-*
+
 	exit 0
 fi
 
@@ -52,10 +54,6 @@ fi
 failedpkgs=""
 buildfailed="0"
 for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
-	if [ "${mode}" = "distclean" ]; then
-		rm -rf "${pkg}/src"
-	fi
-
 	echo -n "Building ${pkg} ..."
 
 	failed="0"
@@ -83,12 +81,6 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 		buildfailed="1"
 	fi
 done
-
-if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
-	rm -f tclkit-*
-
-	exit 0
-fi
 
 if [ -n "${failedpkgs}" ]; then
 	echo "Failed to build:${failedpkgs}"
