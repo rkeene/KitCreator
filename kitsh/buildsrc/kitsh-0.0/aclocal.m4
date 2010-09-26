@@ -93,6 +93,10 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 	case $host_os in
 		mingw32msvc*)
 			CFLAGS="${CFLAGS} -mno-cygwin -mms-bitfields"
+
+			dnl If we are building for Win32, we need to define "BUILD_tcl" so that
+			dnl TCL_STORAGE_CLASS gets defined as DLLEXPORT, to make static linking
+			dnl work
 			AC_DEFINE(BUILD_tcl, [1], [Define if you need to pretend to be building Tcl (Windows)])
 			;;
 		cygwin*)
