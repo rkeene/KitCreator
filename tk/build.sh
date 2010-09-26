@@ -82,6 +82,17 @@ fi
 
 		${MAKE:-make} install || continue
 
+		# Update to include resources, if found
+		if [ "${dir}" = "win" ]; then
+			echo ' *** Creating tkbase.res.o to support Windows build'
+			echo "\"${RC:-windres}\" -o tkbase.res.o  --define STATIC_BUILD --include \"./../generic\" --include \"${TCLCONFIGDIR}/../generic\" --include \"${TCLCONFIGDIR}\" --include \"./rc\" \"./rc/tk_base.rc\""
+			"${RC:-windres}" -o tkbase.res.o  --define STATIC_BUILD --include "./../generic" --include "${TCLCONFIGDIR}/../generic" --include "${TCLCONFIGDIR}" --include "./rc" "./rc/tk_base.rc"
+
+			if [ -f "tkbase.res.o" ]; then
+				cp "tkbase.res.o" "${INSTDIR}/lib/"
+			fi
+		fi
+
 		# Update pkgIndex to load libtk from the local directory rather
 		# than the parent directory
 		for pkgIndex in "${INSTDIR}"/lib/tk*/pkgIndex.tcl; do
