@@ -48,6 +48,8 @@ fi
 	"${MAKE:-make}" || exit 1
 
 	"${MAKE:-make}" install
+
+	exit 0
 ) || exit 1
 
 exit 0
