@@ -54,9 +54,16 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
-	for dir in unix win macosx __fail__; do
+	for dir in unix win macosx win64 __fail__; do
 		if [ "${dir}" = "__fail__" ]; then
 			exit 1
+		fi
+
+		# Windows/amd64 workarounds
+		win64="0"
+		if [ "${dir}" = "win64" ]; then
+			win64="1"
+			dir="win"
 		fi
 
 		# Remove previous directory's "tkConfig.sh" if found
@@ -68,6 +75,13 @@ fi
 			# Statically link Tk to Tclkit if we are compiling for
 			# Windows
 			STATICTK="1"
+
+			if [ "${win64}" = "1" ]; then
+				# Mingw32 for AMD64 requires this, apparently
+				CPPFLAGS="${CPPFLAGS} -D_WIN32_IE=0x0501"
+				CFLAGS="${CFLAGS} -D_WIN32_IE=0x0501"
+				export CPPFLAGS CFLAGS
+			fi
 		fi
 
 		if [ "${STATICTK}" = "1" ]; then
