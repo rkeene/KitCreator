@@ -173,6 +173,9 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			if test "${proj}" = "tk"; then
 				DC_DO_TK
 				AC_DEFINE(KIT_INCLUDES_TK, [1], [Specify this if we link statically to Tk])
+				if test -n "${TK_VERSION}"; then
+					AC_DEFINE_UNQUOTED(KIT_TK_VERSION, "${TK_VERSION}${TK_PATCH_LEVEL}", [Specify the version of Tk])
+				fi
 
 				if test "$host_os" = "mingw32msvc" -o "$host_os" = "mingw32"; then
 					AC_DEFINE(KITSH_NEED_WINMAIN, [1], [Define if you need WinMain (Windows)])

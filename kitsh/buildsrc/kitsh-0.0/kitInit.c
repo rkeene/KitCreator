@@ -145,6 +145,14 @@ static char *preInitCmd =
 		"close $f\n"
 	"}\n"
 	"uplevel #0 $s\n"
+#if defined(KIT_INCLUDES_TK) && defined(KIT_TK_VERSION)
+#  ifndef _WIN32
+	"package ifneeded Tk " KIT_TK_VERSION " {\n"
+		"load {} Tk\n"
+		"package provide Tk " KIT_TK_VERSION "\n"
+	"}\n"
+#  endif
+#endif
 #ifdef _WIN32
 	"catch {load {} dde}\n"
 	"catch {load {} registry}\n"
