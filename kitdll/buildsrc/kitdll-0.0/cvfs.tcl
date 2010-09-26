@@ -20,10 +20,8 @@ proc ::vfs::kitdll::Unmount {local} {
 ## Filesystem Data
 namespace eval ::vfs::kitdll::data {}
 set ::vfs::kitdll::data(joe) "Test\n"
-set ::vfs::kitdll::data(bob) "joe"
 set {::vfs::kitdll::metadata()} [list type directory ino 0 mode 0555 nlink 2 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
 set ::vfs::kitdll::metadata(joe) [list type file ino 1 mode 0444 nlink 1 uid 0 gid 0 size 5 atime 0 mtime 0 ctime 0]
-set ::vfs::kitdll::metadata(bob) [list type link ino 4 mode 0444 nlink 1 uid 0 gid 0 size 5 atime 0 mtime 0 ctime 0]
 set ::vfs::kitdll::metadata(sub) [list type directory ino 2 mode 0555 nlink 1 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
 set ::vfs::kitdll::metadata(sub/sub2) [list type directory ino 3 mode 0555 nlink 1 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
 
@@ -62,13 +60,8 @@ proc ::vfs::kitdll::data::getChildren {hashkey directory} {
 	return $newchildren
 }
 
-## VFS
-### Helpers
-namespace eval ::vfs::kitdll::vfsdata {}
-set ::vfs::kitdll::vfsdata::fileidx -1
-
-### Implemented
-#### Single Handler
+## VFS and Chan I/O
+### Dispatchers
 proc ::vfs::kitdll::vfshandler {hashkey subcmd args} {
 	set cmd $args
 	set cmd [linsert $cmd 0 "::vfs::kitdll::vfsop_${subcmd}" $hashkey]
@@ -83,8 +76,64 @@ proc ::vfs::kitdll::chanhandler {hashkey subcmd args} {
 	return [eval $cmd]
 }
 
-#### Actual handlers
-##### Finished
+### Actual handlers
+#### Channel operation handlers
+proc ::vfs::kitdll::chanop_initialize {hashkey chanId mode} {
+	return [list initialize finalize watch read seek]
+}
+
+proc ::vfs::kitdll::chanop_finalize {hashkey chanId} {
+	unset -nocomplain ::vfs::kitdll::chandata([list $hashkey $chanId])
+
+	return
+}
+
+proc ::vfs::kitdll::chanop_watch {hashkey chanId eventSpec} {
+	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
+
+	set chaninfo(watching) $eventSpec
+
+	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
+
+	if {[lsearch -exact $chaninfo(watching) "read"] != -1} {
+		after 0 [list catch "chan postevent $chanId [list {read}]"]
+	}
+
+	return
+}
+
+proc ::vfs::kitdll::chanop_read {hashkey chanId bytes} {
+	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
+
+	set pos $chaninfo(pos)
+	set len $chaninfo(len)
+
+	if {[lsearch -exact $chaninfo(watching) "read"] != -1} {
+		after 0 [list catch "chan postevent $chanId [list {read}]"]
+	}
+
+	if {$pos == $len} {
+		return ""
+	}
+
+	set end [expr {$pos + $bytes}]
+	if {$end > $len} {
+		set end $len
+	}
+
+	set data [::vfs::kitdll::data::getData $hashkey $chaninfo(file) $pos $end]
+
+	set dataLen [string length $data]
+	incr pos $dataLen
+
+	set chaninfo(pos) $pos
+
+	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
+
+	return $data
+}
+
+#### VFS operation handlers
 proc ::vfs::kitdll::vfsop_stat {hashkey root relative actualpath} {
 	catch {
 		set ret [::vfs::kitdll::data::getMetadata $hashkey $relative]
@@ -110,14 +159,15 @@ proc ::vfs::kitdll::vfsop_access {hashkey root relative actualpath mode} {
 proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pattern types} {
 	set ret [list]
 
-	if {$pattern == ""} {
-		catch {
-			set test [::vfs::kitdll::data::getMetadata $hashkey $relative]
-		}
+	catch {
+		array set metadata [::vfs::kitdll::data::getMetadata $hashkey $relative]
+	}
 
-		if {![info exists test]} {
-			set children [list]
-		}
+	if {![info exists metadata]} {
+		return [list]
+	}
+
+	if {$pattern == ""} {
 
 		set children [list $relative]
 	} else {
@@ -207,61 +257,6 @@ proc ::vfs::kitdll::vfsop_fileattributes {hashkey root relative actualpath {inde
 	return -code error "Invalid index"
 }
 
-proc ::vfs::kitdll::chanop_initialize {hashkey chanId mode} {
-	return [list initialize finalize watch read seek]
-}
-
-proc ::vfs::kitdll::chanop_finalize {hashkey chanId} {
-	unset -nocomplain ::vfs::kitdll::chandata([list $hashkey $chanId])
-
-	return
-}
-
-proc ::vfs::kitdll::chanop_watch {hashkey chanId eventSpec} {
-	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
-
-	set chaninfo(watching) $eventSpec
-
-	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
-
-	if {[lsearch -exact $chaninfo(watching) "read"] != -1} {
-		after 0 [list catch "chan postevent $chanId [list {read}]"]
-	}
-
-	return
-}
-
-proc ::vfs::kitdll::chanop_read {hashkey chanId bytes} {
-	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
-
-	set pos $chaninfo(pos)
-	set len $chaninfo(len)
-
-	if {[lsearch -exact $chaninfo(watching) "read"] != -1} {
-		after 0 [list catch "chan postevent $chanId [list {read}]"]
-	}
-
-	if {$pos == $len} {
-		return ""
-	}
-
-	set end [expr {$pos + $bytes}]
-	if {$end > $len} {
-		set end $len
-	}
-
-	set data [::vfs::kitdll::data::getData $hashkey $chaninfo(file) $pos $end]
-
-	set dataLen [string length $data]
-	incr pos $dataLen
-
-	set chaninfo(pos) $pos
-
-	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
-
-	return $data
-}
-
 proc ::vfs::kitdll::vfsop_open {hashkey root relative actualpath mode permissions} {
 	if {$mode != "" && $mode != "r"} {
 		vfs::filesystem posixerror $::vfs::posix(EROFS)
@@ -304,7 +299,7 @@ proc ::vfs::kitdll::vfsop_open {hashkey root relative actualpath mode permission
 	return -code error "No way to generate a channel, need either Tcl 8.5+, \"rechan\""
 }
 
-### No-Ops since we are a readonly filesystem
+##### No-Ops since we are a readonly filesystem
 proc ::vfs::kitdll::vfsop_createdirectory {args} {
 	vfs::filesystem posixerror $::vfs::posix(EROFS)
 }
