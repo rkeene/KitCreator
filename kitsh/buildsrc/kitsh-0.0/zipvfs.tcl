@@ -239,44 +239,6 @@ proc zip::DosTime {date time} {
     # The pre-VFS environment will not have access to "clock", so don't even
     # bother
     return 0
-
-    set time [u_short $time]
-    set date [u_short $date]
-
-    # time = fedcba9876543210
-    #        HHHHHmmmmmmSSSSS (sec/2 actually)
-
-    # data = fedcba9876543210
-    #        yyyyyyyMMMMddddd
-
-    set sec  [expr { ($time & 0x1F) * 2 }]
-    set min  [expr { ($time >> 5) & 0x3F }]
-    set hour [expr { ($time >> 11) & 0x1F }]
-
-    set mday [expr { $date & 0x1F }]
-    set mon  [expr { (($date >> 5) & 0xF) }]
-    set year [expr { (($date >> 9) & 0xFF) + 1980 }]
-
-    # Fix up bad date/time data, no need to fail
-    if {$sec  > 59} {set sec  59}
-    if {$min  > 59} {set sec  59}
-    if {$hour > 23} {set hour 23}
-    if {$mday < 1}  {set mday 1}
-    if {$mday > 35} {set mday 35}
-    if {$mon  < 1}  {set mon  1}
-    if {$mon > 12}  {set mon  12}
-
-    set res 0
-    while {$mday > 1 && [catch {
-	set dt [format {%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d} \
-		    $year $mon $mday $hour $min $sec]
-	set res [clock scan $dt -gmt 1]
-    }]} {
-	# Only mday can be wrong, at end of month
-	incr mday -1
-    }
-
-    return $res
 }
 
 

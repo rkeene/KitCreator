@@ -13,7 +13,7 @@ diff -uNr tclvfs-20080503.orig//library/zipvfs.tcl tclvfs-20080503-1rsk//library
 -    if {$mon  < 1}  {incr mon}
 -    while {$mon > 12} {incr hour -12}
 +    if {$sec  > 59} {set sec  59}
-+    if {$min  > 59} {set sec  59}
++    if {$min  > 59} {set min  59}
 +    if {$hour > 23} {set hour 23}
 +    if {$mday < 1}  {set mday 1}
 +    if {$mday > 31} {set mday 31}
