@@ -1,0 +1,92 @@
+#! /bin/bash
+
+VERSIONS="8.4.19 8.5.9 cvs_HEAD"
+
+for x in 1 2 3 __fail__; do
+	if [ "${x}" = "${fail}" ]; then
+		echo 'Unable to find KitCreator, aborting.' >&2
+
+		exit 1
+	fi
+
+	if [ -x kitcreator ]; then
+		break
+	fi
+
+	cd ..
+done
+
+ROOTDIR="$(pwd)"
+TESTDIR="${ROOTDIR}/build/test"
+export ROOTDIR TESTDIR
+
+rm -f "${TESTDIR}"/tclkit-*
+
+failed=""
+for kit in normal threaded min static win32 arm; do
+	kitcreator="./kitcreator"
+	args=""
+	runnable="1"
+
+	case "${kit}" in
+		normal)
+			true
+			;;
+		threaded)
+			args="--enable-threads"
+			;;
+		min)
+			kitcreator="./build/make-minkit"
+			;;
+		static)
+			kitcreator="./build/make-minkit-static"
+			;;
+		win32)
+			kitcreator="./build/make-kit-win32"
+			runnable="0"
+			;;
+		arm)
+			kitcreator="./build/make-kit-arm"
+			runnable="0"
+			;;
+	esac
+
+
+	for version in ${VERSIONS}; do
+		createdkit="tclkit-${version}"
+		outputname="${TESTDIR}/tclkit-${version}-${kit}"
+
+		"${kitcreator}" "${version}" ${args}
+
+		if [ ! -f "${createdkit}" ]; then
+			echo "Failed to create kit ${version}/${kit}" >&2
+
+			failed="${failed} ${version}/${kit}-build"
+
+			continue
+		fi
+
+		mv "${createdkit}" "${outputname}"
+
+		if [ "${runnable}" != "1" ]; then
+			continue
+		fi
+
+
+		scriptid=0
+		for testscp in 'exit 0' 'if {[::tcl::pkgconfig get 64bit] == 0} { exit 0 } else { exit 1}'; do
+			scriptid=$[${scriptid} + 1]
+			if ! echo "${testscp}" | "${outputname}" >/dev/null 2>/dev/null; then
+				echo "Script failed: ${testscp} on ${version}/${kit}" >&2
+
+				failed="${failed} ${version}/${kit}-test-${scriptid}"
+
+				continue
+			fi
+		done
+	done
+done
+
+if [ -n "${failed}" ]; then
+	echo "Failed: ${failed}"
+fi

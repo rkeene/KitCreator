@@ -8,10 +8,4 @@ RANLIB=mipsel-linux-uclibc-ranlib
 STRIP=mipsel-linux-uclibc-strip
 export PATH AR CC CXX RANLIB STRIP
 
-# Build minimalistic tclkit
-KITCREATOR_PKGS=" "
-KITCREATOR_MINENCODINGS='true' 
-KITCREATOR_MINBUILD='true' 
-export KITCREATOR_PKGS KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD
-
-./kitcreator "$@" --host=mipsel-linux-uclibc
+./build/make-minkit "$@" --host=mipsel-linux-uclibc
