@@ -114,7 +114,7 @@ To accomplish these goals the following mechanisms are in place:
 	1. The top-level "kitcreator" script; and
 	2. Per-project subdirectories, each containing a "build.sh" script
 
-The top-level "kitcreator" script is very simple.  It's only job is to
+The top-level "kitcreator" script is very simple.  Its only job is to
 interpret command line arguments, and call the per-project "build.sh" scripts.
 For the "tcl" project it also finds the appropriate "tclConfig.sh" (and stores
 this path in TCLCONFIGDIR) to enable subsequent build scripts to find the
