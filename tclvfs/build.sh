@@ -49,7 +49,7 @@ fi
 		fi
 
 		echo "Applying: ${patch}"
-		patch -p1 < "${patch}"
+		${PATCH:-patch} -p1 < "${patch}"
 	done                                                                                                                               
 
 	cp generic/vfs.c .

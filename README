@@ -14,3 +14,14 @@ Examples:
 
 	3. To clean up post-build:
 		$ ./kitcreator clean
+
+Environment variables:
+	1. MAKE
+		Specifies the tool you wish to be called to build targets
+		from a Makefile.  This script is generally more well tested
+		with GNU Make.
+
+	2. PATCH
+		Specifies the tool you wish to be called to apply unified
+		diff patches.  This script is generally more well tested with
+		GNU Patch. 

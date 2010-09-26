@@ -48,7 +48,7 @@ fi
 		fi
 
 		echo "Applying: ${patch}"
-		patch -p1 < "${patch}"
+		${PATCH:-patch} -p1 < "${patch}"
 	done
 
 	cd "${BUILDDIR}/unix" || exit 1
