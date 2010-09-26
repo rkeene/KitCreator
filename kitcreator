@@ -8,6 +8,11 @@ if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | grep '^cvs_' >/de
 fi
 export TCLVERS
 
+# Add packages implied by the additional arguments
+if [ -z "${KITCREATOR_PKGS}" ]; then
+	KITCREATOR_PKGS="tk itcl mk4tcl"
+fi
+
 mode="build"
 if [ "$1" = "clean" ]; then
 	shift
@@ -22,20 +27,19 @@ fi
 
 if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
 	# List all additional packages here so that they get cleaned up
-	ADDPKGS="${ADDPKGS} thread"
+	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
 fi
 
 CONFIGUREEXTRA="$@"
 export CONFIGUREEXTRA
 
-# Add packages implied by the additional arguments
 if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads' >/dev/null 2>/dev/null; then
-	ADDPKGS="${ADDPKGS} thread"
+	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
 fi
 
 failedpkgs=""
 buildfailed="0"
-for pkg in tcl tk itcl mk4tcl tclvfs zlib ${ADDPKGS} kitsh; do
+for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
 	fi
