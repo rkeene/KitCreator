@@ -61,7 +61,9 @@ fi
 		${MAKE:-make} install
 
 		mkdir "${OUTDIR}/lib" || exit 1
-		cp -r "${INSTDIR}/lib"/tcl*/ "${OUTDIR}/lib/"
+		cp -r "${INSTDIR}/lib"/* "${OUTDIR}/lib/"
+		rm -rf "${OUTDIR}/lib/pkgconfig"
+		rm -f "${OUTDIR}"/lib/* >/dev/null 2>/dev/null
 
 		break
 	done
