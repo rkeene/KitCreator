@@ -45,8 +45,10 @@ for file in "${TESTDIR}"/kits/*.log; do
 done
 
 # Start Xvfb for X11-based tests
-Xvfb -nolisten tcp :31 >/dev/null 2>/dev/null &
-XVFB_PID="$!"
+XVFB_PID="$(
+	Xvfb :31 -screen 0 800x600x24 -nolisten tcp >/dev/null 2>/dev/null &
+	echo "$!"
+)"
 DISPLAY=:31
 export DISPLAY
 
