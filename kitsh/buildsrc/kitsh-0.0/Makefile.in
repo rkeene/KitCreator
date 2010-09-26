@@ -13,7 +13,7 @@ all: kit
 kit.res.o: kit.rc kit.ico
 	$(RC) -o kit.res.o $(CPPFLAGS) kit.rc
 
-kit: $(OBJS) $(ARCHS)
+kit: $(OBJS) $(EXTRA_OBJS) $(ARCHS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o kit $(OBJS) $(EXTRA_OBJS) $(ARCHS) $(LDFLAGS) $(LIBS)
 
 boot.tcl.h: boot.tcl
