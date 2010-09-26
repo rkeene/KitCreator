@@ -21,6 +21,9 @@ DC_DO_TCL
 dnl Find archives we need to link to
 DC_FIND_TCLKIT_LIBS
 
+dnl Find extra objects we need to link as a part of "kit"
+AC_SUBST(EXTRA_OBJS)
+
 dnl Determine if we have "Tcl_SetStartupScript" (8.6.x) or "TclSetStartupScriptPath" (8.4.x)
 SAVE_LIBS="${LIBS}"
 LIBS="${ARCHS} ${LIBS}"
