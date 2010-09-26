@@ -26,10 +26,14 @@ mkdir 'out' 'inst' || exit 1
 	cp -r 'buildsrc' 'build'
 	cd "${BUILDDIR}" || exit 1
 
-	# Compile all objects...
+	# Cleanup, just incase the incoming directory was not pre-cleaned
+	${MAKE:-make} distclean >/dev/null 2>/dev/null
+
+	# Compile Kitsh
 	./configure --with-tcl="${TCLCONFIGDIR}"
 	${MAKE:-make} || exit 1
 
+	# Strip the kit of all symbols, if possible
 	strip kit >/dev/null 2>/dev/null
 
 	# Create VFS directory
