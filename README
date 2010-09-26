@@ -36,9 +36,10 @@ Examples:
 			iv.  $ export TCLKIT
 		b. Cross-compile:
 			i.   $ CC=mipsel-linux-uclibc-gcc
-			ii.  $ AR=mipsel-linux-uclibc-ar
-			iii. $ RANLIB=mipsel-linux-uclibc-ranlib
-			iv.  $ export CC AR RANLIB
+			ii.  $ CXX=false
+			iii. $ AR=mipsel-linux-uclibc-ar
+			iv.  $ RANLIB=mipsel-linux-uclibc-ranlib
+			v.   $ export CC CXX AR RANLIB
 		v.   $ ./kitcreator --host=mipsel-linux-uclibc
 
 	6. Compile a 64-bit Tclkit 8.5.8 using SunStudio 12.1 on Solaris/x86:
