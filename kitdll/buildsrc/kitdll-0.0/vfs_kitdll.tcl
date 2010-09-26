@@ -18,46 +18,12 @@ proc ::vfs::kitdll::Unmount {local} {
 # Implementation
 
 ## Filesystem Data
-namespace eval ::vfs::kitdll::data {}
-set ::vfs::kitdll::data(joe) "Test\n"
-set {::vfs::kitdll::metadata()} [list type directory ino 0 mode 0555 nlink 2 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
-set ::vfs::kitdll::metadata(joe) [list type file ino 1 mode 0444 nlink 1 uid 0 gid 0 size 5 atime 0 mtime 0 ctime 0]
-set ::vfs::kitdll::metadata(sub) [list type directory ino 2 mode 0555 nlink 1 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
-set ::vfs::kitdll::metadata(sub/sub2) [list type directory ino 3 mode 0555 nlink 1 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
-
 proc ::vfs::kitdll::data::getData {hashkey file {start 0} {end "end"}} {
 	if {![info exists ::vfs::kitdll::data($file)]} {
 		return -code error "Invalid operation"
 	}
 
 	return [string range $::vfs::kitdll::data($file) $start $end]
-}
-
-proc ::vfs::kitdll::data::getMetadata {hashkey file} {
-	if {![info exists ::vfs::kitdll::metadata($file)]} {
-		return -code error "No such file"
-	}
-
-	return $::vfs::kitdll::metadata($file)
-}
-
-proc ::vfs::kitdll::data::getChildren {hashkey directory} {
-	set pattern [file join $directory {[^/]*}]
-
-	set children [array names ::vfs::kitdll::metadata -regexp "^${pattern}\$"]
-
-	set newchildren [list]
-	foreach child $children {
-		if {$child == ""} {
-			continue
-		}
-
-		set tail [lindex [split $child /] end]
-
-		lappend newchildren $tail
-	}
-
-	return $newchildren
 }
 
 ## VFS and Chan I/O
@@ -216,10 +182,10 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 			array set metadata [::vfs::kitdll::data::getMetadata $hashkey $child]
 		}
 
-		if {[string index $actualpath end] == "/"} {
-			set child "${actualpath}${child}"
+		if {[string index $root end] == "/"} {
+			set child "${root}${child}"
 		} else {
-			set child "${actualpath}/${child}"
+			set child "${root}/${child}"
 		}
 		if {[string index $child end] == "/"} {
 			set child [string range $child 0 end-1]
@@ -346,3 +312,5 @@ proc ::vfs::kitdll::vfsop_utime {} {
 }
 
 package provide vfs::kitdll 1.0
+
+::vfs::kitdll::Mount vfs_kitdll_data /tmp
