@@ -18,4 +18,8 @@ sed 's@^# *include *<string.h>$@&@;T s;p;s@string.h@strings.h@;:s' generic/tclIn
 rm -f generic/tclInt.h.new
 __EOF__
 
-./kitcreator "$@" --disable-load
+./kitcreator "$@" --disable-load --disable-threads
+
+rm -rf tcl/patchscripts
+
+exit 0
