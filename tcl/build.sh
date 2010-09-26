@@ -86,6 +86,28 @@ fi
 		rm -f "${OUTDIR}"/lib/* >/dev/null 2>/dev/null
 		find "${OUTDIR}" -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
 
+		# Clean up packages that are not needed
+		find "${OUTDIR}" -name "tcltest*" -type d | xargs rm -rf
+
+		# Clean up encodings
+		if [ -z "${KITCREATOR_ALLENCODINGS}" ]; then
+			KEEPENCODINGS=" ascii.enc cp1252.enc iso8859-1.enc iso8859-15.enc iso8859-2.enc koi8-r.enc macRoman.enc "
+			export KEEPENCODINGS
+			find "${OUTDIR}/lib" -name 'encoding' -type d | while read encdir; do
+				(
+					cd "${encdir}" || exit 1
+
+					for file in *; do
+						if echo " ${KEEPENCODINGS} " | grep " ${file} " >/dev/null; then
+							continue
+						fi
+
+						rm -f "${file}"
+					done
+				)
+			done
+		fi
+
 		break
 	done
 ) || exit 1
