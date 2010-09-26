@@ -32,6 +32,8 @@ for pkg in tcl tk itcl mk4tcl tclvfs kitsh; do
 		continue
 	fi
 
+	echo -n "Building ${pkg} ..."
+
 	failed="0"
 	(
 		cd "${pkg}" || exit 1
@@ -40,7 +42,10 @@ for pkg in tcl tk itcl mk4tcl tclvfs kitsh; do
 	) || failed="1"
 
 	if [ "${failed}" = "1" ]; then
+		echo " failed."
 		failedpkgs="${failedpkgs} ${pkg}"
+	else
+		echo " done."
 	fi
 
 	case "${pkg}" in
