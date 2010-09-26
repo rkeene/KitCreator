@@ -1,0 +1,9 @@
+#! /bin/sh
+
+# Build minimalistic tclkit
+KITCREATOR_PKGS=" "
+KITCREATOR_MINENCODINGS='true' 
+KITCREATOR_MINBUILD='true' 
+export KITCREATOR_PKGS KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD
+
+./kitcreator "$@"
