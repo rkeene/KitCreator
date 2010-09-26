@@ -1,6 +1,5 @@
 # Removed provision of the backward compatible name. Moved to separate
 # file/package.
-package provide vfs::zip 1.0.1
 
 package require vfs
 
@@ -237,6 +236,10 @@ namespace eval zip {
 }
 
 proc zip::DosTime {date time} {
+    # The pre-VFS environment will not have access to "clock", so don't even
+    # bother
+    return 0
+
     set time [u_short $time]
     set date [u_short $date]
 
@@ -255,14 +258,16 @@ proc zip::DosTime {date time} {
     set year [expr { (($date >> 9) & 0xFF) + 1980 }]
 
     # Fix up bad date/time data, no need to fail
-    while {$sec  > 59} {incr sec  -60}
-    while {$min  > 59} {incr sec  -60}
-    while {$hour > 23} {incr hour -24}
-    if {$mday < 1}  {incr mday}
-    if {$mon  < 1}  {incr mon}
-    while {$mon > 12} {incr hour -12}
+    if {$sec  > 59} {set sec  59}
+    if {$min  > 59} {set sec  59}
+    if {$hour > 23} {set hour 23}
+    if {$mday < 1}  {set mday 1}
+    if {$mday > 35} {set mday 35}
+    if {$mon  < 1}  {set mon  1}
+    if {$mon > 12}  {set mon  12}
 
-    while {[catch {
+    set res 0
+    while {$mday > 1 && [catch {
 	set dt [format {%4.4d-%2.2d-%2.2d %2.2d:%2.2d:%2.2d} \
 		    $year $mon $mday $hour $min $sec]
 	set res [clock scan $dt -gmt 1]
@@ -270,6 +275,7 @@ proc zip::DosTime {date time} {
 	# Only mday can be wrong, at end of month
 	incr mday -1
     }
+
     return $res
 }
 
@@ -400,6 +406,7 @@ proc zip::EndOfArchive {fd arr} {
 }
 
 proc zip::TOC {fd arr} {
+    upvar #0 zip::$fd cb
     upvar 1 $arr sb
 
     set buf [read $fd 46]
@@ -409,6 +416,8 @@ proc zip::TOC {fd arr} {
       sb(crc) sb(csize) sb(size) \
       flen elen clen sb(disk) sb(attr) \
       sb(atx) sb(ino)
+
+    set sb(ino) [expr {$cb(base) + $sb(ino)}]
 
     if { ![string equal "PK\01\02" $hdr] } {
 	binary scan $hdr H* x
@@ -442,7 +451,7 @@ proc zip::open {path} {
 	
 	zip::EndOfArchive $fd cb
 
-	seek $fd $cb(coff) start
+	seek $fd [expr {$cb(base) + $cb(coff)}] start
 
 	set toc(_) 0; unset toc(_); #MakeArray
 	
@@ -563,4 +572,26 @@ proc zip::_close {fd} {
     unset $fd
     unset $fd.toc
     ::close $fd
+}
+
+# use zlib to define zip and crc if available
+if {[llength [info command vfs::zip]] == 0 && [llength [info command zlib]] || ![catch {load "" zlib}]} {
+	proc vfs::zip {flag value args} {
+		switch -glob -- "$flag $value" {
+			{-mode d*} { set mode decompress }
+			{-mode c*} { set mode compress }
+			default { error "usage: zip -mode {compress|decompress} data" }
+		}
+
+		# kludge to allow "-nowrap 1" as second option, 5-9-2002
+		if {[llength $args] > 2 && [lrange $args 0 1] eq "-nowrap 1"} {
+			if {$mode eq "compress"} {
+				set mode deflate
+			} else {
+				set mode inflate
+			}
+		}
+
+		return [zlib $mode [lindex $args end]]
+	}
 }

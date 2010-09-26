@@ -1,5 +1,6 @@
 #! /usr/bin/env tclsh
 
+# Parse arguments
 set opt_compression 1
 if {[llength $argv] < 2} {
 	puts stderr "Usage: installvfs.tcl <kitfile> <vfsdir> \[<enable_compression>\]"
@@ -13,20 +14,19 @@ if {[lindex $argv 2] != ""} {
 	set opt_compression [lindex $argv 2]
 }
 
-if {[catch {
-	package require vfs::mk4
-}]} {
-	catch {
-		load "" vfs
-		load "" Mk4tcl
+# Determine what storage mechanism is being used
+## This logic must be duplicated from "kitInit.c"
+set fd [open Makefile r]
+set data [read $fd]
+close $fd
 
-		source [file join $vfsdir lib/vfs/vfsUtils.tcl]
-		source [file join $vfsdir lib/vfs/vfslib.tcl]
-		source [file join $vfsdir lib/vfs/mk4vfs.tcl]
-	}
+if {[string match "*KIT_INCLUDES_MK4TCL*" $data]} {
+	set tclKitStorage mk4
+} else {
+	set tclKitStorage zip
 }
-set mk4vfs::compress $opt_compression
 
+# Define procedures
 proc copy_file {srcfile destfile} {
 	switch -glob -- $srcfile {
 		"*.tcl" - "*.txt" {
@@ -65,8 +65,48 @@ proc recursive_copy {srcdir destdir} {
 	}
 }
 
-set handle [vfs::mk4::Mount $kitfile /kit -nocommit]
+# Update the kit, based on what kind of kit this is
+switch -- $tclKitStorage {
+	"mk4" {
+		if {[catch {
+			# Try as if a pre-existing Tclkit, or a tclsh
+			package require vfs::mk4
+		}]} {
+			# Try as if uninitialized Tclkit
+			catch {
+				load "" vfs
+				load "" Mk4tcl
 
-recursive_copy $vfsdir /kit
+				source [file join $vfsdir lib/vfs/vfsUtils.tcl]
+				source [file join $vfsdir lib/vfs/vfslib.tcl]
+				source [file join $vfsdir lib/vfs/mk4vfs.tcl]
+			}
+		}
+		set mk4vfs::compress $opt_compression
 
-vfs::unmount /kit
+		set handle [vfs::mk4::Mount $kitfile /kit -nocommit]
+
+		recursive_copy $vfsdir /kit
+
+		vfs::unmount /kit
+	}
+	"zip" {
+		set kitfd [open $kitfile a+]
+		fconfigure $kitfd -translation binary
+
+		cd $vfsdir
+		set zipfd [open "|zip -r - [glob *] 2> /dev/null"]
+		fconfigure $zipfd -translation binary
+
+		fcopy $zipfd $kitfd
+
+		close $kitfd
+		if {[catch {
+			close $zipfd
+		} err]} {
+			puts stderr "Error while updating executable: $err"
+
+			exit 1
+		}
+	}
+}
