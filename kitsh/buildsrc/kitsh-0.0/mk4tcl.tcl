@@ -13,6 +13,8 @@ if {![info exists auto_index(lassign)] && [info commands lassign] == ""} {
 
 catch {
 	load {} zlib
+}
+catch {
 	package require zlib
 }
 

@@ -87,7 +87,9 @@ fi
 		find "${OUTDIR}" -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
 
 		# Clean up packages that are not needed
-		find "${OUTDIR}" -name "tcltest*" -type d | xargs rm -rf
+		if [ -n "${KITCREATOR_MINBUILD}" ]; then
+			find "${OUTDIR}" -name "tcltest*" -type d | xargs rm -rf
+		fi
 
 		# Clean up encodings
 		if [ -n "${KITCREATOR_MINENCODINGS}" ]; then

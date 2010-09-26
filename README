@@ -90,6 +90,11 @@ Environment variables:
 			ascii.enc cp1252.enc iso8859-1.enc iso8859-15.enc
 			iso8859-2.enc koi8-r.enc macRoman.enc
 
+	8. KITCREATOR_MINBUILD
+		Set this variable to a non-empty string to exclude unnecessary
+		packages from Tcl build.  This excludes the following packages:
+			tcltest
+
 -------------------
 Method of Operation
 -------------------
