@@ -5,7 +5,8 @@ CPPFLAGS = @CPPFLAGS@ @DEFS@ -DTK_LOCAL_APPINIT=TclKit_AppInit
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ARCHS = @ARCHS@
-OBJS = kitInit.o main.o pwb.o rechan.o zlib.o winMain.o @EXTRA_OBJS@
+OBJS = kitInit.o main.o pwb.o rechan.o zlib.o winMain.o
+EXTRA_OBJS = @EXTRA_OBJS@
 
 all: kit
 
@@ -13,7 +14,7 @@ kit.res.o: kit.rc kit.ico
 	$(RC) -o kit.res.o $(CPPFLAGS) kit.rc
 
 kit: $(OBJS) $(ARCHS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o kit $(OBJS) $(ARCHS) $(LDFLAGS) $(LIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o kit $(OBJS) $(EXTRA_OBJS) $(ARCHS) $(LDFLAGS) $(LIBS)
 
 boot.tcl.h: boot.tcl
 	./stringify.tcl boot.tcl > boot.tcl.h
@@ -22,7 +23,7 @@ zipvfs.tcl.h: zipvfs.tcl
 	./stringify.tcl zipvfs.tcl > zipvfs.tcl.h
 
 clean:
-	rm -f kit $(OBJS)
+	rm -f kit $(OBJS) kit.res.o
 
 distclean: clean
 	rm -f config.h Makefile config.log config.status
