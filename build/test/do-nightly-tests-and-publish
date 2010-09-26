@@ -32,7 +32,7 @@ fi
 rm -rf kits
 
 # Run tests
-./test >/dev/null 2>/dev/null
+nice -n 20 ./test >/dev/null 2>/dev/null
 
 # Clean old SVN published results
 rm -rf "${WEBROOTDIR}"/svn_r*/
