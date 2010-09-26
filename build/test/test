@@ -44,6 +44,12 @@ for file in "${TESTDIR}"/kits/*.log; do
 	rm -f "${file}"
 done
 
+# Start Xvfb for X11-based tests
+Xvfb -nolisten tcp :31 >/dev/null 2>/dev/null &
+XVFB_PID="$!"
+DISPLAY=:31
+export DISPLAY
+
 failed=""
 for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 linux-arm-min; do
 	kitcreator="./kitcreator"
@@ -318,3 +324,6 @@ done
 if [ -n "${failed}" ]; then
 	echo "Failed: ${failed}"
 fi
+
+# Terminate Xvfb
+kill -9 "${XVFB_PID}"
