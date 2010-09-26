@@ -37,7 +37,7 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	const char *file;
 
 	if (objc != 3) {
-		Tcl_SetResult(interp, "wrong # args: should be \"getMetadata hashKey fileName\"", NULL);
+		Tcl_SetResult(interp, "wrong # args: should be \"getMetadata hashKey fileName\"", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
@@ -49,7 +49,7 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	cmd_getChildren = getCmdChildren(hashkey);
 
 	if (cmd_getData == NULL || cmd_getChildren == NULL) {
-		Tcl_SetResult(interp, "No such hashkey", NULL);
+		Tcl_SetResult(interp, "No such hashkey", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
@@ -57,7 +57,7 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	finfo = cmd_getData(file, 0);
 
 	if (finfo == NULL) {
-		Tcl_SetResult(interp, "No such file or directory", NULL);
+		Tcl_SetResult(interp, "No such file or directory", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
@@ -109,18 +109,101 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 }
 
 static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+	struct kitdll_data *finfo = NULL;
+	cmd_getData_t *cmd_getData;
+	const char *hashkey;
+	const char *file;
+	const char *end_str;
+	Tcl_Obj *ret_str;
+	long start = 0;
+	long end = -1;
+	int tclGetLFO_ret;
+
 	if (objc < 3 || objc > 5) {
-		Tcl_SetResult(interp, "wrong # args: should be \"getData hashKey fileName ?start? ?end?\"", NULL);
+		Tcl_SetResult(interp, "wrong # args: should be \"getData hashKey fileName ?start? ?end?\"", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
-	return(TCL_ERROR);
+
+	hashkey = Tcl_GetString(objv[1]);
+	file = Tcl_GetString(objv[2]);
+
+	if (objc > 3) {
+		tclGetLFO_ret = Tcl_GetLongFromObj(interp, objv[3], &start);
+
+		if (tclGetLFO_ret != TCL_OK) {
+			return(tclGetLFO_ret);
+		}
+	}
+
+	if (objc > 4) {
+		end_str = Tcl_GetString(objv[4]);
+		if (strcmp(end_str, "end") == 0) {
+			end = -1;
+		} else {
+			tclGetLFO_ret = Tcl_GetLongFromObj(interp, objv[4], &end);
+
+			if (tclGetLFO_ret != TCL_OK) {
+				return(tclGetLFO_ret);
+			}
+		}
+	}
+
+	cmd_getData = getCmdData(hashkey);
+
+	if (cmd_getData == NULL) {
+		Tcl_SetResult(interp, "No such hashkey", TCL_STATIC);
+
+		return(TCL_ERROR);
+	}
+
+	finfo = cmd_getData(file, 0);
+
+	if (finfo == NULL) {
+		Tcl_SetResult(interp, "No such file or directory", TCL_STATIC);
+
+		return(TCL_ERROR);
+	}
+
+	if (finfo->type != KITDLL_FILETYPE_FILE) {
+		Tcl_SetResult(interp, "Not a file", TCL_STATIC);
+
+		return(TCL_ERROR);
+	}
+
+	if (end == -1) {
+		end = finfo->size;
+	}
+
+	if (end > finfo->size) {
+		end = finfo->size;
+	}
+
+	if (start < 0) {
+		start = 0;
+	}
+
+	if (end < 0) {
+		end = 0;
+	}
+
+	if (end < start) {
+		Tcl_SetResult(interp, "Invalid arguments, start must be less than end", TCL_STATIC);
+
+		return(TCL_ERROR);
+	}
+
+	ret_str = Tcl_NewStringObj((const char *) finfo->data + start, (end - start));
+
+	Tcl_SetObjResult(interp, ret_str);
+
+	return(TCL_OK);
 }
 
 static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+	struct kitdll_data *finfo = NULL;
 	cmd_getChildren_t *cmd_getChildren;
 	cmd_getData_t *cmd_getData;
-	struct kitdll_data *finfo = NULL;
 	unsigned long num_children, idx;
 	unsigned long *children;
 	const char *hashkey;
@@ -129,7 +212,7 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	Tcl_Obj *ret_list, *ret_curr_obj;
 
 	if (objc != 3) {
-		Tcl_SetResult(interp, "wrong # args: should be \"getChildren hashKey fileName\"", NULL);
+		Tcl_SetResult(interp, "wrong # args: should be \"getChildren hashKey fileName\"", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
@@ -141,7 +224,7 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	cmd_getChildren = getCmdChildren(hashkey);
 
 	if (cmd_getData == NULL || cmd_getChildren == NULL) {
-		Tcl_SetResult(interp, "No such hashkey", NULL);
+		Tcl_SetResult(interp, "No such hashkey", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
@@ -149,13 +232,13 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	finfo = cmd_getData(file, 0);
 
 	if (finfo == NULL) {
-		Tcl_SetResult(interp, "No such file or directory", NULL);
+		Tcl_SetResult(interp, "No such file or directory", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
 
 	if (finfo->type != KITDLL_FILETYPE_DIR) {
-		Tcl_SetResult(interp, "Not a directory", NULL);
+		Tcl_SetResult(interp, "Not a directory", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
@@ -164,14 +247,14 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 
 	if (num_children == 0) {
 		/* Return immediately if there are no children */
-		Tcl_SetResult(interp, "", NULL);
+		Tcl_SetResult(interp, "", TCL_STATIC);
 
 		return(TCL_OK);
 	}
 
 	ret_list = Tcl_NewObj();
 	if (ret_list == NULL) {
-		Tcl_SetResult(interp, "Failed to allocate new object", NULL);
+		Tcl_SetResult(interp, "Failed to allocate new object", TCL_STATIC);
 
 		return(TCL_ERROR);
 	}
