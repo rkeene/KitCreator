@@ -37,6 +37,10 @@
 #  define TCLKIT_CAN_SET_ENCODING 1
 #endif
 #if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
+#  define TCLKIT_REQUIRE_TCLEXECUTABLENAME 1
+#endif
+
+#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
 #  define KIT_INCLUDES_PWB 1
 #endif
 #if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
@@ -75,7 +79,9 @@ Tcl_AppInitProc	Dde_Init, Registry_Init;
 #  endif
 #endif
 
+#ifdef TCLKIT_REQUIRE_TCLEXECUTABLENAME
 char *tclExecutableName;
+#endif
 
     /*
      *  Attempt to load a "boot.tcl" entry from the embedded MetaKit file.
@@ -160,14 +166,26 @@ static const char initScript[] =
 
    Hack to get around Tcl bug 1224888.
 */
-void SetExecName(Tcl_Interp *interp) {
-#if defined(HAVE_READLINK)
-	if (tclExecutableName == NULL) {
-		ssize_t readlink_ret;
-		char procpath[PATH_MAX + 1];
-		char exe_buf[PATH_MAX + 1];
-		int snprintf_ret;
+static void SetExecName(Tcl_Interp *interp, const char *path) {
+#ifdef TCLKIT_REQUIRE_TCLEXECUTABLENAME
+	tclExecutableName = strdup(path);
+#endif
+	Tcl_FindExecutable(path);
 
+	return;
+}
+
+static void FindAndSetExecName(Tcl_Interp *interp) {
+	int len = 0;
+	Tcl_Obj *execNameObj;
+	Tcl_Obj *lobjv[1];
+#if defined(HAVE_READLINK)
+	ssize_t readlink_ret;
+	char procpath[PATH_MAX + 1];
+	char exe_buf[PATH_MAX + 1];
+	int snprintf_ret;
+
+	if (Tcl_GetNameOfExecutable() == NULL) {
 		snprintf_ret = snprintf(procpath, sizeof(procpath), "/proc/%lu/exe", (unsigned long) getpid());
 		if (snprintf_ret < sizeof(procpath)) {
 			readlink_ret = readlink(procpath, exe_buf, sizeof(exe_buf) - 1);
@@ -175,7 +193,7 @@ void SetExecName(Tcl_Interp *interp) {
 			if (readlink_ret > 0 && readlink_ret < (sizeof(exe_buf) - 1)) {
 				exe_buf[readlink_ret] = '\0';
 
-				tclExecutableName = strdup(exe_buf);
+				SetExecName(interp, exe_buf);
 
 				return;
 			}
@@ -183,15 +201,11 @@ void SetExecName(Tcl_Interp *interp) {
 	}
 #endif
 
-	if (tclExecutableName == NULL) {
-		int len = 0;
-		Tcl_Obj *execNameObj;
-		Tcl_Obj *lobjv[1];
-
+	if (Tcl_GetNameOfExecutable() == NULL) {
 		lobjv[0] = Tcl_GetVar2Ex(interp, "argv0", NULL, TCL_GLOBAL_ONLY);
 		execNameObj = Tcl_FSJoinToPath(Tcl_FSGetCwd(interp), 1, lobjv);
 
-		tclExecutableName = strdup(Tcl_GetStringFromObj(execNameObj, &len));
+		SetExecName(interp, Tcl_GetStringFromObj(execNameObj, &len));
 
 		return;
 	}
@@ -247,7 +261,7 @@ int TclKit_AppInit(Tcl_Interp *interp) {
 	/* Hack to get around Tcl bug 1224888.  This must be run here and
 	 * in LibraryPathObjCmd because this information is needed both
 	 * before and after that command is run. */
-	SetExecName(interp);
+	FindAndSetExecName(interp);
 
 	TclSetPreInitScript(preInitCmd);
 	if (Tcl_Init(interp) == TCL_ERROR) {

@@ -25,9 +25,6 @@ LibraryPathObjCmd(dummy, interp, objc, objv)
 	Tcl_Obj *path=Tcl_DuplicateObj(objv[1]);
 	TclSetLibraryPath(Tcl_NewListObj(1,&path));
 	TclpSetInitialEncodings();
-	Tcl_FindExecutable(Tcl_GetVar(interp, "argv0", TCL_GLOBAL_ONLY));
-  	/* Hack to get around Tcl bug 1224888 */
- 	SetExecName(interp);
      }
      return TCL_OK;
 }
