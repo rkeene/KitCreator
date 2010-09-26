@@ -17,14 +17,22 @@ fi
 
 cd build/test || exit 1
 
+if [ ! -x kits -o ! -x publish-tests ]; then
+	echo 'Missing scripts, aborting.' >&2
+
+	exit 1
+fi
+
 # Clean builds
 rm -rf kits
 
 # Run tests
-./test
+./test >/dev/null 2>/dev/null
 
 # Clean old SVN published results
 rm -rf "${WEBROOTDIR}"/svn_r*/
 
 # Publish New Results
 ./publish-tests "${TESTNAME}"
+
+exit 0
