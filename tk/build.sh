@@ -60,15 +60,17 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
-		if [ "${dir}" != "win" ]; then
+		if [ "${dir}" = "win" ]; then
 			# Statically link Tk to Tclkit if we are compiling for
 			# Windows
 			STATICTK="1"
 		fi
 
 		if [ "${STATICTK}" = "1" ]; then
+			echo "Running: ./configure --disable-shared --disable-symbols --prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 			./configure --disable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 		else
+			echo "Running: ./configure --enable-shared --disable-symbols --prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 			./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 		fi
 
