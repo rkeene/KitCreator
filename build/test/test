@@ -61,6 +61,8 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 	statictk="0"
 	notk="0"
 	nomk4="0"
+	xcompile="0"
+	kitruncmd=""
 
 	# Handle base configuration
 	os="$(uname -s | dd conv=lcase 2>/dev/null)"
@@ -83,17 +85,19 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			;;
 		win32|win32-*)
 			kitcreator="./build/make-kit-win32"
-			runnable="0"
+			xcompile="1"
+			kitruncmd="wine"
 			;;
 		linux-arm-min)
 			kitcreator="./build/make-kit-arm"
 			runnable="0"
+			xcompile="1"
 			notk="1"
 			iszip="1"
 			;;
 	esac
 
-	if [ "${runnable}" != "1" ]; then
+	if [ "${xcompile}" != "0" ]; then
 		kit="${kit}-xcompile"
 	fi
 
@@ -298,12 +302,23 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			testscppre="$(dirname "${testscp}")/${testscp_tag}.sh"
 			scplogfile="${outputname}-${testscp_tag}.log"
 
+			# If a command is required to start the kit, prepare to kill it
+			# in case of timeout.
+			kitrunkillpid=""
+			if [ -n "${kitruncmd}" ]; then
+				(
+					sleep 30
+					killall "$(basename "${outputname}")" >/dev/null 2>/dev/null
+				) >/dev/null 2>/dev/null &
+				kitrunkillpid="$!"
+			fi
+
 			(
 				if [ -f "${testscppre}" ]; then
 					. "${testscppre}"
 				fi
 
-				"${outputname}" "${testscp}" "${outputname}" "${kit}" "${version}"
+				${kitruncmd} "${outputname}" "${testscp}" "${outputname}" "${kit}" "${version}"
 			) > "${scplogfile}" 2>&1
 
 			if [ "$?" != "0" ]; then
@@ -314,6 +329,11 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 				echo "${testscp_tag}: FAIL" >>  "${testresultslog}"
 
 				continue
+			fi
+
+			# Kill the watchdog for this iteration
+			if [ -n "${kitrunkillpid}" ]; then
+				kill -9 "${kitrunkillpid}" >/dev/null 2>/dev/null
 			fi
 
 			echo "${testscp_tag}: PASS" >>  "${testresultslog}"

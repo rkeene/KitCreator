@@ -283,7 +283,7 @@ foreach key [lsort -dictionary [array names allkitinfo]] {
 		puts $fd "        <td>[pretty_print_size [file size [file join $WEBDIR $kitinfo(fullfile)]]]</td>"
 		puts $fd "        <td bgcolor=\"$bgcolor\">$statustext</td>"
 		puts $fd "        <td><small><a href=\"$kitinfo(buildfile)\">([pretty_print_size [file size [file join $WEBDIR $kitinfo(buildfile)]]])</a></small></td>"
-		puts $fd "        <td>[join $failedtestshtml {, }]</td>"
+		puts $fd "        <td>[join $failedtestshtml {,<br>}]</td>"
 		puts $fd "      </tr>"
 	}
 
