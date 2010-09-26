@@ -60,7 +60,7 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
-		./configure --disable-shared --prefix="${INSTDIR}" ${CONFIGUREEXTRA}
+		./configure --disable-shared --with-encoding=utf-8 --prefix="${INSTDIR}" ${CONFIGUREEXTRA}
 
 		${MAKE:-make} || continue
 
