@@ -22,7 +22,7 @@ fi
 
 cd build/test || exit 1
 
-if [ ! -x kits -o ! -x publish-tests ]; then
+if [ ! -x test -o ! -x publish-tests ]; then
 	echo 'Missing scripts, aborting.' >&2
 
 	exit 1
