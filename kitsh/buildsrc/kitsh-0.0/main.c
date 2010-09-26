@@ -1,3 +1,4 @@
+#ifndef KITSH_NEED_WINMAIN
 #include <tcl.h>
 
 int TclKit_AppInit(Tcl_Interp *interp);
@@ -11,3 +12,4 @@ int main(int argc, char **argv) {
 
 	return(0);
 }
+#endif

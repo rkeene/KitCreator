@@ -6,12 +6,19 @@ AC_DEFUN(DC_DO_TCL, [
 
 	if test "${with_tcl}" = "auto"; then
 		for dir in `echo "${PATH}" | sed 's@:@ @g'`; do
+			if test -f "${dir}/tclConfig.sh"; then
+				tclconfigshdir="${dir}"
+				tclconfigsh="${tclconfigshdir}/tclConfig.sh"
+				break
+			fi
 			if test -f "${dir}/../lib/tclConfig.sh"; then
-				tclconfigsh="${dir}/../lib/tclConfig.sh"
+				tclconfigshdir="${dir}/../lib"
+				tclconfigsh="${tclconfigshdir}/tclConfig.sh"
 				break
 			fi
 			if test -f "${dir}/../lib64/tclConfig.sh"; then
-				tclconfigsh="${dir}/../lib64/tclConfig.sh"
+				tclconfigshdir="${dir}/../lib64"
+				tclconfigsh="${tclconfigshdir}/tclConfig.sh"
 				break
 			fi
 		done
@@ -20,14 +27,15 @@ AC_DEFUN(DC_DO_TCL, [
 			AC_MSG_ERROR([Unable to find tclConfig.sh])
 		fi
 	else
-		tclconfigsh="${with_tcl}/tclConfig.sh"
+		tclconfigshdir="${with_tcl}"
+		tclconfigsh="${tclconfigshdir}/tclConfig.sh"
 	fi
 
 	if test -f "${tclconfigsh}"; then
 		source "${tclconfigsh}"
 
-		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${TCL_SRC_DIR}/unix"
-		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${TCL_SRC_DIR}/unix"
+		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
+		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		LDFLAGS="${LDFLAGS}"
 		LIBS="${LIBS} ${TCL_LIBS}"
 	fi
@@ -38,6 +46,56 @@ AC_DEFUN(DC_DO_TCL, [
 	AC_SUBST(LIBS)
 
 	AC_MSG_RESULT([$tclconfigsh])
+])
+
+AC_DEFUN(DC_DO_TK, [
+	AC_MSG_CHECKING([path to tk])
+	AC_ARG_WITH(tk, AC_HELP_STRING([--with-tk], [directory containing tk configuration (tkConfig.sh)]), [], [
+		with_tk="auto"
+	])
+
+	if test "${with_tk}" = "auto"; then
+		for dir in ../../../tk/build/tk*/*/ `echo "${PATH}" | sed 's@:@ @g'`; do
+			if test -f "${dir}/tkConfig.sh"; then
+				tkconfigshdir="${dir}"
+				tkconfigsh="${tkconfigshdir}/tkConfig.sh"
+				break
+			fi
+			if test -f "${dir}/../lib/tkConfig.sh"; then
+				tkconfigshdir="${dir}/../lib"
+				tkconfigsh="${tkconfigshdir}/tkConfig.sh"
+				break
+			fi
+			if test -f "${dir}/../lib64/tkConfig.sh"; then
+				tkconfigshdir="${dir}/../lib64"
+				tkconfigsh="${tkconfigshdir}/tkConfig.sh"
+				break
+			fi
+		done
+
+		if test -z "${tkconfigsh}"; then
+			AC_MSG_ERROR([Unable to find tkConfig.sh])
+		fi
+	else
+		tkconfigshdir="${with_tk}"
+		tkconfigsh="${tkconfigshdir}/tkConfig.sh"
+	fi
+
+	if test -f "${tkconfigsh}"; then
+		source "${tkconfigsh}"
+
+		CFLAGS="${CFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
+		CPPFLAGS="${CPPFLAGS} ${TK_INCLUDE_SPEC} -I${TK_SRC_DIR}/generic -I${tkconfigshdir}"
+		LDFLAGS="${LDFLAGS}"
+		LIBS="${LIBS} ${TK_LIBS}"
+	fi
+
+	AC_SUBST(CFLAGS)
+	AC_SUBST(CPPFLAGS)
+	AC_SUBST(LDFLAGS)
+	AC_SUBST(LIBS)
+
+	AC_MSG_RESULT([$tkconfigsh])
 ])
 
 AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
@@ -62,12 +120,13 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 ])
 
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
+	DC_SETUP_TCL_PLAT_DEFS
 
-	for proj in mk4tcl tcl tclvfs; do
+	for proj in mk4tcl tcl tclvfs tk; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
 		libdir="../../../${proj}/inst"
-		libfiles="`find "${libdir}" -name '*.a' | tr "\n" ' '`"
+		libfiles="`find "${libdir}" -name '*.a' | grep -v 'stub' | tr "\n" ' '`"
 
 		ARCHS="${ARCHS} ${libfiles}"
 
@@ -77,6 +136,15 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			if test "${proj}" = "mk4tcl"; then
 				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
 				DC_DO_STATIC_LINK_LIBCXX
+			fi
+			if test "${proj}" = "tk"; then
+				DC_DO_TK
+				AC_DEFINE(KIT_INCLUDES_TK, [1], [Specify this if we link statically to Tk])
+
+				if test "$host_os" = "mingw32msvc"; then
+					AC_DEFINE(KITSH_NEED_WINMAIN, [1], [Define if you need WinMain (Windows)])
+					CFLAGS="${CFLAGS} -mwindows"
+				fi
 			fi
 		fi
 	done
@@ -98,9 +166,10 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 			dnl TCL_STORAGE_CLASS gets defined as DLLEXPORT, to make static linking
 			dnl work
 			AC_DEFINE(BUILD_tcl, [1], [Define if you need to pretend to be building Tcl (Windows)])
+			AC_DEFINE(BUILD_tk, [1], [Define if you need to pretend to be building Tk (Windows)])
 			;;
 		cygwin*)
 			CFLAGS="${CFLAGS} -mms-bitfields"
 			;;
 	esac
-])          
+])

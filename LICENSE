@@ -5,6 +5,7 @@ The MIT License is applied to all files in this distribution, except:
 	kitsh/buildsrc/kitsh-0.0/pwb.c
 	kitsh/buildsrc/kitsh-0.0/rechan.c
 	kitsh/buildsrc/kitsh-0.0/zlib.c
+	kitsh/buildsrc/kitsh-0.0/winMain.c
 
 Please see "kitsh/buildsrc/kitsh-0.0/license.terms" for licensing information
 regarding these files.

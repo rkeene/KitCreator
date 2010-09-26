@@ -1,10 +1,10 @@
 CC = @CC@
-CFLAGS = @CFLAGS@ @DEFS@ -DSTDC_HEADERS=1
-CPPFLAGS = @CPPFLAGS@ @DEFS@ -DSTDC_HEADERS=1
+CFLAGS = @CFLAGS@ @DEFS@ -DSTDC_HEADERS=1 -DTK_LOCAL_APPINIT=TclKit_AppInit
+CPPFLAGS = @CPPFLAGS@ @DEFS@ -DSTDC_HEADERS=1 -DTK_LOCAL_APPINIT=TclKit_AppInit
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ARCHS = @ARCHS@
-OBJS = kitInit.o main.o pwb.o rechan.o zlib.o
+OBJS = kitInit.o main.o pwb.o rechan.o zlib.o winMain.o
 
 all: kit
 

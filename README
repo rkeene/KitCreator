@@ -67,6 +67,10 @@ Environment variables:
 		system.  The default is "tclkit".  A working tclkit is required
 		for cross-compiling Tclkits.
 
+	4. STATICTK
+		Specify this as "1" to statically link to Tk.  The default
+		action on most platforms is to dynamically link to Tk.
+
 
 
 -------------------

@@ -1,10 +1,10 @@
 #! /bin/sh
 
 AR=i586-mingw32msvc-ar
-CC='i586-mingw32msvc-gcc -I/home/rkeene/root/windows-i386/include -L/home/rkeene/root/windows-i386/lib'
-CXX='i586-mingw32msvc-g++ -I/home/rkeene/root/windows-i386/include -L/home/rkeene/root/windows-i386/lib'
+CC=i586-mingw32msvc-gcc
+CXX=i586-mingw32msvc-g++
 RANLIB=i586-mingw32msvc-ranlib
 RC=i586-mingw32msvc-windres
 export AR CC CXX RANLIB RC
 
-./kitcreator --host=i586-mingw32msvc
+./kitcreator "$@" --host=i586-mingw32msvc --with-zlib=/home/rkeene/root/windows-i386
