@@ -8,11 +8,7 @@ if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | grep '^cvs_' >/de
 fi
 export TCLVERS
 
-# Add packages implied by the additional arguments
-if [ -z "${KITCREATOR_PKGS}" ]; then
-	KITCREATOR_PKGS="tk itcl mk4tcl"
-fi
-
+# Determine appropriate mode
 mode="build"
 if [ "$1" = "clean" ]; then
 	shift
@@ -25,9 +21,25 @@ if [ "$1" = "distclean" ]; then
 	mode="distclean"
 fi
 
+# Define the list of all packages, for cleaning purposes
+KITCREATOR_ALLPKGS="tcl tclvfs zlib tk itcl mk4tcl threads"
+for pkg in ${KITCREATOR_ALLPKGS}; do
+	rm -f "${pkg}/build.log"
+	rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
+
+	if [ "${mode}" = "distclean" ]; then
+		rm -rf "${pkg}/src"
+	fi
+done
+
+# We're all done if we're in clean or distclean mode
 if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
-	# List all additional packages here so that they get cleaned up
-	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
+	exit 0
+fi
+
+# Add packages implied by the additional arguments
+if [ -z "${KITCREATOR_PKGS}" ]; then
+	KITCREATOR_PKGS="tk itcl mk4tcl"
 fi
 
 CONFIGUREEXTRA="$@"
@@ -42,13 +54,6 @@ buildfailed="0"
 for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
-	fi
-
-	if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
-		rm -f "${pkg}/build.log"
-		rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
-
-		continue
 	fi
 
 	echo -n "Building ${pkg} ..."

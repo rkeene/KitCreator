@@ -6,10 +6,8 @@
 
 # this is needed so often that I just drop copies of it all over the place
 if {![info exists auto_index(lassign)] && [info commands lassign] == ""} {
-    set auto_index(lassign) {
-    proc lassign {l args} {
-      foreach v $l a $args { uplevel 1 [list set $a $v] }
-    }
+  proc lassign {l args} {
+    foreach v $l a $args { uplevel 1 [list set $a $v] }
   }
 }
 
