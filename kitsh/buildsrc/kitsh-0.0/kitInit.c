@@ -37,7 +37,7 @@
 Tcl_AppInitProc	Itcl_Init;
 #endif
 #ifdef KIT_INCLUDES_MK4TCL
-Tcl_AppInitProc	Mk4tcl_Init
+Tcl_AppInitProc	Mk4tcl_Init;
 #endif
 Tcl_AppInitProc Vfs_Init, Rechan_Init, Zlib_Init;
 #if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
@@ -189,8 +189,8 @@ TclKit_AppInit(Tcl_Interp *interp)
 	TclSetStartupScriptPath(Tcl_GetObjResult(interp));
 #else
 #  ifdef HAVE_TCL_SETSTARTUPSCRIPT
-        path = Tcl_GetStartupScriptPath(NULL);
-	TclSetStartupScriptPath(Tcl_GetObjResult(interp));
+        path = Tcl_GetStartupScript(NULL);
+	Tcl_SetStartupScript(Tcl_GetObjResult(interp), NULL);
 #  endif
 #endif
 	if (path == NULL)

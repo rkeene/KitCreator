@@ -74,11 +74,8 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		AC_MSG_RESULT([${libfiles}])
 
 		if test "${libfiles}" != ""; then
-			upperproj=`echo "${proj}" | dd conv=ucase 2>/dev/null`
-
-			AC_DEFINE(KIT_INCLUDES_$upperproj)
-
 			if test "${proj}" = "mk4tcl"; then
+				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
 				DC_DO_STATIC_LINK_LIBCXX
 			fi
 		fi

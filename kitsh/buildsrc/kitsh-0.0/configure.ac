@@ -1,6 +1,5 @@
 dnl What are we running
 AC_INIT(kitsh, 0.0)
-AC_CONFIG_HEADER(config.h)
 
 dnl Checks for programs.
 AC_PROG_CC
