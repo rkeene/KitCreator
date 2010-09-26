@@ -1,0 +1,24 @@
+CC = @CC@
+CFLAGS = -Wall @CFLAGS@
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+OBJS = kitInit.o main.o pwb.o rechan.o zlib.o
+ARCHS = ../../../mk4tcl/inst/lib/Mk4tcl/Mk4tcl.a ../../../tcl/inst/lib/libtcl8.4.a ../../../tclvfs/inst/lib/vfs1.3/libvfs1.3.a
+
+all: kit
+
+kit: $(OBJS) $(ARCHS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o kit $(OBJS) $(ARCHS) $(LDFLAGS) $(LIBS)
+
+clean:
+	rm -f kit $(OBJS)
+
+distclean: clean
+	rm -f config.h Makefile config.log config.status
+	rm -rf autom4te.cache
+
+mrproper: distclean
+	rm -f configure config.h
+
+.PHONY: all clean distclean

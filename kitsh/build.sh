@@ -27,9 +27,9 @@ mkdir 'out' 'inst' || exit 1
 	cd "${BUILDDIR}" || exit 1
 
 	# Compile all objects...
-	## TODO: XXX: Need to replace this with a configure script
-	${CC:-cc} ${CPPFLAGS} ${CFLAGS} -I${TCLCONFIGDIR} -I${TCLCONFIGDIR}/../generic -o kit *.c $(find "${OTHERPKGSDIR}" -name '*.a' | grep '/inst/') ${LDFLAGS} -lz -lm -ldl  -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic || \
-	${CC:-cc} ${CPPFLAGS} ${CFLAGS} -I${TCLCONFIGDIR} -I${TCLCONFIGDIR}/../generic -o kit *.c $(find "${OTHERPKGSDIR}" -name '*.a' | grep '/inst/') ${LDFLAGS} -lz -lm -ldl -lnsl -lsocket -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic
+	./configure --with-tcl="${TCLCONFIGDIR}"
+	${MAKE:-make} || exit 1
+
 	strip kit >/dev/null 2>/dev/null
 
 	# Create VFS directory
@@ -59,6 +59,7 @@ mkdir 'out' 'inst' || exit 1
 		echo | ./runkit
 	fi
 
+	exit 0
 ) || exit 1
 
 exit 0
