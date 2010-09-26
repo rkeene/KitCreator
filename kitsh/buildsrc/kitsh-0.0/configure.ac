@@ -82,6 +82,8 @@ AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4}], [Use
 			AC_MSG_ERROR([Unknown kit storage type: $enableval])
 			;;
 	esac
+], [
+	AC_MSG_RESULT([auto])
 ])
 
 dnl Produce output
