@@ -4,8 +4,9 @@
  * Interface to the "zlib" compression library
  */
 
-#include "zlib.h"
 #include <tcl.h>
+#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
+#include "zlib.h"
 
 typedef struct {
   z_stream stream;
@@ -209,3 +210,4 @@ int Zlib_Init(Tcl_Interp *interp)
     Tcl_CreateObjCommand(interp, "zlib", ZlibCmd, 0, 0);
     return Tcl_PkgProvide( interp, "zlib", "1.1");
 }
+#endif /* Tcl version less than 8.6 */

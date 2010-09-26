@@ -39,9 +39,12 @@ Tcl_AppInitProc	Itcl_Init;
 #ifdef KIT_INCLUDES_MK4TCL
 Tcl_AppInitProc	Mk4tcl_Init;
 #endif
-Tcl_AppInitProc Vfs_Init, Rechan_Init, Zlib_Init;
+Tcl_AppInitProc Vfs_Init, Rechan_Init;
 #if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
 Tcl_AppInitProc	Pwb_Init;
+#endif
+#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
+Tcl_AppInitProc Zlib_Init;
 #endif
 #ifdef TCL_THREADS
 Tcl_AppInitProc	Thread_Init;
@@ -172,7 +175,9 @@ int TclKit_AppInit(Tcl_Interp *interp) {
 #endif 
 	Tcl_StaticPackage(0, "rechan", Rechan_Init, NULL);
 	Tcl_StaticPackage(0, "vfs", Vfs_Init, NULL);
+#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
 	Tcl_StaticPackage(0, "zlib", Zlib_Init, NULL);
+#endif
 #ifdef TCL_THREADS
 	Tcl_StaticPackage(0, "Thread", Thread_Init, NULL);
 #endif
