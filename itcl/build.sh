@@ -66,6 +66,22 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
+
+	# Work around bug where Itcl v3.4 picks up wrong platform when cross-compiling
+	case "${TCLCONFIGDIR}" in
+		*/win)
+			TEA_PLATFORM="windows"
+			export TEA_PLATFORM
+			;;
+		*)
+			TEA_PLATFORM="unix"
+			export TEA_PLATFORM
+			;;
+	esac
+	sed 's@TEA_PLATFORM=@test -z "$TEA_PLATFORM" \&\& &@' configure > configure.new && cat configure.new > configure
+	rm -f configure.new
+
+	# Build
 	./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
 	${MAKE:-make} || exit 1
