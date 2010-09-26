@@ -90,9 +90,11 @@ static char *preInitCmd =
 #endif /* _WIN32_WCE */
 "proc tclKitInit {} {\n"
 	"rename tclKitInit {}\n"
+#ifdef KIT_INCLUDES_MK4TCL
+	"catch { load {} Mk4tcl }\n"
+#endif
 #ifdef KIT_STORAGE_MK4
 	"set ::tclKitStorage \"mk4\"\n"
-	"catch { load {} Mk4tcl }\n"
 	"mk::file open exe [info nameofexecutable] -readonly\n"
 	"set n [mk::select exe.dirs!0.files name boot.tcl]\n"
 	"if {$n != \"\"} {\n"
