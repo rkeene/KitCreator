@@ -40,13 +40,17 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
+	# ZLIB Expects AR to contain options
+	AR="${AR:-ar} rcu"
+	export AR
+
 	# We don't pass CONFIGUREEXTRA here, since this isn't a GNU autoconf
 	# script and will puke
 	./configure --prefix="${INSTDIR}"
 
-	${MAKE:-make} || exit 1
+	${MAKE:-make} AR="${AR}" || exit 1
 
-	${MAKE:-make} install
+	${MAKE:-make} install AR="${AR}"
 
 	# We don't really care too much about failure in zlib
 	exit 0
