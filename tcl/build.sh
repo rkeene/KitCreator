@@ -54,7 +54,13 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
-	for dir in unix win macosx; do
+	for dir in unix win macosx __fail__; do
+		if [ "${dir}" = "__fail__" ]; then
+			# If we haven't figured out how to build it, reject.
+
+			exit 1
+		fi
+
 		# Remove previous directory's "tclConfig.sh" if found
 		rm -f 'tclConfig.sh'
 
