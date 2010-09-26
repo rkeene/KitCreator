@@ -93,9 +93,11 @@ AC_DEFUN(DC_DO_TK, [
 					continue
 				fi
 			fi
+
 			NEWLIBS="${NEWLIBS} ${lib}"
 		done
 		LIBS="${NEWLIBS}"
+		unset NEWLIBS
 	fi
 
 	AC_SUBST(CFLAGS)
@@ -125,7 +127,7 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIB, [
 	done
 
 	if test "${found}" = "1"; then
-		SAVELIBS=`echo "$SAVELIBS" | sed 's@ $2 @@'`
+		SAVELIBS=`echo "$SAVELIBS" | sed 's@ $2 @ @'`
 		LIBS="${SAVELIBS} ${staticlib}"
 
 		AC_MSG_RESULT([${staticlib}])
