@@ -75,7 +75,7 @@ fi
 	mkdir "${OUTDIR}/lib" || exit 1
 	cp -r "${INSTDIR}/lib"/itcl*/ "${OUTDIR}/lib/"
 
-	strip -g "${OUTDIR}"/lib/itcl*/*.so >/dev/null 2>/dev/null
+	"${STRIP:-strip}" -g "${OUTDIR}"/lib/itcl*/*.so >/dev/null 2>/dev/null
 
 	exit 0
 ) || exit 1

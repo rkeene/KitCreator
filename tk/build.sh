@@ -90,7 +90,7 @@ fi
 		cp -r "${INSTDIR}/lib"/libtk* "${OUTDIR}/lib"/tk*/
 		rm -rf "${OUTDIR}/lib"/tk*/demos
 
-		strip -g "${OUTDIR}"/lib/tk*/*.so >/dev/null 2>/dev/null
+		"${STRIP:-strip}" -g "${OUTDIR}"/lib/tk*/*.so >/dev/null 2>/dev/null
 		find "${OUTDIR}" -type f -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
 
 		break

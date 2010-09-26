@@ -72,6 +72,10 @@ Environment variables:
 		Specify this as "1" to statically link to Tk.  The default
 		action on most platforms is to dynamically link to Tk.
 
+	5. STRIP
+		Specifies the tool you wish to be called to strip object files,
+		archives, and shared objects.  The default is "strip".  You
+		should probably set this if you are cross-compiling.
 
 
 -------------------

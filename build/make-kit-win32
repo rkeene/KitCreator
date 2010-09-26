@@ -5,6 +5,7 @@ CC=i586-mingw32msvc-gcc
 CXX=i586-mingw32msvc-g++
 RANLIB=i586-mingw32msvc-ranlib
 RC=i586-mingw32msvc-windres
-export AR CC CXX RANLIB RC
+STRIP=i586-mingw32msvc-strip
+export AR CC CXX RANLIB RC STRIP
 
-./kitcreator "$@" --host=i586-mingw32msvc --with-zlib=/home/rkeene/root/windows-i386
+./kitcreator "$@" --host=i586-mingw32msvc

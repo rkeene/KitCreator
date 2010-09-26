@@ -54,7 +54,7 @@ mkdir 'out' 'inst' || exit 1
 	${MAKE:-make} || exit 1
 
 	# Strip the kit of all symbols, if possible
-	strip kit >/dev/null 2>/dev/null
+	"${STRIP:-strip}" kit >/dev/null 2>/dev/null
 
 	# Create VFS directory
 	mkdir "starpack.vfs"
