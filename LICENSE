@@ -1,9 +1,14 @@
 The MIT License is applied to all files in this distribution, except:
 	kitsh/buildsrc/kitsh-0.0/boot.tcl
+	kitsh/buildsrc/kitsh-0.0/boot.tcl.h
+	kitsh/buildsrc/kitsh-0.0/kit.rc
+	kitsh/buildsrc/kitsh-0.0/kit.ico
 	kitsh/buildsrc/kitsh-0.0/kitInit.c
 	kitsh/buildsrc/kitsh-0.0/license.terms
 	kitsh/buildsrc/kitsh-0.0/pwb.c
 	kitsh/buildsrc/kitsh-0.0/rechan.c
+	kitsh/buildsrc/kitsh-0.0/zipvfs.tcl
+	kitsh/buildsrc/kitsh-0.0/zipvfs.tcl.h
 	kitsh/buildsrc/kitsh-0.0/zlib.c
 	kitsh/buildsrc/kitsh-0.0/winMain.c
 	kitsh/buildsrc/kitsh-0.0/mk4tcl.tcl
