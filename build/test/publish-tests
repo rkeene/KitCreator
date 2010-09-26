@@ -118,7 +118,9 @@ file copy -force -- {*}[glob kits/*] $WEBDIR
 
 set totaltests_count [llength [glob tests/*.tcl]]
 
-foreach file [lsort -dictionary [glob -directory $WEBDIR *]] {
+foreach file [lsort -dictionary [glob -tails -directory $WEBDIR * failed/*]] {
+	set shortfile $file
+	set file [file join $WEBDIR $file]
 	if {[file isdirectory $file]} {
 		continue
 	}
@@ -130,9 +132,15 @@ foreach file [lsort -dictionary [glob -directory $WEBDIR *]] {
 	}
 
 	# Derive what we can from the filename
-	set shortfile [file tail $file]
 	set buildfile "${shortfile}-build.log"
 	set failedtests [glob -nocomplain -tails -directory $WEBDIR "${shortfile}-\[0-9\]\[0-9\]-*.log"]
+
+	# If this kit represents a failed build, set the failed tests to that
+	set kitbuilt 1
+	if {[file tail [file dirname $file]] == "failed"} {
+		set failedtests [list "${shortfile}-XX-build.log"]
+		set kitbuilt 0
+	}
 
 	## Split the filename into parts and store each part
 	set kitbuildinfo [split $shortfile -]
@@ -165,11 +173,13 @@ foreach file [lsort -dictionary [glob -directory $WEBDIR *]] {
 	unset -nocomplain kitinfo
 	set kitinfo(version) $tclversion
 	set kitinfo(file) $shortfile
+	set kitinfo(fullfile) $file
 	set kitinfo(buildfile) $buildfile
 	set kitinfo(failedtests) $failedtests
 	set kitinfo(buildflags) $kitbuildinfo
 	set kitinfo(os) $kitos
 	set kitinfo(cpu) $kitcpu
+	set kitinfo(built) $kitbuilt
 
 	# Store kit information with all kits
 	set key [list $tclversion $kitos $kitcpu]
@@ -212,8 +222,14 @@ foreach key [lsort -dictionary [array names allkitinfo]] {
 
 			for {set idx 0} {$idx < [llength $testname]} {incr idx} {
 				set val [lindex $testname $idx]
-				if {[string match {[0-9][0-9]} $val]} {
+				if {[string match {[0-9X][0-9X]} $val]} {
 					set testname [join [lrange $testname $idx end] -]
+
+					set loglink 1
+					if {[lindex [split $testname -] 0] == "XX"} {
+						set testname [join [lrange [split $testname -] 1 end] -]
+						set loglink 0
+					}
 
 					break
 				}
@@ -223,12 +239,21 @@ foreach key [lsort -dictionary [array names allkitinfo]] {
 				set bgcolor "red"
 			}
 
-			lappend failedtestshtml "<small><a href=\"$test\">$testname</a></small>"
+			if {$loglink} {
+				lappend failedtestshtml "<small><a href=\"$test\">$testname</a></small>"
+			} else {
+				lappend failedtestshtml "<small>$testname</small>"
+			}
 		}
 
 
-		puts $fd "        <td><a href=\"$kitinfo(file)\">[pretty_print_buildinfo $kitinfo(buildflags)]</a></td>"
-		puts $fd "        <td>[pretty_print_size [file size [file join $WEBDIR $kitinfo(file)]]]</td>"
+		set kitdesc [pretty_print_buildinfo $kitinfo(buildflags)]
+		if {$kitinfo(built)} {
+			puts $fd "        <td><a href=\"$kitinfo(file)\">$kitdesc</a></td>"
+		} else {
+			puts $fd "        <td>$kitdesc</td>"
+		}
+		puts $fd "        <td>[pretty_print_size [file size [file join $WEBDIR $kitinfo(fullfile)]]]</td>"
 		puts $fd "        <td bgcolor=\"$bgcolor\">$status</td>"
 		puts $fd "        <td><small><a href=\"$kitinfo(buildfile)\">([pretty_print_size [file size [file join $WEBDIR $kitinfo(buildfile)]]])</a></small></td>"
 		puts $fd "        <td>[join $failedtestshtml {, }]</td>"
