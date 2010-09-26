@@ -1,0 +1,11 @@
+#! /bin/sh
+
+AR=amd64-mingw32msvc-ar
+CC=amd64-mingw32msvc-gcc
+CXX=false
+RANLIB=amd64-mingw32msvc-ranlib
+RC=amd64-mingw32msvc-windres
+STRIP=amd64-mingw32msvc-strip
+export AR CC CXX RANLIB RC STRIP
+
+./kitcreator "$@" --host=amd64-mingw32msvc
