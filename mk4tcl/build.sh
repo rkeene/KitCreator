@@ -40,13 +40,8 @@ fi
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
 	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" || exit 1
 	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" install
-	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" distclean
 
-	# Build shared object version (only used for non-Kit loading)
-	./configure --enable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
-	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" || exit 1
-	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" install
-
+	exit 0
 ) || exit 1
 
 exit 0

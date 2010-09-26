@@ -28,7 +28,8 @@ mkdir 'out' 'inst' || exit 1
 
 	# Compile all objects...
 	## TODO: XXX: Need to replace this with a configure script
-	${CC:-cc} ${CPPFLAGS} ${CFLAGS} -I${TCLCONFIGDIR} -I${TCLCONFIGDIR}/../generic -o kit *.c $(find "${OTHERPKGSDIR}" -name '*.a' | grep '/inst/') ${LDFLAGS} -lz -lm -ldl  -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic
+	${CC:-cc} ${CPPFLAGS} ${CFLAGS} -I${TCLCONFIGDIR} -I${TCLCONFIGDIR}/../generic -o kit *.c $(find "${OTHERPKGSDIR}" -name '*.a' | grep '/inst/') ${LDFLAGS} -lz -lm -ldl  -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic || \
+	${CC:-cc} ${CPPFLAGS} ${CFLAGS} -I${TCLCONFIGDIR} -I${TCLCONFIGDIR}/../generic -o kit *.c $(find "${OTHERPKGSDIR}" -name '*.a' | grep '/inst/') ${LDFLAGS} -lz -lm -ldl -lnsl -lsocket -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic
 	strip kit >/dev/null 2>/dev/null
 
 	# Create VFS directory

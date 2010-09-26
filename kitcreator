@@ -5,11 +5,18 @@ export TCLVERS
 
 mode="build"
 if [ "$1" = "clean" ]; then
+	shift
+
 	mode="clean"
 fi
 if [ "$1" = "distclean" ]; then
+	shift
+
 	mode="distclean"
 fi
+
+CONFIGUREEXTRA="$@"
+export CONFIGUREEXTRA
 
 failedpkgs=""
 buildfailed="0"
