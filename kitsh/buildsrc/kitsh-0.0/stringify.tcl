@@ -21,7 +21,7 @@ proc stringifyfile {filename {key 0}} {
 }
 
 foreach file $argv {
-	puts [stringifyfile $file]
+	puts -nonewline [stringifyfile $file]
 }
 
 exit 0
