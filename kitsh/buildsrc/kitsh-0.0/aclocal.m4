@@ -145,8 +145,8 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
 		libdir="../../../${proj}/inst"
-		libfiles="`find "${libdir}" -name '*.a' | tr "\n" ' '`"
-		libfilesnostub="`find "${libdir}" -name '*.a' | grep -v 'stub' | tr "\n" ' '`"
+		libfiles="`find "${libdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
+		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
 		ARCHS="${ARCHS} ${libfiles}"
 
