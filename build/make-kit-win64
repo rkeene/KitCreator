@@ -8,4 +8,4 @@ RC=amd64-mingw32msvc-windres
 STRIP=amd64-mingw32msvc-strip
 export AR CC CXX RANLIB RC STRIP
 
-./kitcreator "$@" --host=amd64-mingw32msvc
+./kitcreator "$@" --host=amd64-mingw32msvc --enable-64bit
