@@ -61,7 +61,7 @@ proc pretty_print_key {key} {
 
 proc pretty_print_buildinfo {buildinfo} {
 	set desc [list]
-	foreach tag [list min static notk statictk unthreaded threaded zip] {
+	foreach tag [list min static notk nomk4 statictk unthreaded threaded zip] {
 		if {[lsearch -exact $buildinfo $tag] != -1} {
 			switch -- $tag {
 				"min" {
@@ -72,6 +72,9 @@ proc pretty_print_buildinfo {buildinfo} {
 				}
 				"notk" {
 					lappend desc "Without Tk"
+				}
+				"nomk4" {
+					lappend desc "Without Metakit4"
 				}
 				"statictk" {
 					lappend desc "Tk linked to Kit"

@@ -45,13 +45,14 @@ for file in "${TESTDIR}"/kits/*.log; do
 done
 
 failed=""
-for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk min min-static win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk linux-arm-min; do
+for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 linux-arm-min; do
 	kitcreator="./kitcreator"
 	args=""
 	runnable="1"
 	iszip="0"
 	statictk="0"
 	notk="0"
+	nomk4="0"
 
 	# Handle base configuration
 	os="$(uname -s | dd conv=lcase 2>/dev/null)"
@@ -117,6 +118,11 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 					echo "${kit}: Unable to create StaticTk and NoTk, ignoring NoTk" >&2
 				fi
 				;;
+			*-nomk4-*)
+				tempkit="$(echo "${tempkit}" | sed 's@-nomk4-@-@')"
+				nomk4="1"
+				iszip="1"
+				;;
 		esac
 	done
 
@@ -153,8 +159,18 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 
 			if [ "${notk}" = "1" ]; then
 				KITCREATOR_PKGS='itcl mk4tcl'
-				export KITCREATOR_PKGS
+			fi
 
+			if [ "${nomk4}" = "1" ]; then
+				if [ -z "${KITCREATOR_PKGS}" ]; then
+					KITCREATOR_PKGS='itcl tk'
+				else
+					KITCREATOR_PKGS="$(echo "${KITCREATOR_PKGS}" | sed 's@mk4tcl@@')"
+				fi
+			fi
+			export KITCREATOR_PKGS
+
+			if [ -n "${KITCREATOR_PKGS}" ]; then
 				echo "  KITCREATOR_PKGS=\"${KITCREATOR_PKGS}\"" >> "${buildlog}"
 				echo "  export KITCREATOR_PKGS" >> "${buildlog}"
 			fi
