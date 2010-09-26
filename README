@@ -174,8 +174,8 @@ If the "mk4tcl" project fails to build (or is not requested to be built),
 the rest of the project will be built using zip files instead of Metakit
 databases.
 
-To create the Metakit database (if needed), one of two Tclkits is used (tried
-in this order):
+To create the storage database, one of two Tclkits is used (tried in this
+order):
 	1. The Tclkit specified by the TCLKIT environment variable (or
 	   "tclkit" if that variable is not set) if it is functional; or
 	2. The built Tclkit itself
