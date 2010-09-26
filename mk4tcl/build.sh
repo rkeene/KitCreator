@@ -59,10 +59,19 @@ fi
 
 	cd "${BUILDDIR}/unix" || exit 1
 
+	# If we are building for Win32, we need to define "BUILD_tcl" so that
+	# TCL_STORAGE_CLASS gets defined as DLLEXPORT, to make static linking
+	# work
+	BUILDTYPE="$(basename "${TCLCONFIGDIR}")"
+	if [ "${BUILDTYPE}" = "win" ]; then
+		CPPFLAGS="${CPPFLAGS} -DBUILD_tcl=1"
+		export CPPFLAGS
+	fi
+
 	# Build static libraries for linking against Tclkit
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
-	${MAKE:-make} tcllibdir="${INSTDIR}/lib" || exit 1
-	${MAKE:-make} tcllibdir="${INSTDIR}/lib" install
+	${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" || exit 1
+	${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" install
 
 	exit 0
 ) || exit 1
