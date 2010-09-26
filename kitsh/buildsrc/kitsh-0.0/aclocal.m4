@@ -85,6 +85,17 @@ AC_DEFUN(DC_DO_TK, [
 		CFLAGS="${CFLAGS} ${TK_INCLUDE_SPEC} -I${tkconfigshdir} -I${TK_SRC_DIR}/generic -I${TK_SRC_DIR}/xlib"
 		CPPFLAGS="${CPPFLAGS} ${TK_INCLUDE_SPEC} -I${tkconfigshdir} -I${TK_SRC_DIR}/generic -I${TK_SRC_DIR}/xlib"
 		LIBS="${LIBS} ${TK_LIBS}"
+
+		NEWLIBS=""
+		for lib in ${LIBS}; do
+			if echo "${lib}" | grep '^-l' >/dev/null; then
+				if echo " ${NEWLIBS} " | grep " ${lib} " >/dev/null; then
+					continue
+				fi
+			fi
+			NEWLIBS="${NEWLIBS} ${lib}"
+		done
+		LIBS="${NEWLIBS}"
 	fi
 
 	AC_SUBST(CFLAGS)
