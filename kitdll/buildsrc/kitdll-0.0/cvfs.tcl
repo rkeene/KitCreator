@@ -20,8 +20,10 @@ proc ::vfs::kitdll::Unmount {local} {
 ## Filesystem Data
 namespace eval ::vfs::kitdll::data {}
 set ::vfs::kitdll::data(joe) "Test\n"
+set ::vfs::kitdll::data(bob) "joe"
 set {::vfs::kitdll::metadata()} [list type directory ino 0 mode 0555 nlink 2 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
 set ::vfs::kitdll::metadata(joe) [list type file ino 1 mode 0444 nlink 1 uid 0 gid 0 size 5 atime 0 mtime 0 ctime 0]
+set ::vfs::kitdll::metadata(bob) [list type link ino 4 mode 0444 nlink 1 uid 0 gid 0 size 5 atime 0 mtime 0 ctime 0]
 set ::vfs::kitdll::metadata(sub) [list type directory ino 2 mode 0555 nlink 1 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
 set ::vfs::kitdll::metadata(sub/sub2) [list type directory ino 3 mode 0555 nlink 1 uid 0 gid 0 size 0 atime 0 mtime 0 ctime 0]
 
@@ -117,7 +119,7 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 			set children [list]
 		}
 
-		set children [list $root]
+		set children [list $relative]
 	} else {
 		set children [::vfs::kitdll::data::getChildren $hashkey $relative]
 	}
@@ -137,6 +139,9 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 		} else {
 			set child "${actualpath}/${child}"
 		}
+		if {[string index $child end] == ""} {
+			set child [string range $child 0 end-1]
+		}
 
 		if {![info exists metadata(type)]} {
 			continue
@@ -149,6 +154,9 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 			}
 			"file" {
 				set filetype [expr {$filetype | 0x10}]
+			}
+			"link" {
+				set filetype [expr {$filetype | 0x20}]
 			}
 			default {
 				continue
