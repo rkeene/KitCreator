@@ -331,5 +331,3 @@ proc ::vfs::kitdll::vfsop_utime {} {
 }
 
 package provide vfs::kitdll 1.0
-
-::vfs::kitdll::Mount tcl /tmp
