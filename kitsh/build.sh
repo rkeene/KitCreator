@@ -61,6 +61,7 @@ mkdir 'out' 'inst' || exit 1
 		### Call installer
 		cp kit runkit
 		echo 'set argv [list kit starpack.vfs]' > setup.tcl
+		echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
 		echo 'source installvfs.tcl' >> setup.tcl
 		echo | ./runkit
 	fi
