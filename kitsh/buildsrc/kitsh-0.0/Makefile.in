@@ -1,4 +1,5 @@
 CC = @CC@
+RC = @RC@
 CFLAGS = @CFLAGS@ @DEFS@ -DSTDC_HEADERS=1 -DTK_LOCAL_APPINIT=TclKit_AppInit
 CPPFLAGS = @CPPFLAGS@ @DEFS@ -DSTDC_HEADERS=1 -DTK_LOCAL_APPINIT=TclKit_AppInit
 LDFLAGS = @LDFLAGS@
@@ -7,6 +8,9 @@ ARCHS = @ARCHS@
 OBJS = kitInit.o main.o pwb.o rechan.o zlib.o winMain.o @EXTRA_OBJS@
 
 all: kit
+
+kit.res.o: kit.rc kit.ico
+	$(RC) -o kit.res.o $(CPPFLAGS) kit.rc
 
 kit: $(OBJS) $(ARCHS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o kit $(OBJS) $(ARCHS) $(LDFLAGS) $(LIBS)

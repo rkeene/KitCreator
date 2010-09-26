@@ -24,6 +24,14 @@ DC_FIND_TCLKIT_LIBS
 dnl Find extra objects we need to link as a part of "kit"
 AC_SUBST(EXTRA_OBJS)
 
+dnl Check for Windows Resource Compiler
+AC_CHECK_TOOL([RC], [windres], [false])
+
+dnl If we found the resource compiler, add "kit.res.o" to our list of objects to build
+if ! test "$RC" = "false"; then
+	EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
+fi
+
 dnl Determine if we have "Tcl_SetStartupScript" (8.6.x) or "TclSetStartupScriptPath" (8.4.x)
 SAVE_LIBS="${LIBS}"
 LIBS="${ARCHS} ${LIBS}"

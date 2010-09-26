@@ -34,11 +34,20 @@ mkdir 'out' 'inst' || exit 1
 	# Cleanup, just incase the incoming directory was not pre-cleaned
 	${MAKE:-make} distclean >/dev/null 2>/dev/null
 
-	# Figure out if zlib compiled
+	# Figure out if zlib compiled (if not, the system zlib will be used and we
+	# will need to have that present)
 	ZLIBDIR="$(cd "${OTHERPKGSDIR}/zlib/inst" 2>/dev/null && pwd)"
 	export ZLIBDIR
 	if [ -z "${ZLIBDIR}" -o ! -f "${ZLIBDIR}/lib/libz.a" ]; then
 		unset ZLIBDIR
+	fi
+
+	# Copy user specified kit.rc and kit.ico in to build directory, if found
+	if [ -f "${OTHERPKGSDIR}/kit.rc" ]; then
+		cp "${OTHERPKGSDIR}/kit.rc" "${BUILDDIR}"
+	fi
+	if [ -f "${OTHERPKGSDIR}/kit.ico" ]; then
+		cp "${OTHERPKGSDIR}/kit.ico" "${BUILDDIR}"
 	fi
 
 	# Include extra objects as required
