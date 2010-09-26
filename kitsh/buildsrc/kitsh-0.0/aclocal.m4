@@ -1,19 +1,3 @@
-AC_DEFUN(DC_DO_NETWORK, [
-	AC_SEARCH_LIBS(inet_aton, xnet ws2_32 wsock32, [
-		AC_DEFINE(HAVE_INET_ATON, [], [Have inet_aton()])
-	], [
-		AC_SEARCH_LIBS(inet_addr, nsl ws2_32 wsock32, [
-			AC_DEFINE(HAVE_INET_ADDR, [], [Have inet_addr()])
-		], [
-			AC_MSG_WARN([could not find inet_addr or inet_aton!])
-		])
-	])
-
-	AC_SEARCH_LIBS(inet_ntoa, socket nsl ws2_32 wsock32,, [ AC_MSG_WARN([Couldn't find inet_ntoa!]) ])
-	AC_SEARCH_LIBS(connect, socket nsl ws2_32 wsock32,, [ AC_MSG_WARN([Couldn't find connect!]) ])
-	AC_SEARCH_LIBS(socket, socket nsl ws2_32 wsock32,, [ AC_MSG_WARN([Couldn't find socket!]) ])
-])
-
 AC_DEFUN(DC_DO_TCL, [
 	AC_MSG_CHECKING([path to tcl])
 	AC_ARG_WITH(tcl, AC_HELP_STRING([--with-tcl], [directory containing tcl configuration (tclConfig.sh)]), [], [
@@ -45,10 +29,12 @@ AC_DEFUN(DC_DO_TCL, [
 	CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic"
 	CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic"
 	LDFLAGS="${LDFLAGS}"
+	LIBS="${LIBS} ${TCL_LIBS}"
 
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
 	AC_SUBST(LDFLAGS)
+	AC_SUBST(LIBS)
 
 	AC_MSG_RESULT([$tclconfigsh])
 ])

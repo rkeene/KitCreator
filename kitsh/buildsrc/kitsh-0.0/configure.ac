@@ -9,9 +9,6 @@ AC_PROG_INSTALL
 AC_AIX
 AC_GNU_SOURCE
 
-dnl Check for network libraries
-DC_DO_NETWORK
-
 dnl Find the appropriate Tcl headers and libraries
 DC_DO_TCL
 
