@@ -12,7 +12,7 @@ export KITSHROOTDIR
 	rm -rf autom4te.cache
 	rm -f *~
 
-	./configure
+	./configure || exit 1
 
 	make distclean
-)
+) || exit 1
