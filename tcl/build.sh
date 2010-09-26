@@ -56,9 +56,9 @@ fi
 
 		./configure --disable-shared --prefix="${INSTDIR}" ${CONFIGUREEXTRA}
 
-		"${MAKE:-make}" || continue
+		${MAKE:-make} || continue
 
-		"${MAKE:-make}" install
+		${MAKE:-make} install
 
 		mkdir "${OUTDIR}/lib" || exit 1
 		cp -r "${INSTDIR}/lib"/tcl*/ "${OUTDIR}/lib/"

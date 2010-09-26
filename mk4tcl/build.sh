@@ -55,8 +55,8 @@ fi
 
 	# Build static libraries for linking against Tclkit
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
-	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" || exit 1
-	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" install
+	${MAKE:-make} tcllibdir="${INSTDIR}/lib" || exit 1
+	${MAKE:-make} tcllibdir="${INSTDIR}/lib" install
 
 	exit 0
 ) || exit 1

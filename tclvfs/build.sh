@@ -56,8 +56,8 @@ fi
 
 	# Build static version
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
-	"${MAKE:-make}" || exit 1
-	"${MAKE:-make}" install
+	${MAKE:-make} || exit 1
+	${MAKE:-make} install
 
 	mkdir "${OUTDIR}/lib" || exit 1
 	cp -r "${INSTDIR}/lib"/vfs*/ "${OUTDIR}/lib/"

@@ -62,9 +62,9 @@ fi
 	cd "${BUILDDIR}" || exit 1
 	./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
-	"${MAKE:-make}" || exit 1
+	${MAKE:-make} || exit 1
 
-	"${MAKE:-make}" install
+	${MAKE:-make} install
 
 	mkdir "${OUTDIR}/lib" || exit 1
 	cp -r "${INSTDIR}/lib"/itcl*/ "${OUTDIR}/lib/"

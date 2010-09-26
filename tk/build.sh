@@ -56,9 +56,9 @@ fi
 
 		./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
-		"${MAKE:-make}" || continue
+		${MAKE:-make} || continue
 
-		"${MAKE:-make}" install
+		${MAKE:-make} install
 
 		# Update pkgIndex to load libtk from the local directory rather
 		# than the parent directory
