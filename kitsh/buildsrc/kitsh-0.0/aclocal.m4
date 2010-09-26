@@ -26,8 +26,8 @@ AC_DEFUN(DC_DO_TCL, [
 	if test -f "${tclconfigsh}"; then
 		source "${tclconfigsh}"
 
-		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic"
-		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic"
+		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${TCL_SRC_DIR}/unix"
+		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${TCL_SRC_DIR}/unix"
 		LDFLAGS="${LDFLAGS}"
 		LIBS="${LIBS} ${TCL_LIBS}"
 	fi
@@ -49,4 +49,19 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 	AC_SUBST(LIBS)
 
 	AC_MSG_RESULT([${STATICLIBCXX}])
+])
+
+AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
+	for proj in mk4tcl tcl tclvfs; do
+		AC_MSG_CHECKING([for libraries required for ${proj}])
+
+		libdir="../../../${proj}/inst"
+		libfiles="`find "${libdir}" -name '*.a' | tr "\n" ' '`"
+
+		ARCHS="${ARCHS} ${libfiles}"
+
+		AC_MSG_RESULT([${libfiles}])
+	done
+
+	AC_SUBST(ARCHS)
 ])

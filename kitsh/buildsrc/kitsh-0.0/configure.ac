@@ -15,6 +15,9 @@ DC_DO_TCL
 dnl Find out how to statically link to libstdc++ (for Metakit)
 DC_DO_STATIC_LINK_LIBCXX
 
+dnl Find archives we need to link to
+DC_FIND_TCLKIT_LIBS
+
 dnl Find the appropriate libraries to link to
 AC_SEARCH_LIBS(inflate, z zlib,, [ AC_MSG_WARN([Couldn't find inflate (normally in zlib)!]) ])
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
