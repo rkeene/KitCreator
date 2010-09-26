@@ -60,6 +60,17 @@ fi
 
 	cp generic/vfs.c .
 
+	# If we are building for Win32, we need to define TEA_PLATFORM so that
+	# the right private directory is found
+	BUILDTYPE="$(basename "${TCLCONFIGDIR}")"
+	if [ "${BUILDTYPE}" = "win" ]; then
+		TEA_PLATFORM="windows"
+		export TEA_PLATFORM
+
+		CFLAGS="${CFLAGS} -I${TCLCONFIGDIR}"
+		export CFLAGS
+	fi
+
 	# Build static version
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 	${MAKE:-make} || exit 1
