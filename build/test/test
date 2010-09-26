@@ -113,6 +113,12 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 	done
 
 	for version in ${VERSIONS}; do
+		# Work around changes in default behaviour
+		if [ "${version}" = "cvs_HEAD" ]; then
+			kit="$(echo "${kit}" | sed 's@-threaded@-unthreaded@')"
+			args="$(echo "${args}" | sed 's@ --enable-threads@ --disable-threads@')"
+		fi
+
 		# Create Tclkit
 		createdkit="tclkit-${version}"
 		outputname="${TESTDIR}/kits/tclkit-${version}-${kit}"
