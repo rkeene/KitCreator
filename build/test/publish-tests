@@ -140,12 +140,35 @@ foreach file [lsort -dictionary [glob -tails -directory $WEBDIR * failed/*]] {
 
 	# Derive what we can from the filename
 	set buildfile "${shortfile}-build.log"
-	set failedtests [glob -nocomplain -tails -directory $WEBDIR "${shortfile}-\[0-9\]\[0-9\]-*.log"]
+
+	# Determine which tests passed/failed
+	set failedtests [list]
+	set passedtests [list]
+	set testsfile "${file}-tests.log"
+	if {[file exists $testsfile]} {
+		set testfd [open $testsfile r]
+		foreach line [split [read $testfd] \n] {
+			set work [split $line :]
+			set test [string trim [lindex $work 0]]
+			set result [string trim [lindex $work 1]]
+
+			switch -- $result {
+				"PASS" {
+					lappend passedtests "${shortfile}-${test}.log"
+				}
+				"FAIL" {
+					lappend failedtests "${shortfile}-${test}.log"
+				}
+			}
+		}
+		close $testfd
+	}
 
 	# If this kit represents a failed build, set the failed tests to that
 	set kitbuilt 1
 	if {[file tail [file dirname $file]] == "failed"} {
 		set failedtests [list "${shortfile}-XX-build.log"]
+		set passedtests [list]
 		set kitbuilt 0
 	}
 
@@ -166,6 +189,7 @@ foreach file [lsort -dictionary [glob -tails -directory $WEBDIR * failed/*]] {
 	set kitinfo(fullfile) $file
 	set kitinfo(buildfile) $buildfile
 	set kitinfo(failedtests) $failedtests
+	set kitinfo(passedtests) $passedtests
 	set kitinfo(buildflags) $kitbuildinfo
 	set kitinfo(os) $kitos
 	set kitinfo(cpu) $kitcpu
@@ -204,7 +228,7 @@ foreach key [lsort -dictionary [array names allkitinfo]] {
 			set status ok
 
 			# If we are cross-compiled, note that no tests were run
-			if {[lsearch -exact $kitinfo(buildflags) xcompile] != -1} {
+			if {[llength $kitinfo(passedtests)] == 0} {
 				set status untested
 			}
 		} else {

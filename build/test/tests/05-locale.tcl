@@ -9,4 +9,7 @@ if {[encoding system] == "utf-8"} {
 	exit 0
 }
 
+puts "Locale:   [encoding system]"
+puts "Expected: utf-8"
+
 exit 1

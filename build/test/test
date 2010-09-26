@@ -133,6 +133,7 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 		failoutputname="${TESTDIR}/kits/failed/tclkit-${version}-${kit}"
 		buildlog="${outputname}-build.log"
 		failbuildlog="${failoutputname}-build.log"
+		testresultslog="${outputname}-tests.log"
 
 		if [ ! -f "${outputname}" ]; then
 			unset KITCREATOR_PKGS STATICTK
@@ -266,6 +267,8 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 		fi
 
 		# Perform battery of tests
+		## Clean tests log
+		rm -f "${testresultslog}"
 		for testscp in "${TESTDIR}"/tests/*.tcl; do
 			testscp_tag="$(basename "${testscp}" .tcl)"
 			testscppre="$(dirname "${testscp}")/${testscp_tag}.sh"
@@ -284,8 +287,12 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 
 				failed="${failed} ${version}/${kit}-test-${testscp_tag}"
 
+				echo "${testscp_tag}: FAIL" >>  "${testresultslog}"
+
 				continue
 			fi
+
+			echo "${testscp_tag}: PASS" >>  "${testresultslog}"
 
 			rm -f "${scplogfile}"
 		done
