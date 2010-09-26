@@ -5,9 +5,8 @@ AR=mipsel-linux-uclibc-ar
 CC=mipsel-linux-uclibc-gcc
 CXX=false
 RANLIB=mipsel-linux-uclibc-ranlib
-RC=mipsel-linux-uclibc-windres
 STRIP=mipsel-linux-uclibc-strip
-export PATH AR CC CXX RANLIB RC STRIP
+export PATH AR CC CXX RANLIB STRIP
 
 # Build minimalistic tclkit
 KITCREATOR_PKGS=" "
