@@ -143,31 +143,14 @@ foreach file [lsort -dictionary [glob -tails -directory $WEBDIR * failed/*]] {
 	}
 
 	## Split the filename into parts and store each part
+	unset -nocomplain kitos kitcpu
 	set kitbuildinfo [split $shortfile -]
 	set tclversion [lindex $kitbuildinfo 1]
-	set kitbuildinfo [lsort -dictionary [lrange $kitbuildinfo 2 end]]
+	set kitos [lindex $kitbuildinfo 2]
+	set kitcpu [lindex $kitbuildinfo 3]
 
-	## Determine Kit OS from random file names
-	unset -nocomplain kitos kitcpu
-	if {[lsearch -exact $kitbuildinfo "win32"] != -1} {
-		set idx [lsearch -exact $kitbuildinfo "win32"]
-		set kitbuildinfo [lreplace $kitbuildinfo $idx $idx]
-		set kitos "windows"
-		set kitcpu "i586"
-	} elseif {[lsearch -exact $kitbuildinfo "arm"] != -1} {
-		set idx [lsearch -exact $kitbuildinfo "arm"]
-		set kitbuildinfo [lreplace $kitbuildinfo $idx $idx]
-		set kitos "linux"
-		set kitcpu "arm"
-	} else {
-		set idx [lsearch -exact $kitbuildinfo "normal"]
-		if {$idx != -1} {
-			set kitbuildinfo [lreplace $kitbuildinfo $idx $idx]
-		}
-
-		set kitos [string tolower $tcl_platform(os)]
-		set kitcpu [string tolower $tcl_platform(machine)]
-	}
+	### Store the remainder as a list of tags
+	set kitbuildinfo [lsort -dictionary [lrange $kitbuildinfo 4 end]]
 
 	# Generate array to describe this kit
 	unset -nocomplain kitinfo
