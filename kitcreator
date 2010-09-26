@@ -23,9 +23,14 @@ fi
 CONFIGUREEXTRA="$@"
 export CONFIGUREEXTRA
 
+# Add packages implied by the additional arguments
+if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads' >/dev/null 2>/dev/null; then
+	ADDPKGS="${ADDPKGS} thread"
+fi
+
 failedpkgs=""
 buildfailed="0"
-for pkg in tcl tk itcl mk4tcl tclvfs zlib kitsh; do
+for pkg in tcl tk itcl mk4tcl tclvfs zlib ${ADDPKGS} kitsh; do
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
 	fi
