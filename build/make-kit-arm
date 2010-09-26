@@ -1,0 +1,17 @@
+#! /bin/sh
+
+PATH="${PATH}:/home/rkeene/root/cross-compilers/mipsel-linux-uclibc/usr/mipsel-linux-uclibc/bin"
+AR=mipsel-linux-uclibc-ar
+CC=mipsel-linux-uclibc-gcc
+CXX=false
+RANLIB=mipsel-linux-uclibc-ranlib
+RC=mipsel-linux-uclibc-windres
+STRIP=mipsel-linux-uclibc-strip
+export PATH AR CC CXX RANLIB RC STRIP
+
+# Build minimalistic tclkit
+KITCREATOR_PKGS=" "
+KITCREATOR_MINENCODINGS='true' 
+export KITCREATOR_PKGS KITCREATOR_MINENCODINGS
+
+./kitcreator "$@" --host=mipsel-linux-uclibc
