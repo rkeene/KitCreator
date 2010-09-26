@@ -89,11 +89,17 @@ proc tclInit {} {
 
 		# fix system encoding, if it wasn't properly set up (200207.004 bug)
 		if {[encoding system] eq "identity"} {
-			switch $::tcl_platform(platform) {
-				windows		{ encoding system cp1252 }
-				macintosh	{ encoding system macRoman }
-			        default		{ encoding system iso8859-1 }
+			if {[info exists ::tclkit_system_encoding] && $::tclkit_system_encoding != ""} {
+				encoding system $::tclkit_system_encoding
+			} else {
+				switch $::tcl_platform(platform) {
+					windows		{ encoding system cp1252 }
+					macintosh	{ encoding system macRoman }
+				        default		{ encoding system iso8859-1 }
+				}
 			}
+
+			unset -nocomplain ::tclkit_system_encoding
 		}
 
 		# now remount the executable with the correct encoding

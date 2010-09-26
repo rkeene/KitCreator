@@ -33,6 +33,16 @@
 
 #include "tclInt.h"
 
+#if defined(HAVE_TCL_GETENCODINGNAMEFROMENVIRONMENT) && defined(HAVE_TCL_SETSYSTEMENCODING)
+#  define TCLKIT_CAN_SET_ENCODING 1
+#endif
+#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
+#  define KIT_INCLUDES_PWB 1
+#endif
+#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
+#  define KIT_INCLUDES_ZLIB 1
+#endif
+
 #ifdef KIT_INCLUDES_ITCL
 Tcl_AppInitProc	Itcl_Init;
 #endif
@@ -40,10 +50,10 @@ Tcl_AppInitProc	Itcl_Init;
 Tcl_AppInitProc	Mk4tcl_Init;
 #endif
 Tcl_AppInitProc Vfs_Init, Rechan_Init;
-#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
+#ifdef KIT_INCLUDES_PWB
 Tcl_AppInitProc	Pwb_Init;
 #endif
-#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
+#ifdef KIT_INCLUDES_ZLIB
 Tcl_AppInitProc Zlib_Init;
 #endif
 #ifdef TCL_THREADS
@@ -164,18 +174,22 @@ void SetExecName(Tcl_Interp *interp) {
 }
 
 int TclKit_AppInit(Tcl_Interp *interp) {
+#ifdef TCLKIT_CAN_SET_ENCODING
+	Tcl_DString encodingName;
+#endif
+
 #ifdef KIT_INCLUDES_ITCL
 	Tcl_StaticPackage(0, "Itcl", Itcl_Init, NULL);
 #endif 
 #ifdef KIT_INCLUDES_MK4TCL
 	Tcl_StaticPackage(0, "Mk4tcl", Mk4tcl_Init, NULL);
 #endif
-#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
+#ifdef KIT_INCLUDES_PWB
 	Tcl_StaticPackage(0, "pwb", Pwb_Init, NULL);
 #endif 
 	Tcl_StaticPackage(0, "rechan", Rechan_Init, NULL);
 	Tcl_StaticPackage(0, "vfs", Vfs_Init, NULL);
-#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
+#ifdef KIT_INCLUDES_ZLIB
 	Tcl_StaticPackage(0, "zlib", Zlib_Init, NULL);
 #endif
 #ifdef TCL_THREADS
@@ -194,6 +208,14 @@ int TclKit_AppInit(Tcl_Interp *interp) {
 	Tcl_SetVar(interp, "tcl_rcFileName", "~/tclkitrc.tcl", TCL_GLOBAL_ONLY);
 #else
 	Tcl_SetVar(interp, "tcl_rcFileName", "~/.tclkitrc", TCL_GLOBAL_ONLY);
+#endif
+
+#ifdef TCLKIT_CAN_SET_ENCODING
+	/* Set the encoding from the Environment */
+	Tcl_GetEncodingNameFromEnvironment(&encodingName);
+	Tcl_SetSystemEncoding(NULL, Tcl_DStringValue(&encodingName));
+	Tcl_SetVar(interp, "tclkit_system_encoding", Tcl_DStringValue(&encodingName), 0);
+	Tcl_DStringFree(&encodingName);
 #endif
 
 	/* Hack to get around Tcl bug 1224888.  This must be run here and

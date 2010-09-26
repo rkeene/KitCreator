@@ -32,10 +32,13 @@ if ! test "$RC" = "false"; then
 	EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
 fi
 
-dnl Determine if we have "Tcl_SetStartupScript" (8.6.x) or "TclSetStartupScriptPath" (8.4.x)
+dnl Check for Tcl features
 SAVE_LIBS="${LIBS}"
 LIBS="${ARCHS} ${LIBS}"
+dnl Determine if we have "Tcl_SetStartupScript" (8.6.x) or "TclSetStartupScriptPath" (8.4.x)
 AC_CHECK_FUNCS(Tcl_SetStartupScript TclSetStartupScriptPath)
+dnl Check for the ability to get the current system encoding
+AC_CHECK_FUNCS(Tcl_GetEncodingNameFromEnvironment Tcl_SetSystemEncoding)
 LIBS="${SAVE_LIBS}"
 
 dnl Find zlib
