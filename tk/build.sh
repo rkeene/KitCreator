@@ -54,7 +54,11 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
-	for dir in unix win macosx; do
+	for dir in unix win macosx __fail__; do
+		if [ "${dir}" = "__fail__" ]; then
+			exit 1
+		fi
+
 		# Remove previous directory's "tkConfig.sh" if found
 		rm -f 'tkConfig.sh'
 
@@ -76,7 +80,7 @@ fi
 
 		${MAKE:-make} || continue
 
-		${MAKE:-make} install
+		${MAKE:-make} install || continue
 
 		# Update pkgIndex to load libtk from the local directory rather
 		# than the parent directory
@@ -95,8 +99,6 @@ fi
 
 		break
 	done
-
-	exit 0
 ) || exit 1
 
 exit 0
