@@ -24,7 +24,22 @@ mkdir 'build' 'out' 'inst' || exit 1
 if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
-	wget -O "${SRC}" "${SRCURL}" || exit 1
+	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
+		CVSTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
+		export CVSTAG
+
+		(       
+			cd src || exit 1
+
+			cvs -z3 -d:pserver:anonymous@tcl.cvs.sourceforge.net:/cvsroot/tktoolkit co -r "${CVSTAG}" -P tk
+
+			mv tk "tk${TCLVERS}"
+
+			tar -cf - "tk${TCLVERS}" | gzip -c > "../${SRC}"
+		)
+	else    
+		wget -O "${SRC}" "${SRCURL}" || exit 1
+	fi
 fi
 
 (
