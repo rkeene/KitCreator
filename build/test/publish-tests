@@ -3,10 +3,22 @@
 package require Tcl 8.5
 
 set WEBDIR "/web/rkeene/devel/kitcreator/kitbuild"
-if {[llength $argv] == 1} {
-	# If a single argument is given, put results in that sub-directory
-	set WEBDIR [file join $WEBDIR [lindex $argv 0]]
+
+if {[llength $argv] != 1} {
+	puts stderr "Usage: publish-tests <version>"
+
+	exit 1
 }
+
+set kitcreator_vers [lindex $argv 0]
+
+if {$kitcreator_vers == ""} {
+	puts stderr "Invalid version: \"$kitcreator_vers\""
+
+	exit 1
+}
+
+set WEBDIR [file join $WEBDIR $kitcreator_vers]
 
 if {![file isdir "kits"]} {
 	puts stderr "Could not find kits/ directory, aborting."
