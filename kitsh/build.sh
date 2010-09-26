@@ -66,14 +66,16 @@ mkdir 'out' 'inst' || exit 1
 
 	# Compile Kitsh
 	if [ -z "${ZLIBDIR}" ]; then
-		echo "./configure --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
+		echo "Running: ./configure --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 
 		./configure --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 	else
-		echo "./configure --with-tcl=\"${TCLCONFIGDIR}\" --with-zlib=\"${ZLIBDIR}\" ${CONFIGUREEXTRA}"
+		echo "Running: ./configure --with-tcl=\"${TCLCONFIGDIR}\" --with-zlib=\"${ZLIBDIR}\" ${CONFIGUREEXTRA}"
 
 		./configure --with-tcl="${TCLCONFIGDIR}" --with-zlib="${ZLIBDIR}" ${CONFIGUREEXTRA}
 	fi
+
+	echo "Running: ${MAKE:-make}"
 	${MAKE:-make} || exit 1
 
 	# Strip the kit of all symbols, if possible

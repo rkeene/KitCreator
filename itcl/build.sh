@@ -82,10 +82,13 @@ fi
 	rm -f configure.new
 
 	# Build
+	echo "Running: ./configure --enable-shared --disable-symbols --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 	./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
+	echo "Running: ${MAKE:-make}"
 	${MAKE:-make} || exit 1
 
+	echo "Running: ${MAKE:-make} install"
 	${MAKE:-make} install
 
 	mkdir "${OUTDIR}/lib" || exit 1

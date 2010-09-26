@@ -92,8 +92,10 @@ fi
 			./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 		fi
 
+		echo "Running: ${MAKE:-make}"
 		${MAKE:-make} || continue
 
+		echo "Running: ${MAKE:-make} install"
 		${MAKE:-make} install || continue
 
 		# Update to include resources, if found

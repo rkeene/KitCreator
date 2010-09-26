@@ -69,7 +69,10 @@ fi
 	fi
 
 	# Build static libraries for linking against Tclkit
+	echo "Running: ./configure --disable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+
+	echo "Running: ${MAKE:-make} tcllibdir=\"${INSTDIR}/lib\" AR=\"${AR:-ar}\" RANLIB=\"${RANLIB:-ranlib}\""
 	${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" && \
 	${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" install || (
 		rm -rf "${INSTDIR}"

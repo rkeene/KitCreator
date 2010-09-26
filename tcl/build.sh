@@ -76,14 +76,18 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
+		echo "Running: ./configure --disable-shared --with-encoding=utf-8 --prefix=\"${INSTDIR}\" ${CONFIGUREEXTRA}"
 		./configure --disable-shared --with-encoding=utf-8 --prefix="${INSTDIR}" ${CONFIGUREEXTRA}
 
+		echo "Running: ${MAKE:-make}"
 		${MAKE:-make} || continue
 
+		echo "Running: ${MAKE:-make} install"
 		${MAKE:-make} install || (
 			# Work with Tcl 8.6.x's TCLSH_NATIVE solution for
 			# cross-compile installs
 
+			echo "Running: ${MAKE:-make} install TCLSH_NATIVE=\"${TCLKIT:-tclkit}\""
 			${MAKE:-make} install TCLSH_NATIVE="${TCLKIT:-tclkit}"
 		) || (
 			# Make install can fail if cross-compiling using Tcl 8.5.x
@@ -93,6 +97,7 @@ fi
 			cat Makefile.new > Makefile
 			rm -f Makefile.new
 
+			echo "Running: ${MAKE:-make} install TCLSH=\"../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")\""
 			${MAKE:-make} install TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
 		) || (
 			# Make install can fail if cross-compiling using Tcl 8.5.9
@@ -102,6 +107,7 @@ fi
 			cat Makefile.new > Makefile
 			rm -f Makefile.new
 
+			echo "Running: ${MAKE:-make} install TCL_EXE=\"../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")\""
 			${MAKE:-make} install TCL_EXE="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
 		) || exit 1
 
