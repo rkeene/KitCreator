@@ -1,13 +1,17 @@
 #! /usr/bin/env tclsh
 
-if {[llength $argv] != 2} {
-	puts stderr "Usage: installvfs.tcl <kitfile> <vfsdir>"
+set opt_compression 1
+if {[llength $argv] < 2} {
+	puts stderr "Usage: installvfs.tcl <kitfile> <vfsdir> \[<enable_compression>\]"
 
 	exit 1
 }
 
 set kitfile [lindex $argv 0]
 set vfsdir [lindex $argv 1]
+if {[lindex $argv 2] != ""} {
+	set opt_compression [lindex $argv 2]
+}
 
 if {[catch {
 	package require vfs::mk4
@@ -21,6 +25,7 @@ if {[catch {
 		source [file join $vfsdir lib/vfs/mk4vfs.tcl]
 	}
 }
+set mk4vfs::compress $opt_compression
 
 proc copy_file {srcfile destfile} {
 	switch -glob -- $srcfile {

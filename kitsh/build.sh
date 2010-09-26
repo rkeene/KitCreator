@@ -18,6 +18,11 @@ INSTDIR="$(pwd)/inst"
 OTHERPKGSDIR="$(pwd)/../"
 export KITSHVERS BUILDDIR OUTDIR INSTDIR OTHERPKGSDIR
 
+if [ -z "${ENABLECOMPRESSION}" ]; then
+	ENABLECOMPRESSION="1"
+fi
+export ENABLECOMPRESSION
+
 rm -rf 'build' 'out' 'inst'
 mkdir 'out' 'inst' || exit 1
 
@@ -55,12 +60,12 @@ mkdir 'out' 'inst' || exit 1
 	if echo 'exit 0' | "${TCLKIT}" >/dev/null 2>/dev/null; then
 		## Install using existing Tclkit
 		### Call installer
-		"${TCLKIT}" installvfs.tcl kit starpack.vfs
+		"${TCLKIT}" installvfs.tcl kit starpack.vfs "${ENABLECOMPRESSION}"
 	else
 		## Bootstrap (cannot cross-compile)
 		### Call installer
 		cp kit runkit
-		echo 'set argv [list kit starpack.vfs]' > setup.tcl
+		echo "set argv [list kit starpack.vfs {${ENABLECOMPRESSION}}]" > setup.tcl
 		echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
 		echo 'source installvfs.tcl' >> setup.tcl
 		echo | ./runkit
