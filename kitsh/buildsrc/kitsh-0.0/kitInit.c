@@ -181,8 +181,8 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 	Tcl_Obj *lobjv[1];
 #if defined(HAVE_READLINK)
 	ssize_t readlink_ret;
-	char procpath[PATH_MAX + 1];
-	char exe_buf[PATH_MAX + 1];
+	char procpath[4096];
+	char exe_buf[4096];
 	int snprintf_ret;
 
 	if (Tcl_GetNameOfExecutable() == NULL) {
