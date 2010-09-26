@@ -34,17 +34,22 @@ fi
 	gzip -dc "../${SRC}" | tar -xf -
 
 	cd "${BUILDDIR}" || exit 1
-	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
 	cp generic/vfs.c .
 
+	# Build static version
+	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 	"${MAKE:-make}" || exit 1
+	"${MAKE:-make}" install
 
+	# Build shared version
+	./configure --enable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+	"${MAKE:-make}" || exit 1
 	"${MAKE:-make}" install
 
 	mkdir "${OUTDIR}/lib" || exit 1
 	cp -r "${INSTDIR}/lib"/vfs*/ "${OUTDIR}/lib/"
-	rm -f "${OUTDIR}/lib"/vfs*/*.a
+	rm -f "${OUTDIR}/lib"/vfs*/*.a "${OUTDIR}/lib"/vfs*/*.so
 ) || exit 1
 
 exit 0

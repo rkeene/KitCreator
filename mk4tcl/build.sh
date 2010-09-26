@@ -33,12 +33,20 @@ fi
 
 	gzip -dc "../${SRC}" | tar -xf -
 
+
 	cd "${BUILDDIR}/unix" || exit 1
+
+	# Build static libraries for linking against Tclkit
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
-
 	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" || exit 1
-
 	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" install
+	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" distclean
+
+	# Build shared object version (only used for non-Kit loading)
+	./configure --enable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" || exit 1
+	"${MAKE:-make}" tcllibdir="${INSTDIR}/lib" install
+
 ) || exit 1
 
 exit 0
