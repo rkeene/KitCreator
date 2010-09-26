@@ -1,4 +1,16 @@
 This will build a Tclkit named "tclkit-<version>".
 
 Usage:
-	$ ./kitcreator
+	kitcreator {<version> | cvs_<cvsTag> | clean | distclean}
+
+	Default is to create a Tclkit from Tcl version 8.4.19
+
+Examples:
+	1. Create a Tclkit for Tcl 8.5.8:
+		$ ./kitcreator 8.5.8
+
+	2. Create a Tclkit for Tcl from CVS HEAD:
+		$ ./kitcreator cvs_HEAD
+
+	3. To clean up post-build:
+		$ ./kitcreator clean

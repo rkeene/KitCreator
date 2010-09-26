@@ -1,6 +1,11 @@
 #! /bin/bash
 
 TCLVERS="8.4.19"
+if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | grep '^cvs_' >/dev/null; then
+	TCLVERS="$1"
+
+	shift
+fi
 export TCLVERS
 
 mode="build"
