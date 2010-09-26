@@ -11,6 +11,8 @@ if [ "$1" = "distclean" ]; then
 	mode="distclean"
 fi
 
+failedpkgs=""
+buildfailed="0"
 for pkg in tcl tk itcl mk4tcl tclvfs memchan kitsh; do
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
@@ -23,22 +25,40 @@ for pkg in tcl tk itcl mk4tcl tclvfs memchan kitsh; do
 		continue
 	fi
 
+	failed="0"
 	(
 		cd "${pkg}" || exit 1
 
 		./build.sh > build.log 2>&1 || exit 1
-	) || failed="${failed} ${pkg}"
+	) || failed="1"
+
+	if [ "${failed}" = "1" ]; then
+		failedpkgs="${failedpkgs} ${pkg}"
+	fi
 
 	case "${pkg}" in
 		tcl)
 			TCLCONFIGDIR=$(find "$(pwd)/tcl/build" -name tclConfig.sh | head -1 | sed 's@/[^/]*$@@')
 			export TCLCONFIGDIR
 			;;
+		memchan)
+			failed="0"
+			;;
 	esac
+
+	if [ "${failed}" = "1" ]; then
+		buildfailed="1"
+	fi
 done
 
-if [ -n "${failed}" ]; then
-	echo "Failed to build:${failed}"
+if [ -n "${failedpkgs}" ]; then
+	echo "Failed to build:${failedpkgs}"
 fi
 
-exit 0
+if [ "${buildfailed}" != "0" ]; then
+	echo 'WARNING: Build is likely incomplete or failed.' >&2
+fi
+
+cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}"
+
+exit "${buildfailed}"
