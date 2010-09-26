@@ -16,6 +16,35 @@ proc ::vfs::kitdll::Unmount {local} {
 }
 
 # Implementation
+## I/O Handlers (pass to appropriate hashkey)
+namespace eval ::vfs::kitdll::data {}
+proc ::vfs::kitdll::data::getChildren args {
+	set hashkey [lindex $args 0]
+
+	set cmd "::vfs::kitdll::data::${hashkey}::getChildren"
+	set cmd [linsert $args 0 $cmd]
+
+	eval $cmd
+}
+
+proc ::vfs::kitdll::data::getMetadata args {
+	set hashkey [lindex $args 0]
+
+	set cmd "::vfs::kitdll::data::${hashkey}::getMetadata"
+	set cmd [linsert $args 0 $cmd]
+
+	eval $cmd
+}
+
+proc ::vfs::kitdll::data::getData args {
+	set hashkey [lindex $args 0]
+
+	set cmd "::vfs::kitdll::data::${hashkey}::getData"
+	set cmd [linsert $args 0 $cmd]
+
+	eval $cmd
+}
+
 ## VFS and Chan I/O
 ### Dispatchers
 proc ::vfs::kitdll::vfshandler {hashkey subcmd args} {
@@ -303,4 +332,4 @@ proc ::vfs::kitdll::vfsop_utime {} {
 
 package provide vfs::kitdll 1.0
 
-::vfs::kitdll::Mount vfs_kitdll_data /tmp
+::vfs::kitdll::Mount tcl /tmp

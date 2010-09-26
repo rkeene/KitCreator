@@ -105,6 +105,7 @@ set files [linsert $files 0 "__DUMMY__"]
 # Produce C89 compatible header
 set cpp_tag "KITDLL_[string toupper $hashkey]"
 set code_tag "kitdll_[string tolower $hashkey]"
+set hashkey [string tolower $hashkey]
 
 puts "#ifndef $cpp_tag"
 puts "#  define $cpp_tag 1"
@@ -349,5 +350,46 @@ puts ""
 puts "\treturn(num_children);"
 puts "}"
 puts ""
+
+puts "#  ifdef KITDLL_MAKE_LOADABLE"
+
+set fd [open "vfs_kitdll_data.c"]
+puts [read $fd]
+close $fd
+
+
+puts "static cmd_getData_t *getCmdData(const char *hashkey) {"
+puts "\treturn(${code_tag}_getData);"
+puts "}"
+puts ""
+puts "static cmd_getChildren_t *getCmdChildren(const char *hashkey) {"
+puts "\treturn(${code_tag}_getChildren);"
+puts "}"
+puts ""
+
+puts "int Vfs_kitdll_data_${hashkey}_Init(Tcl_Interp *interp) {"
+puts "\tTcl_Command tclCreatComm_ret;"
+puts "\tint tclPkgProv_ret;"
+puts ""
+puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::kitdll::data::${hashkey}::getMetadata\", getMetadata, NULL, NULL);"
+puts "\tif (!tclCreatComm_ret) {"
+puts "\t\treturn(TCL_ERROR);"
+puts "\t}"
+puts ""
+puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::kitdll::data::${hashkey}::getData\", getData, NULL, NULL);"
+puts "\tif (!tclCreatComm_ret) {"
+puts "\t\treturn(TCL_ERROR);"
+puts "\t}"
+puts ""
+puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::kitdll::data::${hashkey}::getChildren\", getChildren, NULL, NULL);"
+puts "\tif (!tclCreatComm_ret) {"
+puts "\t\treturn(TCL_ERROR);"
+puts "\t}"
+puts ""
+puts "\ttclPkgProv_ret = Tcl_PkgProvide(interp, \"vfs::kitdll::data::${hashkey}\", \"1.0\");"
+puts ""
+puts "\treturn(tclPkgProv_ret);"
+puts "\t}"
+puts "#  endif /* KITDLL_MAKE_LOADABLE */"
 
 puts "#endif /* !$cpp_tag */"

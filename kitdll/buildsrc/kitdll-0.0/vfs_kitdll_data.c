@@ -1,32 +1,14 @@
-#define HAVE_STDC 1
-
 #include <tcl.h>
-#include <stdio.h>
 #include <stdlib.h>
-
-#include "vfs_kitdll_data.h"
 
 typedef struct kitdll_data *(cmd_getData_t)(const char *, unsigned long);
 typedef unsigned long (cmd_getChildren_t)(const char *, unsigned long *, unsigned long);
 
-static cmd_getData_t *getCmdData(const char *hashkey) {
-	/* XXX: TODO: Look up symbol using dlsym() */
-	if (strcmp(hashkey, "vfs_kitdll_data") == 0) {
-		return(kitdll_vfs_kitdll_data_getData);
-	}
+/* Your implementation must provide these */
+static cmd_getData_t *getCmdData(const char *hashkey);
+static cmd_getChildren_t *getCmdChildren(const char *hashkey);
 
-	return(NULL);
-}
-
-static cmd_getChildren_t *getCmdChildren(const char *hashkey) {
-	/* XXX: TODO: Look up symbol using dlsym() */
-	if (strcmp(hashkey, "vfs_kitdll_data") == 0) {
-		return(kitdll_vfs_kitdll_data_getChildren);
-	}
-
-	return(NULL);
-}
-
+/* Tcl Commands */
 static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
 	cmd_getData_t *cmd_getData;
 	cmd_getChildren_t *cmd_getChildren;
@@ -282,28 +264,4 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	Tcl_SetObjResult(interp, ret_list);
 
 	return(TCL_OK);
-}
-
-int Vfs_kitdll_data_Init(Tcl_Interp *interp) {   
-	Tcl_Command tclCreatComm_ret;
-	int tclPkgProv_ret;
-
-	tclCreatComm_ret = Tcl_CreateObjCommand(interp, "::vfs::kitdll::data::getMetadata", getMetadata, NULL, NULL);
-	if (!tclCreatComm_ret) {
-		return(TCL_ERROR);
-	}
-
-	tclCreatComm_ret = Tcl_CreateObjCommand(interp, "::vfs::kitdll::data::getData", getData, NULL, NULL);
-	if (!tclCreatComm_ret) {
-		return(TCL_ERROR);
-	}
-
-	tclCreatComm_ret = Tcl_CreateObjCommand(interp, "::vfs::kitdll::data::getChildren", getChildren, NULL, NULL);
-	if (!tclCreatComm_ret) {
-		return(TCL_ERROR);
-	}
-
-	tclPkgProv_ret = Tcl_PkgProvide(interp, "vfs::kitdll::data", "1.0");
-
-	return(tclPkgProv_ret);
 }
