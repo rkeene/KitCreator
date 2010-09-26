@@ -43,10 +43,13 @@ LIBS="${SAVE_LIBS}"
 
 dnl Check for optional headers
 AC_HEADER_STDC
-AC_CHECK_HEADERS(unistd.h dlfcn.h)
+AC_CHECK_HEADERS(unistd.h)
 
 dnl Check for optional system calls
-AC_CHECK_FUNCS(readlink dladdr)
+AC_CHECK_FUNCS(readlink)
+
+dnl Check for acceptable dladdr so we can find ourselves on Solaris
+DC_CHECK_FOR_ACCEPTABLE_DLADDR
 
 dnl Find zlib
 AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [

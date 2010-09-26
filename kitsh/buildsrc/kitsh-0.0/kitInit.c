@@ -36,12 +36,10 @@
 #ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 #endif
-#ifdef HAVE_DLADDR
-#  ifdef HAVE_DLFCN_H
-#    include <dlfcn.h>
-#  else
-#    undef HAVE_DLADDR
-#  endif
+
+/* For dladdr() and Dl_info */
+#ifdef HAVE_DLFCN_H
+#  include <dlfcn.h>
 #endif
 
 #if defined(HAVE_TCL_GETENCODINGNAMEFROMENVIRONMENT) && defined(HAVE_TCL_SETSYSTEMENCODING)
@@ -212,10 +210,10 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 	char exe_buf[4096];
 	int snprintf_ret;
 #endif /* HAVE_READLINK */
-#ifdef HAVE_DLADDR
+#ifdef HAVE_ACCEPTABLE_DLADDR
 	Dl_info syminfo;
 	int dladdr_ret;
-#endif /* HAVE_DLADDR */
+#endif /*aHAVE_ACCEPTABLE_DLADDR */ 
 
 #ifdef HAVE_READLINK
 	if (Tcl_GetNameOfExecutable() == NULL) {
@@ -234,14 +232,14 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 	}
 #endif /* HAVE_READLINK */
 
-#ifdef HAVE_DLADDR
+#ifdef HAVE_ACCEPTABLE_DLADDR
 	if (Tcl_GetNameOfExecutable() == NULL) {
 		dladdr_ret = dladdr(&SetExecName, &syminfo);
 		if (dladdr_ret != 0) {
 			SetExecName(interp, syminfo.dli_fname);
 		}
 	}
-#endif /* HAVE_DLADDR */
+#endif /* HAVE_ACCEPTABLE_DLADDR */
 
 	if (Tcl_GetNameOfExecutable() == NULL) {
 		lobjv[0] = Tcl_GetVar2Ex(interp, "argv0", NULL, TCL_GLOBAL_ONLY);
