@@ -14,12 +14,21 @@ fi
 SRC="src/tk${TCLVERS}.tar.gz"
 SRCURL="http://prdownloads.sourceforge.net/tcl/tk${TCLVERS}-src.tar.gz"
 BUILDDIR="$(pwd)/build/tk${TCLVERS}"
+PATCHDIR="$(pwd)/patches"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export SRC SRCURL BUILDDIR OUTDIR INSTDIR
+export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR
 
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
+
+# Determine Tcl version
+TCL_VERSION="unknown"
+if [ -f "${TCLCONFIGDIR}/tclConfig.sh" ]; then
+	source "${TCLCONFIGDIR}/tclConfig.sh"
+fi
+export TCL_VERSION
+
 
 if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
@@ -54,6 +63,30 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
+
+	# Determine Tk version
+	TK_VERSION="$(grep '^#.*define.*TK_VERSION' generic/tk.h 2>/dev/null | sed 's@^# *define[[:space:]][[:space:]]*TK_VERSION[[:space:]][[:space:]]*\"@@;s@\"$@@' 2>/dev/null | head -n 1)"
+	if [ -z "${TK_VERSION}" ]; then
+		TK_VERSION="unknown"
+	fi
+	export TK_VERSION
+
+	echo "Note: TCL_VERSION=\"${TCL_VERSION}\""
+	echo "Note: TK_VERSION=\"${TK_VERSION}\""
+
+	(
+		# Apply required patches
+		cd "${BUILDDIR}" || exit 1
+		for patch in "${PATCHDIR}/all"/tk-${TK_VERSION}-*.diff "${PATCHDIR}/${TCL_VERSION}"/tk-${TK_VERSION}-*.diff; do
+			if [ ! -f "${patch}" ]; then
+				continue
+			fi
+
+			echo "Applying: ${patch}"
+			${PATCH:-patch} -p1 < "${patch}"
+		done
+	)
+
 	for dir in unix win macosx win64 __fail__; do
 		if [ "${dir}" = "__fail__" ]; then
 			exit 1
