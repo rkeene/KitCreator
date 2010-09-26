@@ -36,10 +36,6 @@
 static void		setargv _ANSI_ARGS_((int *argcPtr, char ***argvPtr));
 static Tcl_PanicProc	WishPanic;
 
-#ifdef TK_TEST
-extern int		Tktest_Init(Tcl_Interp *interp);
-#endif /* TK_TEST */
-
 static BOOL consoleRequired = TRUE;
 
 /*
@@ -214,14 +210,6 @@ Tcl_AppInit(interp)
    }
 #endif
 
-#ifdef TK_TEST
-    if (Tktest_Init(interp) == TCL_ERROR) {
-	goto error;
-    }
-    Tcl_StaticPackage(interp, "Tktest", Tktest_Init,
-            (Tcl_PackageInitProc *) NULL);
-#endif /* TK_TEST */
-
     Tcl_SetVar(interp, "tcl_rcFileName", "~/wishrc.tcl", TCL_GLOBAL_ONLY);
     return TCL_OK;
 
@@ -384,47 +372,4 @@ setargv(argcPtr, argvPtr)
     *argcPtr = argc;
     *argvPtr = argv;
 }
-
-#if !defined(__GNUC__) || defined(TK_TEST)
-/*
- *----------------------------------------------------------------------
- *
- * main --
- *
- *	Main entry point from the console.
- *
- * Results:
- *	None: Tk_Main never returns here, so this procedure never
- *      returns either.
- *
- * Side effects:
- *	Whatever the applications does.
- *
- *----------------------------------------------------------------------
- */
-
-int main(int argc, char **argv)
-{
-    Tcl_SetPanicProc(WishPanic);
-
-    /*
-     * Set up the default locale to be standard "C" locale so parsing
-     * is performed correctly.
-     */
-#ifndef UNDER_CE
-    setlocale(LC_ALL, "C");
-#endif
-
-    /*
-     * Create the console channels and install them as the standard
-     * channels.  All I/O will be discarded until Tk_CreateConsoleWindow is
-     * called to attach the console to a text widget.
-     */
-
-    consoleRequired = FALSE;
-
-    Tk_Main(argc, argv, Tcl_AppInit);
-    return 0;
-}
-#endif /* !__GNUC__ || TK_TEST */
 #endif

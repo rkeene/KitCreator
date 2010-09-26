@@ -10,6 +10,7 @@ int main(int argc, char **argv) {
 
 	Tcl_Main(argc, argv, TclKit_AppInit);
 
-	return(0);
+	/* If Tcl_Main() returns, something went wrong */
+	return(1);
 }
 #endif
