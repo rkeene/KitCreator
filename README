@@ -84,9 +84,9 @@ Environment variables:
 		If mk4tcl is not present a pure-Tcl implementation will be used
 		instead.
 
-	7. KITCREATOR_ALLENCODINGS
+	7. KITCREATOR_MINENCODINGS
 		Set this variable to a non-empty string to generate a Tclkit
-		with all encodings rather than the default 8:
+		without all encodings, only including the following:
 			ascii.enc cp1252.enc iso8859-1.enc iso8859-15.enc
 			iso8859-2.enc koi8-r.enc macRoman.enc
 

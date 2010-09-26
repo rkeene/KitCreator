@@ -90,7 +90,7 @@ fi
 		find "${OUTDIR}" -name "tcltest*" -type d | xargs rm -rf
 
 		# Clean up encodings
-		if [ -z "${KITCREATOR_ALLENCODINGS}" ]; then
+		if [ -n "${KITCREATOR_MINENCODINGS}" ]; then
 			KEEPENCODINGS=" ascii.enc cp1252.enc iso8859-1.enc iso8859-15.enc iso8859-2.enc koi8-r.enc macRoman.enc "
 			export KEEPENCODINGS
 			find "${OUTDIR}/lib" -name 'encoding' -type d | while read encdir; do
