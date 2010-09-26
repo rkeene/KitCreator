@@ -20,6 +20,11 @@ if [ "$1" = "distclean" ]; then
 	mode="distclean"
 fi
 
+if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
+	# List all additional packages here so that they get cleaned up
+	ADDPKGS="${ADDPKGS} thread"
+fi
+
 CONFIGUREEXTRA="$@"
 export CONFIGUREEXTRA
 
