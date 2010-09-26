@@ -11,7 +11,7 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-ZLIBVERS="1.2.4"
+ZLIBVERS="1.2.3"
 SRC="src/zlib-${ZLIBVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERS}/zlib-${ZLIBVERS}.tar.gz/download"
 BUILDDIR="$(pwd)/build/zlib-${ZLIBVERS}"
