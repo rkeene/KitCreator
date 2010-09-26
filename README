@@ -1,19 +1,48 @@
 This will build a Tclkit named "tclkit-<version>".
 
 Usage:
-	kitcreator {<version> | cvs_<cvsTag> | clean | distclean}
+	kitcreator [{<version> | cvs_<cvsTag> | clean | distclean}]
+	           [<configure_options...>]
+
+	Where:
+		version            is a Tcl version number (e.g., 8.4.19)
+		cvsTag             is a CVS release tag (e.g., HEAD)
+		configure_options  are options to pass to subordinate configure
+		                   scripts (e.g., --enable-64bit)
 
 	Default is to create a Tclkit from Tcl version 8.4.19
 
 Examples:
 	1. Create a Tclkit for Tcl 8.5.8:
-		$ ./kitcreator 8.5.8
+		a. $ ./kitcreator 8.5.8
 
 	2. Create a Tclkit for Tcl from CVS HEAD:
-		$ ./kitcreator cvs_HEAD
+		a. $ ./kitcreator cvs_HEAD
 
-	3. To clean up post-build:
-		$ ./kitcreator clean
+	3. Compile a 64-bit Tclkit:
+		a. $ ./kitcreator --enable-64bit
+
+	4. Cross-compile a Tclkit:
+		a. Bootstrap (optional, you can use an existing Tclkit):
+			i.   $ ./kitcreator
+			ii.  $ mv tclkit-8.4.19 tclkit-local
+			iii. $ TCLKIT="`pwd`/tclkit-local"
+			iv.  $ export TCLKIT
+		b. Cross-compile:
+			i.   $ CC=mipsel-linux-uclibc-gcc
+			ii.  $ AR=mipsel-linux-uclibc-ar
+			iii. $ RANLIB=mipsel-linux-uclibc-ranlib
+			iv.  $ export CC AR RANLIB
+		v.   $ ./kitcreator --host=mipsel-linux-uclibc
+
+	5. Compile a 64-bit Tclkit 8.5.8 using SunStudio 12.1 on Solaris/x86:
+		a. $ CC='/opt/sunstudio12.1/bin/cc -m64'
+		b. $ CXX='/opt/sunstudio12.1/bin/CC -m64'
+		c. $ export CC CXX
+		d. $ ./kitcreator 8.5.8 --enable-64bit
+
+	6. To clean up post-build:
+		a. $ ./kitcreator clean
 
 Environment variables:
 	1. MAKE
@@ -25,3 +54,8 @@ Environment variables:
 		Specifies the tool you wish to be called to apply unified
 		diff patches.  This script is generally more well tested with
 		GNU Patch. 
+
+	3. TCLKIT
+		Specify the path to a Tclkit that is runnable on the current
+		system.  The default is "tclkit".  A working tclkit is required
+		for cross-compiling Tclkits.

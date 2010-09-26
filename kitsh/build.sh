@@ -50,10 +50,12 @@ mkdir 'out' 'inst' || exit 1
 	cp 'boot.tcl' 'starpack.vfs/'
 
 	# Intall VFS onto kit
-	if echo 'exit 0' | tclkit >/dev/null 2>/dev/null; then
+	## Determine if we have a Tclkit to do this work
+	TCLKIT="${TCLKIT:-tclkit}"
+	if echo 'exit 0' | "${TCLKIT}" >/dev/null 2>/dev/null; then
 		## Install using existing Tclkit
 		### Call installer
-		tclkit installvfs.tcl kit starpack.vfs
+		"${TCLKIT}" installvfs.tcl kit starpack.vfs
 	else
 		## Bootstrap (cannot cross-compile)
 		### Call installer
