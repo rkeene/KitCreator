@@ -52,6 +52,14 @@ Examples:
 	7. To clean up post-build:
 		a. $ ./kitcreator clean
 
+	8. Create a Tclkit without Metakit4 support (falls back to Zip for storage):
+		a. KITCREATOR_PKGS='tk itcl'
+		b. export KITCREATOR_PKGS
+		c. ./kitcreator
+
+	9. Create a Tclkit with Metakit4 support, but using Zip for storage:
+		a. $ ./kitcreator --enable-kit-storage=zip
+
 Environment variables:
 	1. MAKE
 		Specifies the tool you wish to be called to build targets
