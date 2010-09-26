@@ -89,8 +89,8 @@ Environment variables:
 		Specify which non-required packages to build.  The default list
 		is:
 			tk itcl mk4tcl
-		If mk4tcl is not present a pure-Tcl implementation will be used
-		instead.
+		If mk4tcl is not present a Zip-based storage mechanism will be
+		used instead.
 
 	7. KITCREATOR_MINENCODINGS
 		Set this variable to a non-empty string to generate a Tclkit
