@@ -108,7 +108,7 @@ Summary:
 	5. kitsh/build.sh compiles a "main" function and links all the built
 	   libraries together into an executable
 	6. kitsh/build.sh combines all the "out" directories into one
-	7. kitsh/build.sh creates a Metakit database from the combined
+	7. kitsh/build.sh creates a Metakit or Zip database from the combined
 	   directories and appends that to the compiled executable using:
 		a. A Tclkit found in the environment variable "TCLKIT" (tclkit
 		   if unset) if it is functional; or
@@ -162,8 +162,12 @@ directory (starpack.vfs), as well a static file (boot.tcl).  It then compiles
 the source code, and then installs the Metakit database containing the VFS
 onto the resulting executable.
 
-To create the Metakit database, one of two Tclkits is used (tried in this
-order):
+If the "mk4tcl" project fails to build (or is not requested to be built),
+the rest of the project will be built using zip files instead of Metakit
+databases.
+
+To create the Metakit database (if needed), one of two Tclkits is used (tried
+in this order):
 	1. The Tclkit specified by the TCLKIT environment variable (or
 	   "tclkit" if that variable is not set) if it is functional; or
 	2. The built Tclkit itself
