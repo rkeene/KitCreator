@@ -2,6 +2,7 @@
 
 VERSIONS="8.4.19 8.5.9 cvs_HEAD"
 
+# Find the base directory
 for x in 1 2 3 __fail__; do
 	if [ "${x}" = "${fail}" ]; then
 		echo 'Unable to find KitCreator, aborting.' >&2
@@ -20,66 +21,208 @@ ROOTDIR="$(pwd)"
 TESTDIR="${ROOTDIR}/build/test"
 export ROOTDIR TESTDIR
 
-rm -f "${TESTDIR}"/tclkit-*
+# Handle command-line arguments
+if [ "$1" = "clean" ]; then
+	rm -rf "${TESTDIR}/kits"
+fi
+
+# Create place to put kits
+mkdir "${TESTDIR}/kits" >/dev/null 2>/dev/null
+if [ ! -d "${TESTDIR}/kits" ]; then
+	echo 'Unable to create kits/ directory, aborting.' >&2
+
+	exit 1
+fi
+
+# Cleanup
+for file in "${TESTDIR}"/kits/*.log; do
+	if echo "${file}" | grep -- '-build.log$' >/dev/null; then
+		continue
+	fi
+
+	rm -f "${file}"
+done
 
 failed=""
-for kit in normal threaded min static win32 arm; do
+for kit in normal normal-zip normal-threaded normal-threaded-zip normal-notk normal-threaded-notk normal-threaded-zip-notk min min-static win32 win32-zip win32-threaded win32-threaded-zip win32-notk win32-threaded-notk arm-min; do
 	kitcreator="./kitcreator"
 	args=""
 	runnable="1"
+	iszip="0"
+	statictk="0"
+	notk="0"
 
+	# Handle base configuration
 	case "${kit}" in
-		normal)
+		normal|normal-*)
 			true
-			;;
-		threaded)
-			args="--enable-threads"
 			;;
 		min)
 			kitcreator="./build/make-minkit"
+			iszip="1"
+			notk="1"
 			;;
-		static)
+		min-static)
 			kitcreator="./build/make-minkit-static"
+			iszip="1"
+			notk="1"
 			;;
-		win32)
+		win32|win32-*)
 			kitcreator="./build/make-kit-win32"
 			runnable="0"
 			;;
-		arm)
+		arm-min)
 			kitcreator="./build/make-kit-arm"
 			runnable="0"
+			notk="1"
+			iszip="1"
 			;;
 	esac
 
+	# Handle additional configuration
+	tempkit="-${kit}-"
+	for try in 1 2 3 4 5 6 7 8 9; do
+		case "-${tempkit}-" in
+			*-threaded-*)
+				tempkit="$(echo "${tempkit}" | sed 's@-threaded-@-@')"
+				args="${args} --enable-threads"
+				;;
+			*-zip-*)
+				tempkit="$(echo "${tempkit}" | sed 's@-zip-@-@')"
+				args="${args} --enable-kit-storage=zip"
+				iszip="1"
+				;;
+			*-statictk-*)
+				tempkit="$(echo "${tempkit}" | sed 's@-statictk-@-@')"
+				if [ "${notk}" = "0" ]; then
+					statictk="1"
+				else
+					echo "${kit}: Unable to create StaticTk and NoTk, ignoring StaticTk" >&2
+				fi
+				;;
+			*-notk-*)
+				tempkit="$(echo "${tempkit}" | sed 's@-notk-@-@')"
+				if [ "${statictk}" = "0" ]; then
+					notk="1"
+				else
+					echo "${kit}: Unable to create StaticTk and NoTk, ignoring NoTk" >&2
+				fi
+				;;
+		esac
+	done
 
 	for version in ${VERSIONS}; do
+		# Create Tclkit
 		createdkit="tclkit-${version}"
-		outputname="${TESTDIR}/tclkit-${version}-${kit}"
+		outputname="${TESTDIR}/kits/tclkit-${version}-${kit}"
+		buildlog="${outputname}-build.log"
 
-		"${kitcreator}" "${version}" ${args}
+		if [ ! -f "${outputname}" ]; then
+			unset KITCREATOR_PKGS STATICTK
 
-		if [ ! -f "${createdkit}" ]; then
-			echo "Failed to create kit ${version}/${kit}" >&2
+			echo "Creating Tclkit ${version}/${kit}..."
 
-			failed="${failed} ${version}/${kit}-build"
+			if [ "${notk}" = "1" ]; then
+				KITCREATOR_PKGS='itcl mk4tcl'
+				export KITCREATOR_PKGS
+			fi
+
+			if [ "${statictk}" = "1" ]; then
+				STATICTK="1"
+				export STATICTK
+			fi
+
+			buildfailed="0"
+			"${kitcreator}" "${version}" ${args} > "${buildlog}" 2>&1 || buildfailed="1"
+			grep -n '^' */build.log >> "${buildlog}" 2>&1
+
+			if [ ! -f "${createdkit}" ]; then
+				echo "Failed to create kit ${version}/${kit}" >&2
+
+				failed="${failed} ${version}/${kit}-build"
+
+				continue
+			fi
+
+			# Verify sanity of created kit
+			issane=1
+
+			## Verify the Win32 kits are 
+			case "-${version}-${kit}-" in
+				*-win32-notk-*|*-win32-*-notk-*)
+					if ! file "${createdkit}" | grep 'MS Windows (console)' >/dev/null; then
+						echo "Kit failed sanity check for being a console application" >&2
+						issane=0
+					fi
+					;;
+				*-win32-*)
+					if ! file "${createdkit}" | grep 'MS Windows (GUI)' >/dev/null; then
+						echo "Kit failed sanity check for being a GUI application" >&2
+						issane=0
+					fi
+					;;
+			esac
+
+			## Verify the build completed without warnings
+			if [ "${buildfailed}" = "1" ]; then
+				echo "Kit failed sanity check for Building" >&2
+
+				issane=0
+			fi
+
+			# Make note of sanity failure
+			if [ "${issane}" != "1" ]; then
+				echo "Kit failed sanity ${version}/${kit}" >&2
+
+				failed="${failed} ${version}/${kit}-sanity"
+
+				rm -f "${createdkit}"
+
+				continue
+			fi
+
+			# Rename created kit to final destination
+			mv "${createdkit}" "${outputname}"
+		fi
+
+		# Test zip status
+		if unzip -l "${outputname}" 2>&1 | grep 'boot\.tcl' >/dev/null; then
+			canunzip="1"
+		else
+			canunzip="0"
+		fi
+
+		if [ "${iszip}" != "${canunzip}" ]; then
+			echo "Failed to unzip zipkit or was able to unzip non-zipkit ${version}/${kit}" >&2
+
+			failed="${failed} ${version}/${kit}-zip"
 
 			continue
 		fi
 
-		mv "${createdkit}" "${outputname}"
-
+		# Do not continue past here for un-runnable kits
 		if [ "${runnable}" != "1" ]; then
 			continue
 		fi
 
+		# Perform battery of tests
+		for testscp in "${TESTDIR}"/tests/*.tcl; do
+			testscp_tag="$(basename "${testscp}" .tcl)"
+			testscppre="$(dirname "${testscp}")/${testscp_tag}.sh"
+			scplogfile="${outputname}-${testscp_tag}.log"
 
-		scriptid=0
-		for testscp in 'exit 0' 'if {[::tcl::pkgconfig get 64bit] == 0} { exit 0 } else { exit 1}'; do
-			scriptid=$[${scriptid} + 1]
-			if ! echo "${testscp}" | "${outputname}" >/dev/null 2>/dev/null; then
-				echo "Script failed: ${testscp} on ${version}/${kit}" >&2
+			(
+				if [ -f "${testscppre}" ]; then
+					. "${testscppre}"
+				fi
 
-				failed="${failed} ${version}/${kit}-test-${scriptid}"
+				"${outputname}" "${testscp}" "${outputname}" "${kit}" "${version}"
+			) > "${scplogfile}" 2>&1
+
+			if [ "$?" != "0" ]; then
+				echo "Script failed: ${testscp_tag} on ${version}/${kit}" >&2
+
+				failed="${failed} ${version}/${kit}-test-${testscp_tag}"
 
 				continue
 			fi
