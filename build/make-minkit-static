@@ -1,0 +1,21 @@
+#! /bin/sh
+
+# Set C compiler to diet libc
+CC='diet gcc'
+export CC
+
+# Build minimalistic tclkit
+KITCREATOR_PKGS=" "
+KITCREATOR_MINENCODINGS='true' 
+KITCREATOR_MINBUILD='true' 
+export KITCREATOR_PKGS KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD
+
+rm -rf tcl/patchscripts
+mkdir tcl/patchscripts || exit 1
+
+cat << \__EOF__ > tcl/patchscripts/dietlibc.sh
+sed 's@^# *include *<string.h>$@&@;T s;p;s@string.h@strings.h@;:s' generic/tclInt.h > generic/tclInt.h.new && cat generic/tclInt.h.new > generic/tclInt.h
+rm -f generic/tclInt.h.new
+__EOF__
+
+./kitcreator "$@" --disable-load

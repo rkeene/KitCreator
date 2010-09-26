@@ -16,7 +16,8 @@ SRCURL="http://prdownloads.sourceforge.net/tcl/tcl${TCLVERS}-src.tar.gz"
 BUILDDIR="$(pwd)/build/tcl${TCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export SRC SRCURL BUILDDIR OUTDIR INSTDIR
+PATCHSCRIPTDIR="$(pwd)/patchscripts"
+export SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR
 
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
@@ -54,6 +55,15 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
+
+	# Apply patch scripts if needed
+	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do
+		if [ -f "${patchscript}" ]; then
+			echo "Running patch script: ${patchscript}"
+			. "${patchscript}"
+		fi
+	done
+
 	for dir in unix win macosx __fail__; do
 		if [ "${dir}" = "__fail__" ]; then
 			# If we haven't figured out how to build it, reject.

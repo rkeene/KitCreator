@@ -19,4 +19,6 @@ export KITSHROOTDIR
 	make distclean
 ) || exit 1
 
+rm -rf tcl/patchscripts/
+
 find . -name '.*.sw?' -type f | xargs rm -f
