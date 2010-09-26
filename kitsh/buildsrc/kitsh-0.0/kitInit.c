@@ -33,6 +33,17 @@
 
 #include "tclInt.h"
 
+#ifdef HAVE_UNISTD_H
+#  include <unistd.h>
+#endif
+#ifdef HAVE_DLADDR
+#  ifdef HAVE_DLFCN_H
+#    include <dlfcn.h>
+#  else
+#    undef HAVE_DLADDR
+#  endif
+#endif
+
 #if defined(HAVE_TCL_GETENCODINGNAMEFROMENVIRONMENT) && defined(HAVE_TCL_SETSYSTEMENCODING)
 #  define TCLKIT_CAN_SET_ENCODING 1
 #endif
@@ -195,12 +206,18 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 	int len = 0;
 	Tcl_Obj *execNameObj;
 	Tcl_Obj *lobjv[1];
-#if defined(HAVE_READLINK)
+#ifdef HAVE_READLINK
 	ssize_t readlink_ret;
 	char procpath[4096];
 	char exe_buf[4096];
 	int snprintf_ret;
+#endif /* HAVE_READLINK */
+#ifdef HAVE_DLADDR
+	Dl_info syminfo;
+	int dladdr_ret;
+#endif /* HAVE_DLADDR */
 
+#ifdef HAVE_READLINK
 	if (Tcl_GetNameOfExecutable() == NULL) {
 		snprintf_ret = snprintf(procpath, sizeof(procpath), "/proc/%lu/exe", (unsigned long) getpid());
 		if (snprintf_ret < sizeof(procpath)) {
@@ -215,7 +232,16 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 			}
 		}
 	}
-#endif
+#endif /* HAVE_READLINK */
+
+#ifdef HAVE_DLADDR
+	if (Tcl_GetNameOfExecutable() == NULL) {
+		dladdr_ret = dladdr(&SetExecName, &syminfo);
+		if (dladdr_ret != 0) {
+			SetExecName(interp, syminfo.dli_fname);
+		}
+	}
+#endif /* HAVE_DLADDR */
 
 	if (Tcl_GetNameOfExecutable() == NULL) {
 		lobjv[0] = Tcl_GetVar2Ex(interp, "argv0", NULL, TCL_GLOBAL_ONLY);

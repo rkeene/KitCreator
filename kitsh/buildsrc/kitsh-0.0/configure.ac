@@ -41,8 +41,12 @@ dnl Check for the ability to get the current system encoding
 AC_CHECK_FUNCS(Tcl_GetEncodingNameFromEnvironment Tcl_SetSystemEncoding)
 LIBS="${SAVE_LIBS}"
 
+dnl Check for optional headers
+AC_HEADER_STDC
+AC_CHECK_HEADERS(unistd.h dlfcn.h)
+
 dnl Check for optional system calls
-AC_CHECK_FUNCS(readlink)
+AC_CHECK_FUNCS(readlink dladdr)
 
 dnl Find zlib
 AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
