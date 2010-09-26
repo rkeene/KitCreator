@@ -241,6 +241,10 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 
 				continue
 			fi
+
+			if [ ! -s "${scplogfile}" ]; then
+				rm -f "${scplogfile}"
+			fi
 		done
 	done
 done
