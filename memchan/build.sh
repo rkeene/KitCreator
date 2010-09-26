@@ -12,7 +12,7 @@ if [ -z "${TCLVERS}" ]; then
 fi
 
 MEMCHANVERS="2.2.1"
-SRC="src/memchan-${ITCLVERS}.tar.gz"
+SRC="src/memchan-${MEMCHANVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/memchan/files/memchan/${MEMCHANVERS}/memchan-${MEMCHANVERS}.tar.gz/download"
 BUILDDIR="$(pwd)/build/memchan-${MEMCHANVERS}"
 OUTDIR="$(pwd)/out"
