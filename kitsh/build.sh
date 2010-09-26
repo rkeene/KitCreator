@@ -30,7 +30,7 @@ mkdir 'out' 'inst' || exit 1
 	${MAKE:-make} distclean >/dev/null 2>/dev/null
 
 	# Compile Kitsh
-	./configure --with-tcl="${TCLCONFIGDIR}"
+	./configure --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 	${MAKE:-make} || exit 1
 
 	# Strip the kit of all symbols, if possible
