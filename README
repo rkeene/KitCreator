@@ -1,0 +1,4 @@
+This will build a Tclkit named "tclkit-<version>".
+
+Usage:
+	$ ./kitcreator
