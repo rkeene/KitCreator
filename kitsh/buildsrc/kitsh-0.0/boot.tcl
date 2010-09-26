@@ -99,10 +99,12 @@ proc tclInit {} {
 
 		# If we've still not been able to set the encoding, revert to Tclkit defaults
 		if {[encoding system] eq "identity"} {
-			switch $::tcl_platform(platform) {
-				windows		{ encoding system cp1252 }
-				macintosh	{ encoding system macRoman }
-			        default		{ encoding system iso8859-1 }
+			catch {
+				switch $::tcl_platform(platform) {
+					windows		{ encoding system cp1252 }
+					macintosh	{ encoding system macRoman }
+				        default		{ encoding system iso8859-1 }
+				}
 			}
 		}
 

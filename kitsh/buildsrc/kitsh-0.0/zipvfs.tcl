@@ -106,6 +106,10 @@ proc vfs::zip::open {zipfd name mode permissions} {
 	    
 	    ::zip::stat $zipfd $name sb
 
+            if {$sb(ino) == -1} {
+                vfs::filesystem posixerror $::vfs::posix(EISDIR)
+            }
+
 	    set nfd [vfs::memchan]
 	    fconfigure $nfd -translation binary
 
