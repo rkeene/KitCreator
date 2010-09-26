@@ -149,7 +149,6 @@ static char *preInitCmd =
 #  ifndef _WIN32
 	"package ifneeded Tk " KIT_TK_VERSION " {\n"
 		"load {} Tk\n"
-		"package provide Tk " KIT_TK_VERSION "\n"
 	"}\n"
 #  endif
 #endif
