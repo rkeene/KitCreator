@@ -133,6 +133,38 @@ proc ::vfs::kitdll::chanop_read {hashkey chanId bytes} {
 	return $data
 }
 
+proc ::vfs::kitdll::chanop_seek {hashkey chanId offset origin} {
+	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
+
+	set pos $chaninfo(pos)
+	set len $chaninfo(len)
+
+	switch -- $origin {
+		"start" - "0" {
+			set pos $offset
+		}
+		"current" - "1" {
+			set pos [expr {$pos + $offset}]
+		}
+		"end" - "2" {
+			set pos [expr {$len + $offset}]
+		}
+	}
+
+	if {$pos < 0} {
+		set pos 0
+	}
+
+	if {$pos > $len} {
+		set pos $len
+	}
+
+	set chaninfo(pos) $pos
+	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
+
+	return $pos
+}
+
 #### VFS operation handlers
 proc ::vfs::kitdll::vfsop_stat {hashkey root relative actualpath} {
 	catch {
@@ -189,7 +221,7 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 		} else {
 			set child "${actualpath}/${child}"
 		}
-		if {[string index $child end] == ""} {
+		if {[string index $child end] == "/"} {
 			set child [string range $child 0 end-1]
 		}
 
