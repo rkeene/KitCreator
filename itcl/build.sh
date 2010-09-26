@@ -23,6 +23,31 @@ export ITCLVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
 
+# Determine if Itcl is even needed
+(
+	TCL_VERSION="unknown"
+	if [ -f "${TCLCONFIGDIR}/tclConfig.sh" ]; then
+		source "${TCLCONFIGDIR}/tclConfig.sh"
+	fi
+
+	if echo "${TCL_VERSION}" | grep '^8\.[45]$' >/dev/null; then
+		# Itcl is required for Tcl 8.4 and Tcl 8.5
+
+		exit 0
+	fi
+
+	if [ "${TCL_VERSION}" = "unknown" ]; then
+		# If we don't know what version of Tcl we are building, build
+		# Itcl just in case.
+
+		exit 0
+	fi
+
+	# All other versions do not require Itcl
+	echo "Skipping building Itcl, not required for ${TCL_VERSION}"
+	exit 1
+) || exit 0
+
 if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
