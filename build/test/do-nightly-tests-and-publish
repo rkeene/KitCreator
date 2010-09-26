@@ -1,5 +1,10 @@
 #! /bin/bash
 
+# Update PATH to include path to Tclkit, otherwise cross-compiles will fail
+PATH="${PATH}:/home/rkeene/bin"
+export PATH
+
+# Define build and web paths
 KITCREATORDIR="/home/rkeene/devel/kitcreator"
 WEBROOTDIR="/web/rkeene/devel/kitcreator/kitbuild"
 export KITCREATORDIR WEBROOTDIR
