@@ -80,16 +80,18 @@ static char *preInitCmd =
     "rename tclKitInit {}\n"
 #ifdef KIT_INCLUDES_MK4TCL
     "catch { load {} Mk4tcl }\n"
+    "set ::tclkitMkNamespace \"mk\"\n"
 #else
 #include "mk4tcl.tcl.h"
+    "set ::tclkitMkNamespace \"readkit\"\n"
 #endif
-    "mk::file open exe [info nameofexecutable] -readonly\n"
-    "set n [mk::select exe.dirs!0.files name boot.tcl]\n"
+    "${::tclkitMkNamespace}::file open exe [info nameofexecutable] -readonly\n"
+    "set n [${::tclkitMkNamespace}::select exe.dirs!0.files name boot.tcl]\n"
     "if {$n != \"\"} {\n"
-        "set s [mk::get exe.dirs!0.files!$n contents]\n"
+        "set s [${::tclkitMkNamespace}::get exe.dirs!0.files!$n contents]\n"
 	"if {![string length $s]} { error \"empty boot.tcl\" }\n"
         "catch {load {} zlib}\n"
-        "if {[mk::get exe.dirs!0.files!$n size] != [string length $s]} {\n"
+        "if {[${::tclkitMkNamespace}::get exe.dirs!0.files!$n size] != [string length $s]} {\n"
 	    "set s [zlib decompress $s]\n"
 	"}\n"
     "} else {\n"
