@@ -90,7 +90,10 @@ Environment variables:
 		is:
 			tk itcl mk4tcl
 		If mk4tcl is not present a Zip-based storage mechanism will be
-		used instead.
+		used instead.  To specify that the default be used, do not set
+		this or set it to the empty string.  To specify that no
+		non-required packages be built, set it to a string that
+		contains only white space.
 
 	7. KITCREATOR_MINENCODINGS
 		Set this variable to a non-empty string to generate a Tclkit
