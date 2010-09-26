@@ -28,6 +28,12 @@ if [ ! -x kits -o ! -x publish-tests ]; then
 	exit 1
 fi
 
+# Only run one at a time
+if [ -f '__AUTO_TESTS_RUNNING__' ]; then
+	exit 1
+fi
+touch '__AUTO_TESTS_RUNNING__'
+
 # Clean builds
 rm -rf kits
 
@@ -39,5 +45,8 @@ rm -rf "${WEBROOTDIR}"/svn_r*/
 
 # Publish New Results
 ./publish-tests "${TESTNAME}"
+
+# Clean
+rm -f '__AUTO_TESTS_RUNNING__'
 
 exit 0
