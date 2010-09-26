@@ -62,7 +62,7 @@ Tcl_AppInitProc	Dde_Init, Registry_Init;
 #  endif
 #endif
 
-static char *tclExecutableName;
+char *tclExecutableName;
 
     /*
      *  Attempt to load a "boot.tcl" entry from the embedded MetaKit file.
