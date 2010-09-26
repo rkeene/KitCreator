@@ -20,10 +20,19 @@ set fd [open Makefile r]
 set data [read $fd]
 close $fd
 
-if {[string match "*KIT_INCLUDES_MK4TCL*" $data]} {
-	set tclKitStorage mk4
-} else {
+if {[string match "*KIT_STORAGE_ZIP*" $data]} {
 	set tclKitStorage zip
+}
+if {[string match "*KIT_STORAGE_MK4*" $data]} {
+	set tclKitStorage mk4
+}
+
+if {![info exists tclKitStorage]} {
+	if {[string match "*KIT_INCLUDES_MK4TCL*" $data]} {
+		set tclKitStorage mk4
+	} else {
+		set tclKitStorage zip
+	}
 }
 
 # Define procedures
