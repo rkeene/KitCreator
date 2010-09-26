@@ -1,0 +1,90 @@
+#! /bin/bash
+
+WEBDIR="/web/rkeene/devel/kitcreator/kitbuild"
+export WEBDIR
+
+if [ ! -d "kits" ]; then
+	echo 'Could not find kits/ directory, aborting.' >&2
+
+	exit 1
+fi
+
+rm -rf "${WEBDIR}"
+mkdir -p "${WEBDIR}" || exit 1
+
+ln -s ../index.ttml "${WEBDIR}" >/dev/null 2>/dev/null
+
+cp kits/* "${WEBDIR}"
+
+for file in "${WEBDIR}"/*; do
+	if echo "${file}" | egrep '\.(log|desc|ttml)$' >/dev/null; then
+		continue
+	fi
+
+	descfile="${file}.desc"
+	shortfile="$(basename "${file}")"
+	desc=""
+
+	tclversion="$(echo "${shortfile}" | cut -f 2 -d -)"
+	parts="$(echo "${shortfile}" | cut -f 3- -d -)"
+
+	while [ "${parts}" != "" ]; do
+		case "${parts}-" in
+			normal-*)
+				true
+				;;
+			arm-*)
+				desc="${desc} on the CPU architecture MIPSEL/uClibc"
+				;;
+			win32-*)
+				desc="${desc} for Microsoft Windows"
+				;;
+			threaded-*)
+				desc="${desc} with threads support"
+				;;
+			min-*)
+				desc="${desc} compiled minimally"
+				;;
+			static-*)
+				desc="${desc} and statically"
+				;;
+			notk-*)
+				if echo "${desc}" | grep -i support >/dev/null; then
+					desc="${desc} and"
+				fi
+				desc="${desc} without Tk"
+				;;
+			zip-*)
+				desc="${desc} using ZIP for Kit storage"
+				;;
+			*)
+				echo "Unknown part (\"${parts}\"), skipping \"${shortfile}\"" >&2
+				break
+				;;
+		esac
+
+		newparts="$(echo "${parts}" | cut -f 2- -d -)"
+		if [ "${newparts}" = "${parts}" ]; then
+			parts=""
+		else
+			parts="${newparts}"
+		fi
+	done
+
+	if [ -z "${desc}" ]; then
+		continue
+	fi
+
+	case "${tclversion}" in
+		cvs_HEAD)
+			tclversion="from CVS HEAD"
+			;;
+		cvs_*)
+			tclversion="from CVS tag $(echo "${tclversion}" | cut -f 2 -d _)"
+			;;
+	esac
+
+	desc="is a Tclkit for Tcl ${tclversion}${desc}"
+
+	echo "${desc}" > "${descfile}"
+done
