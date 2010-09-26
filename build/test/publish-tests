@@ -16,6 +16,8 @@ cp -r kits/* "${WEBDIR}"
 
 ln -s ../index.ttml "${WEBDIR}/" >/dev/null 2>/dev/null
 
+totaltests_count="$(ls -1 tests/*.tcl | wc -l)"
+
 for file in "${WEBDIR}"/*; do
 	if [ -d "${file}" ]; then
 		continue
@@ -25,6 +27,19 @@ for file in "${WEBDIR}"/*; do
 		continue
 	fi
 
+	# Find out which tests failed
+	failedtests_count="0"
+	failedtests=""
+	for faillog in "${file}"-[0-9][0-9]-*.log; do
+		if [ ! -f "${faillog}" ]; then
+			continue
+		fi
+
+		failedtests_count=$[${failedtests} + 1]
+		failedtests="${failedtests} $(basename "${faillog}")"
+	done
+
+	# Generate description
 	descfile="${file}.desc"
 	shortfile="$(basename "${file}")"
 	desc=""
@@ -85,6 +100,7 @@ for file in "${WEBDIR}"/*; do
 		continue
 	fi
 
+	# Generate better Tcl version
 	case "${tclversion}" in
 		cvs_HEAD)
 			tclversion="from CVS HEAD"
@@ -94,11 +110,14 @@ for file in "${WEBDIR}"/*; do
 			;;
 	esac
 
+	# Update description with count of failed tests
+	if [ "${failedtests_count}" != "0" ]; then
+		desc="${desc} (FAILED ${failedtests_count} of ${totaltests_count} tests)"
+	fi
+
 	desc="is a Tclkit for Tcl ${tclversion}${desc}"
 
-	echo "${desc}" > "${descfile}"
 done
-
 
 rmdir "${WEBDIR}/failed" >/dev/null 2>/dev/null
 ln -s ../index.ttml "${WEBDIR}/failed/" >/dev/null 2>/dev/null
