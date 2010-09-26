@@ -78,7 +78,11 @@ static char *preInitCmd =
 #endif
 "proc tclKitInit {} {\n"
     "rename tclKitInit {}\n"
+#ifdef KIT_INCLUDES_MK4TCL
     "catch { load {} Mk4tcl }\n"
+#else
+#include "mk4tcl.tcl.h"
+#endif
     "mk::file open exe [info nameofexecutable] -readonly\n"
     "set n [mk::select exe.dirs!0.files name boot.tcl]\n"
     "if {$n != \"\"} {\n"

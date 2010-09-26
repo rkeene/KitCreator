@@ -11,6 +11,9 @@ all: kit
 kit: $(OBJS) $(ARCHS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o kit $(OBJS) $(ARCHS) $(LDFLAGS) $(LIBS)
 
+mk4tcl.tcl.h: mk4tcl.tcl
+	./stringify.tcl mk4tcl.tcl > mk4tcl.tcl.h
+
 clean:
 	rm -f kit $(OBJS)
 
@@ -19,6 +22,6 @@ distclean: clean
 	rm -rf autom4te.cache
 
 mrproper: distclean
-	rm -f configure config.h
+	rm -f configure config.h mk4tcl.tcl.h
 
 .PHONY: all clean distclean

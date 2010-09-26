@@ -13,6 +13,7 @@ export KITSHROOTDIR
 	rm -f *~
 
 	./configure || exit 1
+	make mk4tcl.tcl.h
 
 	make distclean
 ) || exit 1
