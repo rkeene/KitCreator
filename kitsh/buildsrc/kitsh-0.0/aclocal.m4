@@ -114,6 +114,7 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIB, [
 	done
 
 	if test "${found}" = "1"; then
+		SAVELIBS=`echo "$SAVELIBS" | sed 's@ $2 @@'`
 		LIBS="${SAVELIBS} ${staticlib}"
 
 		AC_MSG_RESULT([${staticlib}])
