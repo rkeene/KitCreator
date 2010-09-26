@@ -99,8 +99,8 @@ static char *preInitCmd =
     "}\n"
     "uplevel #0 $s\n"
 #ifdef _WIN32
-    "package ifneeded dde 1.3.1 {load {} dde}\n"
-    "package ifneeded registry 1.1.5 {load {} registry}\n"
+    "catch {load {} dde}\n"
+    "catch {load {} registry}\n"
 #endif
 "}\n"
 "tclKitInit"
