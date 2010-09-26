@@ -12,11 +12,15 @@ fi
 rm -rf "${WEBDIR}"
 mkdir -p "${WEBDIR}" || exit 1
 
-ln -s ../index.ttml "${WEBDIR}" >/dev/null 2>/dev/null
+cp -r kits/* "${WEBDIR}"
 
-cp kits/* "${WEBDIR}"
+ln -s ../index.ttml "${WEBDIR}/" >/dev/null 2>/dev/null
 
 for file in "${WEBDIR}"/*; do
+	if [ -d "${file}" ]; then
+		continue
+	fi
+
 	if echo "${file}" | egrep '\.(log|desc|ttml)$' >/dev/null; then
 		continue
 	fi
@@ -54,6 +58,12 @@ for file in "${WEBDIR}"/*; do
 				fi
 				desc="${desc} without Tk"
 				;;
+			statictk-*)
+				if echo "${desc}" | grep -i support >/dev/null; then
+					desc="${desc} and"
+				fi
+				desc="${desc} with Tk linked directly to the kit"
+				;;
 			zip-*)
 				desc="${desc} using ZIP for Kit storage"
 				;;
@@ -88,3 +98,9 @@ for file in "${WEBDIR}"/*; do
 
 	echo "${desc}" > "${descfile}"
 done
+
+
+rmdir "${WEBDIR}/failed" >/dev/null 2>/dev/null
+ln -s ../index.ttml "${WEBDIR}/failed/" >/dev/null 2>/dev/null
+
+exit 0

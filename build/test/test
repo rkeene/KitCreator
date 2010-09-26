@@ -28,6 +28,7 @@ fi
 
 # Create place to put kits
 mkdir "${TESTDIR}/kits" >/dev/null 2>/dev/null
+mkdir "${TESTDIR}/kits/failed" >/dev/null 2>/dev/null
 if [ ! -d "${TESTDIR}/kits" ]; then
 	echo 'Unable to create kits/ directory, aborting.' >&2
 
@@ -44,7 +45,7 @@ for file in "${TESTDIR}"/kits/*.log; do
 done
 
 failed=""
-for kit in normal normal-zip normal-threaded normal-threaded-zip normal-notk normal-threaded-notk normal-threaded-zip-notk min min-static win32 win32-zip win32-threaded win32-threaded-zip win32-notk win32-threaded-notk arm-min; do
+for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk min min-static win32 win32-zip win32-threaded win32-threaded-zip win32-notk win32-threaded-notk arm-min; do
 	kitcreator="./kitcreator"
 	args=""
 	runnable="1"
@@ -115,10 +116,20 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-notk nor
 		# Create Tclkit
 		createdkit="tclkit-${version}"
 		outputname="${TESTDIR}/kits/tclkit-${version}-${kit}"
+		failoutputname="${TESTDIR}/kits/failed/tclkit-${version}-${kit}"
 		buildlog="${outputname}-build.log"
+		failbuildlog="${failoutputname}-build.log"
 
 		if [ ! -f "${outputname}" ]; then
 			unset KITCREATOR_PKGS STATICTK
+
+			if [ -f "${failoutputname}" ]; then
+				echo "Skipping rebuilding failed kit ${version}/${kit} ..."
+
+				failed="${failed} ${version}/${kit}-build"
+
+				continue
+			fi
 
 			echo "Creating Tclkit ${version}/${kit}..."
 
@@ -140,6 +151,9 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-notk nor
 				echo "Failed to create kit ${version}/${kit}" >&2
 
 				failed="${failed} ${version}/${kit}-build"
+
+				touch "${failoutputname}"
+				mv "${buildlog}" "${failbuildlog}"
 
 				continue
 			fi
@@ -176,7 +190,8 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-notk nor
 
 				failed="${failed} ${version}/${kit}-sanity"
 
-				rm -f "${createdkit}"
+				mv "${createdkit}" "${failoutputname}"
+				mv "${buildlog}" "${failbuildlog}"
 
 				continue
 			fi
