@@ -41,7 +41,7 @@ for pkg in tcl tk itcl mk4tcl tclvfs zlib kitsh; do
 
 	failed="0"
 	(
-		cd "${pkg}" || exit 1
+		cd "${pkg}" >/dev/null 2>/dev/null || exit 1
 
 		./build.sh > build.log 2>&1 || exit 1
 	) || failed="1"
