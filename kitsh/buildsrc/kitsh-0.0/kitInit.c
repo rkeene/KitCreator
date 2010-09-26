@@ -36,6 +36,12 @@
 #ifdef HAVE_UNISTD_H
 #  include <unistd.h>
 #endif
+#ifdef HAVE_STRING_H
+#  include <string.h>
+#endif
+#ifdef HAVE_STRINGS_H
+#  include <strings.h>
+#endif
 
 /* For dladdr() and Dl_info */
 #ifdef HAVE_DLFCN_H
@@ -206,9 +212,7 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 	Tcl_Obj *lobjv[1];
 #ifdef HAVE_READLINK
 	ssize_t readlink_ret;
-	char procpath[4096];
 	char exe_buf[4096];
-	int snprintf_ret;
 #endif /* HAVE_READLINK */
 #ifdef HAVE_ACCEPTABLE_DLADDR
 	Dl_info syminfo;
@@ -217,13 +221,24 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 
 #ifdef HAVE_READLINK
 	if (Tcl_GetNameOfExecutable() == NULL) {
-		snprintf_ret = snprintf(procpath, sizeof(procpath), "/proc/%lu/exe", (unsigned long) getpid());
-		if (snprintf_ret < sizeof(procpath)) {
-			readlink_ret = readlink(procpath, exe_buf, sizeof(exe_buf) - 1);
+		readlink_ret = readlink("/proc/self/exe", exe_buf, sizeof(exe_buf) - 1);
 
-			if (readlink_ret > 0 && readlink_ret < (sizeof(exe_buf) - 1)) {
-				exe_buf[readlink_ret] = '\0';
+		if (readlink_ret > 0 && readlink_ret < (sizeof(exe_buf) - 1)) {
+			exe_buf[readlink_ret] = '\0';
 
+			SetExecName(interp, exe_buf);
+
+			return;
+		}
+	}
+
+	if (Tcl_GetNameOfExecutable() == NULL) {
+		readlink_ret = readlink("/proc/curproc/file", exe_buf, sizeof(exe_buf) - 1);
+
+		if (readlink_ret > 0 && readlink_ret < (sizeof(exe_buf) - 1)) {
+			exe_buf[readlink_ret] = '\0';
+
+			if (strcmp(exe_buf, "unknown") != 0) {
 				SetExecName(interp, exe_buf);
 
 				return;

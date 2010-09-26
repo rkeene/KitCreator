@@ -43,7 +43,7 @@ LIBS="${SAVE_LIBS}"
 
 dnl Check for optional headers
 AC_HEADER_STDC
-AC_CHECK_HEADERS(unistd.h)
+AC_CHECK_HEADERS(unistd.h string.h strings.h)
 
 dnl Check for optional system calls
 AC_CHECK_FUNCS(readlink)
