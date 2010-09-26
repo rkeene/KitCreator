@@ -10,6 +10,7 @@ export KITSHROOTDIR
 
 	autoconf; autoheader
 	rm -rf autom4te.cache
+	rm -f *~
 
 	./configure
 
