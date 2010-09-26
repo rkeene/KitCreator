@@ -307,7 +307,7 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			kitrunkillpid=""
 			if [ -n "${kitruncmd}" ]; then
 				(
-					sleep 30
+					sleep 120
 					killall "$(basename "${outputname}")" >/dev/null 2>/dev/null
 				) >/dev/null 2>/dev/null &
 				kitrunkillpid="$!"
