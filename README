@@ -38,7 +38,8 @@ Examples:
 	5. Compile a 64-bit Tclkit 8.5.8 using SunStudio 12.1 on Solaris/x86:
 		a. $ CC='/opt/sunstudio12.1/bin/cc -m64'
 		b. $ CXX='/opt/sunstudio12.1/bin/CC -m64'
-		c. $ export CC CXX
+		c. $ PATCH='gpatch'
+		c. $ export CC CXX PATCH
 		d. $ ./kitcreator 8.5.8 --enable-64bit
 
 	6. To clean up post-build:
