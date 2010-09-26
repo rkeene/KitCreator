@@ -198,6 +198,10 @@ foreach key [lsort -dictionary [array names allkitinfo]] {
 			set bgcolor "yellow"
 		}
 
+		if {[lsearch -exact $kitinfo(buildflags) xcompile] != -1} {
+			set bgcolor "yellow"
+		}
+
 		set failedtestshtml [list]
 		foreach test [lsort -dictionary $kitinfo(failedtests)] {
 			set testname [file rootname $test]
@@ -228,7 +232,6 @@ foreach key [lsort -dictionary [array names allkitinfo]] {
 				lappend failedtestshtml "<small>$testname</small>"
 			}
 		}
-
 
 		set kitdesc [pretty_print_buildinfo $kitinfo(buildflags)]
 		if {$kitinfo(built)} {
