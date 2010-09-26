@@ -139,8 +139,8 @@ pieces that were found in the original Tclkit:
 	1. Tk (dynamically linked)
 	2. Itcl (dynamically linked)
 
-These source code for these pieces are downloaded, compiled, and linked, and
-the database containing the appropriate filesystem data is created.  What sets
+The source code for these pieces are downloaded, compiled, and linked, and the
+database containing the appropriate filesystem data is created.  What sets
 this project apart from other similar projects is that:
 	1. It attempts to be modular;
 	2. It supports cross-compiling;
