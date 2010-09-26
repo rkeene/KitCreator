@@ -22,7 +22,7 @@ if [ "$1" = "distclean" ]; then
 fi
 
 # Define the list of all packages, for cleaning purposes
-KITCREATOR_ALLPKGS="tcl tclvfs zlib tk itcl mk4tcl thread"
+KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread"
 for pkg in ${KITCREATOR_ALLPKGS}; do
 	rm -f "${pkg}/build.log"
 	rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"

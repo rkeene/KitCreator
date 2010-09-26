@@ -17,3 +17,5 @@ export KITSHROOTDIR
 
 	make distclean
 ) || exit 1
+
+find . -name '.*.sw?' -type f | xargs rm -f
