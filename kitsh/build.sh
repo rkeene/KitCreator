@@ -27,8 +27,9 @@ mkdir 'out' 'inst' || exit 1
 	cd "${BUILDDIR}" || exit 1
 
 	# Compile all objects...
-	## XXX
-	${CC:-cc} -I${TCLCONFIGDIR} -I${TCLCONFIGDIR}/../generic -o kit *.c $(find "${OTHERPKGSDIR}" -name '*.a' | grep '/inst/') -lz -lm -ldl  -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic
+	## TODO: XXX: Need to replace this with a configure script
+	${CC:-cc} ${CPPFLAGS} ${CFLAGS} -I${TCLCONFIGDIR} -I${TCLCONFIGDIR}/../generic -o kit *.c $(find "${OTHERPKGSDIR}" -name '*.a' | grep '/inst/') ${LDFLAGS} -lz -lm -ldl  -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic
+	strip kit >/dev/null 2>/dev/null
 
 	# Create VFS directory
 	mkdir "starpack.vfs"
@@ -46,9 +47,10 @@ mkdir 'out' 'inst' || exit 1
 	# Intall VFS onto kit
 	if echo 'exit 0' | tclkit >/dev/null 2>/dev/null; then
 		## Install using existing Tclkit
+		### Call installer
 		tclkit installvfs.tcl kit starpack.vfs
 	else
-		## Bootstrap
+		## Bootstrap (cannot cross-compile)
 		### Copy installed data for packages
 		mkdir "installed-pkgs"
 		cp -r "${OTHERPKGSDIR}"/*/inst/* 'installed-pkgs/'
