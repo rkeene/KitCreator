@@ -19,6 +19,9 @@ DC_DO_TCL
 dnl Find archives we need to link to
 DC_FIND_TCLKIT_LIBS
 
+dnl Find any platform specific defines that we need to make
+DC_SETUP_TCL_PLAT_DEFS
+
 dnl Determine if we have "Tcl_SetStartupScript" (8.6.x) or "TclSetStartupScriptPath" (8.4.x)
 SAVE_LIBS="${LIBS}"
 LIBS="${ARCHS} ${LIBS}"

@@ -83,3 +83,20 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 	AC_SUBST(ARCHS)
 ])
+
+AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
+	AC_CANONICAL_HOST
+  
+	AC_MSG_CHECKING(host operating system)
+	AC_MSG_RESULT($host_os)
+  
+	case $host_os in
+		mingw32msvc*)
+			CFLAGS="${CFLAGS} -mno-cygwin -mms-bitfields"
+			AC_DEFINE(BUILD_tcl, [1], [Define if you need to pretend to be building Tcl (Windows)])
+			;;
+		cygwin*)
+			CFLAGS="${CFLAGS} -mms-bitfields"
+			;;
+	esac
+])          
