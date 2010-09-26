@@ -132,19 +132,50 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			fi
 
 			echo "Creating Tclkit ${version}/${kit}..."
+			echo " *** Build started $(whoami)@$(hostname) on $(date)" > "${buildlog}"
+			echo '' >> "${buildlog}"
+			echo " *** Build Script" >> "${buildlog}"
 
 			if [ "${notk}" = "1" ]; then
 				KITCREATOR_PKGS='itcl mk4tcl'
 				export KITCREATOR_PKGS
+
+				echo "  KITCREATOR_PKGS=\"${KITCREATOR_PKGS}\"" >> "${buildlog}"
+				echo "  export KITCREATOR_PKGS" >> "${buildlog}"
 			fi
 
 			if [ "${statictk}" = "1" ]; then
 				STATICTK="1"
 				export STATICTK
+
+				echo "  STATICTK=\"${STATICTK}\"" >> "${buildlog}"
+				echo "  export STATICTK" >> "${buildlog}"
 			fi
 
+			if [ "${kitcreator}" != "./kitcreator" ]; then
+				echo "  mkdir build" >> "${buildlog}"
+
+				# Several build scripts rely on minkit to work
+				if grep './build/make-minkit' "${kitcreator}" >/dev/null 2>/dev/null; then
+					echo "  cat << \__EOF__ > ./build/make-minkit" >> "${buildlog}"
+					sed 's@^@  @'  './build/make-minkit' >> "${buildlog}"
+					echo "  __EOF__" >> "${buildlog}"
+					echo '' >> "${buildlog}"
+				fi
+				echo "  cat << \__EOF__ > ${kitcreator}" >> "${buildlog}"
+				sed 's@^@  @'  "${kitcreator}" >> "${buildlog}"
+				echo "  __EOF__" >> "${buildlog}"
+				echo '' >> "${buildlog}"
+			fi
+			echo "  \"${kitcreator}\" \"${version}\" ${args}" >> "${buildlog}"
+			echo '' >> "${buildlog}"
+			echo '' >> "${buildlog}"
+			echo '' >> "${buildlog}"
+			echo " *** Build Results" >> "${buildlog}"
+			echo '' >> "${buildlog}"
+
 			buildfailed="0"
-			"${kitcreator}" "${version}" ${args} > "${buildlog}" 2>&1 || buildfailed="1"
+			"${kitcreator}" "${version}" ${args} >> "${buildlog}" 2>&1 || buildfailed="1"
 			grep -n '^' */build.log >> "${buildlog}" 2>&1
 
 			if [ ! -f "${createdkit}" ]; then
