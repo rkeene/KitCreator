@@ -44,7 +44,7 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 	AC_MSG_CHECKING([for how to statically link to libstdc++])
 
 	STATICLIBCXX="-Wl,-Bstatic -lstdc++ -Wl,-Bdynamic"
-	LIBS="${LDFLAGS} ${STATICLIBCXX}"
+	LIBS="${LIBS} ${STATICLIBCXX}"
 
 	AC_SUBST(LIBS)
 
