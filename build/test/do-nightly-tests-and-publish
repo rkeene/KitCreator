@@ -1,0 +1,30 @@
+#! /bin/bash
+
+KITCREATORDIR="/home/rkeene/devel/kitcreator"
+WEBROOTDIR="/web/rkeene/devel/kitcreator/kitbuild"
+export KITCREATORDIR WEBROOTDIR
+
+cd "${KITCREATORDIR}" || exit 1
+
+SVN_LCR="$(svn info -R . | grep '^Last Changed Rev:' | sed 's@^.*:  *@@' | sort -n | tail -1)"
+TESTNAME="svn_r${SVN_LCR}"
+export SVN_LCR TESTNAME
+
+if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
+	# Don't re-run the tests if nothing has changed
+	exit 0
+fi
+
+cd build/test || exit 1
+
+# Clean builds
+rm -rf kits
+
+# Run tests
+./test
+
+# Clean old SVN published results
+rm -rf "${WEBROOTDIR}"/svn_r*/
+
+# Publish New Results
+./publish-tests "${TESTNAME}"
