@@ -11,7 +11,7 @@ export KITCREATORDIR WEBROOTDIR
 
 cd "${KITCREATORDIR}" || exit 1
 
-FOSSIL_CHANGE="$(fossil timeline -n 1 | grep '^[0-9:]* \[' | sed 's@^[0-9:]* \[\([0-9a-f]*\)\].*$@\1@')"
+FOSSIL_CHANGE="$(fossil timeline -n 1 -t ci | grep '^[0-9:]* \[' | sed 's@^[0-9:]* \[\([0-9a-f]*\)\].*$@\1@')"
 TESTNAME="fossil_${FOSSIL_CHANGE}"
 export FOSSIL_CHANGE TESTNAME
 
