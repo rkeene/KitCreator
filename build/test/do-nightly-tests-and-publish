@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Update PATH to include path to Tclkit, otherwise cross-compiles will fail
-PATH="${PATH}:/home/rkeene/bin"
+PATH="${PATH}:/home/rkeene/bin:/usr/local/bin"
 export PATH
 
 # Define build and web paths
@@ -11,9 +11,9 @@ export KITCREATORDIR WEBROOTDIR
 
 cd "${KITCREATORDIR}" || exit 1
 
-SVN_LCR="$(svn info -R . | grep '^Last Changed Rev:' | sed 's@^.*:  *@@' | sort -n | tail -1)"
-TESTNAME="svn_r${SVN_LCR}"
-export SVN_LCR TESTNAME
+FOSSIL_CHANGE="$(fossil timeline -n 1 | grep '^[0-9:]* \[' | sed 's@^[0-9:]* \[\([0-9a-f]*\)\].*$@\1@')"
+TESTNAME="fossil_${FOSSIL_CHANGE}"
+export FOSSIL_CHANGE TESTNAME
 
 if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
 	# Don't re-run the tests if nothing has changed
@@ -40,8 +40,8 @@ rm -rf kits
 # Run tests
 nice -n 20 ./test >/dev/null 2>/dev/null
 
-# Clean old SVN published results
-rm -rf "${WEBROOTDIR}"/svn_r*/
+# Clean old auto-generated published results
+rm -rf "${WEBROOTDIR}"/svn_r*/ "${WEBROOTDIR}"/fossil_*/
 
 # Publish New Results
 ./publish-tests "${TESTNAME}"
