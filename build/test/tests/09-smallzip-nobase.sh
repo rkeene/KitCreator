@@ -1,6 +1,6 @@
 #! /bin/bash
 
-TMPFILE="${TMPDIR:-/tmp}/testzip-$$${RANDOM}${RANDOM}${RANDOM}.zip"
+TMPFILE="${TMPDIR:-/tmp}/DELETEME_testzip-$$${RANDOM}${RANDOM}${RANDOM}.zip"
 export TMPFILE
 
 cat << \__EOF__ | base64 -d > "${TMPFILE}"
