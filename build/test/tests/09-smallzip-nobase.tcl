@@ -5,6 +5,13 @@ if {![info exists ::env(TMPFILE)]} {
 	exit 0
 }
 
+# Abort this test if we don't have vfs::zip
+if {[catch {
+	package require vfs::zip
+}]} {
+	exit 0
+}
+
 set tmpfile $::env(TMPFILE)
 
 vfs::zip::Mount $tmpfile $tmpfile
