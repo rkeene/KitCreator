@@ -353,7 +353,12 @@ proc zip::EndOfArchive {fd arr} {
     }
 
     set hdr [string range $hdr [expr $pos + 4] [expr $pos + 21]]
-    set pos [expr [tell $fd] + $pos - 512]
+
+    set seekstart [expr {[tell $fd] - 512}]
+    if {$seekstart < 0} {
+        set seekstart 0
+    }
+    set pos [expr {$seekstart + $pos}]
 
     binary scan $hdr ssssiis \
 	cb(ndisk) cb(cdisk) \
@@ -368,7 +373,11 @@ proc zip::EndOfArchive {fd arr} {
 
     # Compute base for situations where ZIP file
     # has been appended to another media (e.g. EXE)
-    set cb(base)	[expr { $pos - $cb(csize) - $cb(coff) }]
+    set base            [expr { $pos - $cb(csize) - $cb(coff) }]
+    if {$base < 0} {
+        set base 0
+    }
+    set cb(base)	$base
 }
 
 proc zip::TOC {fd arr} {
