@@ -304,8 +304,12 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 
 			# If a command is required to start the kit, prepare to kill it
 			# in case of timeout.
+			## Temporarily disabled since currently it is causing
+			## more problems in the form of tests being killed
+			## prematurely than we are having issues with tests
+			## hanging
 			kitrunkillpid=""
-			if [ -n "${kitruncmd}" ]; then
+			if [ "1" = "0" -a -n "${kitruncmd}" ]; then
 				(
 					sleep 120
 					killall "$(basename "${outputname}")" >/dev/null 2>/dev/null
