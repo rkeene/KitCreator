@@ -1,5 +1,8 @@
 #include <tcl.h>
-#include <stdlib.h>
+
+#ifdef HAVE_STDLIB_H
+#  include <stdlib.h>
+#endif
 
 typedef struct kitdll_data *(cmd_getData_t)(const char *, unsigned long);
 typedef unsigned long (cmd_getChildren_t)(const char *, unsigned long *, unsigned long);

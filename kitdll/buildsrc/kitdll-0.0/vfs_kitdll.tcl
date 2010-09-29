@@ -1,14 +1,15 @@
 #! /usr/bin/env tcl
 
 package require vfs
-#package require kitdll
 
 namespace eval ::vfs::kitdll {}
 
 # Convience functions
 proc ::vfs::kitdll::Mount {hashkey local} {
 	vfs::filesystem mount $local [list ::vfs::kitdll::vfshandler $hashkey]
-	vfs::RegisterMount $local [list ::vfs::kitdll::Unmount]
+	catch {
+		vfs::RegisterMount $local [list ::vfs::kitdll::Unmount]
+	}
 }
 
 proc ::vfs::kitdll::Unmount {local} {

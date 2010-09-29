@@ -1,0 +1,45 @@
+CC = @CC@
+CFLAGS = @CFLAGS@ @SHOBJFLAGS@ -Wall
+CPPFLAGS = @CPPFLAGS@ @DEFS@ -DKITDLL_MAKE_LOADABLE=1
+LDFLAGS = @LDFLAGS@
+SHOBJLDFLAGS = @SHOBJLDFLAGS@
+LIBS = @LIBS@
+STATICLIBS = @TCL_LIB_SPEC@ ../../../tclvfs/inst/lib/vfs1.3/libvfs1.3.a
+
+# Default target
+all: libtcl.@SHOBJEXT@
+
+# Build targets
+## VFS Build
+vfs_kitdll_data_tcl.o: vfs_kitdll_data_tcl.c
+vfs_kitdll_data_tcl.c: dir2c.tcl starpack.vfs vfs_kitdll_data.c
+	./dir2c.tcl tcl starpack.vfs > vfs_kitdll_data_tcl.c
+
+## Tclkit Build
+kitInit.o: kitInit.c vfs_kitdll.tcl.h
+vfs_kitdll.tcl.h: vfs_kitdll.tcl
+	./stringify.tcl vfs_kitdll.tcl > vfs_kitdll.tcl.h
+
+## Extensions
+rechan.o: rechan.c
+
+## DLL Build
+libtcl.@SHOBJEXT@: vfs_kitdll_data_tcl.o kitInit.o rechan.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtcl.so vfs_kitdll_data_tcl.o kitInit.o rechan.o $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
+
+# Test driver
+test.o: test.c
+test: test.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o test test.o -L. -ltcl -Wl,-R,`pwd`
+
+# Cleanup routeines
+clean:
+	rm -f vfs_kitdll_data_tcl.c
+	rm -f vfs_kitdll_data_tcl.so vfs_kitdll_data_tcl.o
+	rm -f test.o test
+
+distclean: clean
+	rm -f config.status config.log
+	rm -f Makefile
+
+.PHONY: all clean distclean
