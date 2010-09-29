@@ -35,8 +35,9 @@ test: test.o
 # Cleanup routeines
 clean:
 	rm -f libtcl.so
-	rm -f vfs_kitdll_data_tcl.c
-	rm -f vfs_kitdll_data_tcl.o
+	rm -f rechan.o kitInit.o
+	rm -f vfs_kitdll_data_tcl.c vfs_kitdll_data_tcl.o
+	rm -f vfs_kitdll.tcl.h
 	rm -f test.o test
 
 distclean: clean
