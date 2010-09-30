@@ -46,7 +46,8 @@ clean:
 	rm -f $(OBJS)
 	rm -f vfs_kitdll_data_tcl.c
 	rm -f vfs_kitdll.tcl.h
-	rm -f tclsh.o tclsh
+	rm -f tclsh.o tclsh tclsh.exe
+	rm -f wish.o wish wish.exe
 
 distclean: clean
 	rm -f config.status config.log
