@@ -36,15 +36,7 @@ mkdir 'out' 'inst' || exit 1
 
 	# Cleanup, just incase the incoming directory was not pre-cleaned
 	${MAKE:-make} distclean >/dev/null 2>/dev/null
-
-	echo "Running: ./configure --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
-	./configure --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
-
-	echo "Running: ${MAKE:-make}"
-	${MAKE:-make} TCLSH_NATIVE="${TCLSH_NATIVE}" || exit 1
-
-	# Strip the KitDLL of debugging symbols, if possible
-	"${STRIP:-strip}" -g libtcl.* >/dev/null 2>/dev/null
+	rm -rf "starpack.vfs"
 
 	# Create VFS directory
 	mkdir "starpack.vfs"
@@ -60,6 +52,16 @@ mkdir 'out' 'inst' || exit 1
 
 	## Install "boot.tcl"
 	cp 'boot.tcl' 'starpack.vfs/'
+
+	# Build KitDLL
+	echo "Running: ./configure --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
+	./configure --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+
+	echo "Running: ${MAKE:-make}"
+	${MAKE:-make} TCLSH_NATIVE="${TCLSH_NATIVE}" || exit 1
+
+	# Strip the KitDLL of debugging symbols, if possible
+	"${STRIP:-strip}" -g libtcl.* >/dev/null 2>/dev/null
 
 	exit 0
 ) || exit 1

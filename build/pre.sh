@@ -21,6 +21,4 @@ export KITSHROOTDIR
 
 rm -rf tcl/patchscripts/
 
-rm -rf kitdll
-
 find . -name '.*.sw?' -type f | xargs rm -f

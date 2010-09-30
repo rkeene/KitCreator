@@ -22,7 +22,7 @@ if [ "$1" = "distclean" ]; then
 fi
 
 # Define the list of all packages, for cleaning purposes
-KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread"
+KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread kitdll"
 for pkg in ${KITCREATOR_ALLPKGS}; do
 	rm -f "${pkg}/build.log"
 	rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
@@ -35,6 +35,7 @@ done
 # We're all done if we're in clean or distclean mode
 if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
 	rm -f tclkit-*
+	rm -f libtcl.*
 
 	exit 0
 fi
@@ -90,6 +91,7 @@ if [ "${buildfailed}" != "0" ]; then
 	echo 'WARNING: Build is likely incomplete or failed.' >&2
 fi
 
+cp 'kitdll/build'/kitdll-*/libtcl.* "$(basename 'kitdll/build'/kitdll-*/libtcl.* | sed "s@\..*\$@-${TCLVERS}&@")" >/dev/null 2>/dev/null
 cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}"
 
 exit "${buildfailed}"
