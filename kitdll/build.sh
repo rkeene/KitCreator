@@ -25,6 +25,29 @@ mkdir 'out' 'inst' || exit 1
 	cp -r 'buildsrc' 'build'
 	cd "${BUILDDIR}" || exit 1
 
+	# Fix up archives that Tcl gets wrong
+	for archive in ../../../tcl/inst/lib/dde*/tcldde*.a ../../../tcl/inst/lib/reg*/tclreg*.a; do
+		if [ ! -f "${archive}" ]; then
+			continue
+		fi
+
+		rm -rf __TEMP__
+		(
+			mkdir __TEMP__ || exit 1
+			cd __TEMP__
+
+			## Patch archive name
+			archive="../${archive}"
+
+			"${AR:-ar}" x "${archive}" || exit 1
+
+			rm -f "${archive}"
+
+			"${AR:-ar}" cr "${archive}" *.o || exit 1
+			"${RANLIB:-ranlib}" "${archive}" || true
+		)
+	done
+
 	# Determine how we invoke a Tcl interpreter
 	for testsh in "${TCLSH_NATIVE:-false}" "${TCLKIT:-tclkit}"; do
 		if echo 'exit 0' | "${testsh}" >/dev/null 2>/dev/null; then

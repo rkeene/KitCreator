@@ -78,7 +78,7 @@ AC_DEFUN(DC_CHK_OS_INFO, [
 		mingw*)
 			SHOBJEXT="dll"
 			SHOBJFLAGS="-mno-cygwin -mms-bitfields -DPIC"
-			SHOBJLDFLAGS='-shared -Wl,--dll -Wl,--enable-auto-image-base -Wl,--output-def,$[@].def,--out-implib,$[@].a'
+			SHOBJLDFLAGS='-shared -Wl,--dll -Wl,--enable-auto-image-base -Wl,--output-def,$[@].def,--out-implib,$[@].a -Wl,--export-all-symbols -Wl,--add-stdcall-alias'
 			;;
 	esac
 ])
@@ -219,12 +219,16 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
-	for proj in tclvfs; do
+	for proj in tcl tclvfs; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
 		libdir="../../../${proj}/inst"
 		libfiles="`find "${libdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
 		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
+
+		if test "$proj" = "tcl"; then
+			libfiles="${libfilesnostub}"
+		fi
 
 		ARCHS="${ARCHS} ${libfiles}"
 

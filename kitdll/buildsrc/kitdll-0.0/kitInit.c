@@ -13,6 +13,12 @@ Tcl_AppInitProc Vfs_kitdll_data_tcl_Init;
 #ifdef KIT_INCLUDES_PWB
 Tcl_AppInitProc Pwb_Init;
 #endif
+#ifdef TCL_THREADS
+Tcl_AppInitProc Thread_Init;
+#endif
+#ifdef _WIN32
+Tcl_AppInitProc Dde_Init, Registry_Init;
+#endif
 
 static char *preInitCmd =
 "proc tclKitInit {} {\n"
@@ -29,6 +35,10 @@ static char *preInitCmd =
 	"::tclkit::init::initInterp\n"
 	"rename ::tclkit::init::initInterp {}\n"
 	"uplevel #0 $s\n"
+#ifdef _WIN32
+	"catch {load {} dde}\n"
+	"catch {load {} registry}\n"
+#endif /* _WIN32 */
 "}\n"
 "tclKitInit";
 
@@ -70,8 +80,15 @@ void __attribute__((constructor)) _Tclkit_Init(void) {
 	Tcl_StaticPackage(0, "vfs", Vfs_Init, NULL);
 	Tcl_StaticPackage(0, "vfs_kitdll_data_tcl", Vfs_kitdll_data_tcl_Init, NULL);
 #ifdef KIT_INCLUDES_PWB
-        Tcl_StaticPackage(0, "pwb", Pwb_Init, NULL);
-#endif  
+	Tcl_StaticPackage(0, "pwb", Pwb_Init, NULL);
+#endif
+#ifdef TCL_THREADS
+	Tcl_StaticPackage(0, "Thread", Thread_Init, NULL);
+#endif
+#ifdef _WIN32
+	Tcl_StaticPackage(0, "dde", Dde_Init, NULL);
+	Tcl_StaticPackage(0, "registry", Registry_Init, NULL);
+#endif
 
 	TclSetPreInitScript(preInitCmd);
 

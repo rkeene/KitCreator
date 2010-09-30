@@ -4,7 +4,7 @@ CPPFLAGS = @CPPFLAGS@ @DEFS@ -DKITDLL_MAKE_LOADABLE=1
 LDFLAGS = @LDFLAGS@
 SHOBJLDFLAGS = @SHOBJLDFLAGS@
 LIBS = @LIBS@
-STATICLIBS = @TCL_LIB_SPEC@ @ARCHS@
+STATICLIBS = @ARCHS@
 OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o
 TCLSH_NATIVE = tclsh
 
@@ -28,7 +28,7 @@ pwb.o: pwb.c
 
 ## DLL Build
 libtcl.@SHOBJEXT@: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtcl.so $(OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtcl.@SHOBJEXT@ $(OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
 
 # Test driver
 tclsh.o: tclsh.c
@@ -37,7 +37,7 @@ tclsh: tclsh.o libtcl.@SHOBJEXT@
 
 # Cleanup routeines
 clean:
-	rm -f libtcl.so
+	rm -f libtcl.@SHOBJEXT@
 	rm -f $(OBJS)
 	rm -f vfs_kitdll_data_tcl.c
 	rm -f vfs_kitdll.tcl.h
