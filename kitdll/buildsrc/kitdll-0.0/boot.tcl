@@ -4,8 +4,8 @@ proc tclInit {} {
 	global auto_path tcl_library tcl_libPath
 	global tcl_version tcl_rcFileName
   
-	# Resolve symlinks
-	set noe /.KITDLL_TCL
+	# Set path where to mount VFS
+	set noe "/.KITDLL_TCL"
 
 	set tcl_library [file join $noe lib tcl$tcl_version]
 	set tcl_libPath [list $tcl_library [file join $noe lib]]
@@ -17,15 +17,10 @@ proc tclInit {} {
 	if {[info exists tcl_rcFileName]} {
 		set vfsHandler [list ::vfs::kitdll::vfshandler tcl]
 
-		# mount the executable, i.e. make all runtime files available
-		vfs::filesystem mount $noe $vfsHandler
-
 		# alter path to find encodings
 		if {[info tclversion] eq "8.4"} {
-			catch {
-				load {} pwb
-				librarypath [info library]
-			}
+			load {} pwb
+			librarypath [info library]
 		} else {
 			encoding dirs [list [file join [info library] encoding]] ;# TIP 258
 		}

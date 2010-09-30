@@ -22,10 +22,11 @@ vfs_kitdll.tcl.h: vfs_kitdll.tcl
 
 ## Extensions
 rechan.o: rechan.c
+pwb.o: pwb.c
 
 ## DLL Build
-libtcl.@SHOBJEXT@: vfs_kitdll_data_tcl.o kitInit.o rechan.o
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtcl.so vfs_kitdll_data_tcl.o kitInit.o rechan.o $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
+libtcl.@SHOBJEXT@: vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtcl.so vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
 
 # Test driver
 test.o: test.c
