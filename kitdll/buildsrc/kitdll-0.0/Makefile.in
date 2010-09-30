@@ -6,6 +6,7 @@ SHOBJLDFLAGS = @SHOBJLDFLAGS@
 LIBS = @LIBS@
 STATICLIBS = @TCL_LIB_SPEC@ ../../../tclvfs/inst/lib/vfs1.3/libvfs1.3.a
 OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o
+TCLSH_NATIVE = tclsh
 
 # Default target
 all: libtcl.@SHOBJEXT@
@@ -14,12 +15,12 @@ all: libtcl.@SHOBJEXT@
 ## VFS Build
 vfs_kitdll_data_tcl.o: vfs_kitdll_data_tcl.c
 vfs_kitdll_data_tcl.c: dir2c.tcl starpack.vfs vfs_kitdll_data.c
-	./dir2c.tcl tcl starpack.vfs > vfs_kitdll_data_tcl.c
+	"$(TCLSH_NATIVE)" dir2c.tcl tcl starpack.vfs > vfs_kitdll_data_tcl.c
 
 ## Tclkit Build
 kitInit.o: kitInit.c vfs_kitdll.tcl.h
 vfs_kitdll.tcl.h: vfs_kitdll.tcl
-	./stringify.tcl vfs_kitdll.tcl > vfs_kitdll.tcl.h
+	"$(TCLSH_NATIVE)" ./stringify.tcl vfs_kitdll.tcl > vfs_kitdll.tcl.h
 
 ## Extensions
 rechan.o: rechan.c
@@ -31,7 +32,7 @@ libtcl.@SHOBJEXT@: $(OBJS)
 
 # Test driver
 tclsh.o: tclsh.c
-tclsh: tclsh.o
+tclsh: tclsh.o libtcl.@SHOBJEXT@
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o -L. -ltcl -Wl,-R,`pwd`
 
 # Cleanup routeines
