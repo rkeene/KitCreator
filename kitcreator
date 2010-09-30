@@ -52,6 +52,26 @@ if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads' >/dev/null 2>/dev/null;
 	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
 fi
 
+# Fix up package list
+## If building KitDLL, it must come last
+if echo " ${KITCREATOR_PKGS} " | grep ' kitdll ' >/dev/null 2>/dev/null; then
+	KITCREATOR_PKGS="$(echo " ${KITCREATOR_PKGS} " | sed 's@ kitdll @ @g;s@^  *@@;s@  *$@@;s@   *@ @g') kitdll"
+fi
+
+## If building KitDLL and Tk, must do Tk statically
+### (Well, we don't HAVE to, but it would defeat much of the purpose)
+if echo " ${KITCREATOR_PKGS} " | grep ' kitdll ' >/dev/null 2>/dev/null; then
+	if echo " ${KITCREATOR_PKGS} " | grep ' tk ' >/dev/null 2>/dev/null; then
+		if [ "${STATICTK}" != "1" -a "${STATICTK}" != "-1" ]; then
+			echo 'Warning: Linking Tk statically because you are building KitDLL' 2>&1
+			echo '         Set STATICTK to -1 if you really want to link Tk dynamically.' >&2
+
+			STATICTK="1"
+			export STATICTK
+		fi
+	fi
+fi
+
 failedpkgs=""
 buildfailed="0"
 for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
