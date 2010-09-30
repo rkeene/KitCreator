@@ -1,6 +1,7 @@
 CC = @CC@
 CFLAGS = @CFLAGS@ @SHOBJFLAGS@ -Wall
 CPPFLAGS = @CPPFLAGS@ @DEFS@ -DKITDLL_MAKE_LOADABLE=1
+WISH_CFLAGS = @WISH_CFLAGS@
 LDFLAGS = @LDFLAGS@
 SHOBJLDFLAGS = @SHOBJLDFLAGS@
 LIBS = @LIBS@
@@ -34,6 +35,10 @@ libtclkit.@SHOBJEXT@: $(OBJS)
 tclsh.o: tclsh.c
 tclsh: tclsh.o libtclkit.@SHOBJEXT@
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o -L. -ltclkit -Wl,-R,`pwd`
+
+wish.o: wish.c
+wish: wish.o libtclkit.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o -L. -ltclkit -Wl,-R,`pwd`
 
 # Cleanup routeines
 clean:

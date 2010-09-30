@@ -1,7 +1,3 @@
-#ifdef HAVE_STDIO_H
-#  include <stdio.h>
-#endif
-
 #include <tcl.h>
 
 int Tcl_AppInit(Tcl_Interp *interp) {

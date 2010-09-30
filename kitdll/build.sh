@@ -66,9 +66,7 @@ mkdir 'out' 'inst' || exit 1
 	mkdir "starpack.vfs/lib"
 
 	## Copy in required built directories
-	cp -r "${OTHERPKGSDIR}"/tcl/out/* 'starpack.vfs/'
-	cp -r "${OTHERPKGSDIR}"/tclvfs/out/* 'starpack.vfs/'
-	cp -r "${OTHERPKGSDIR}"/thread/out/* 'starpack.vfs/'
+	cp -r "${OTHERPKGSDIR}"/*/out/* 'starpack.vfs/'
 
 	## Rename the "vfs" package directory to what "boot.tcl" expects
 	mv 'starpack.vfs/lib'/vfs* 'starpack.vfs/lib/vfs'
@@ -84,7 +82,7 @@ mkdir 'out' 'inst' || exit 1
 	${MAKE:-make} TCLSH_NATIVE="${TCLSH_NATIVE}" || exit 1
 
 	# Strip the KitDLL of debugging symbols, if possible
-	"${STRIP:-strip}" -g libtcl.* >/dev/null 2>/dev/null
+	"${STRIP:-strip}" -g libtclkit.* >/dev/null 2>/dev/null
 
 	exit 0
 ) || exit 1

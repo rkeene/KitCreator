@@ -219,7 +219,9 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
-	for proj in tcl tclvfs; do
+	WISH_CFLAGS=""
+
+	for proj in tcl tclvfs tk; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
 		libdir="../../../${proj}/inst"
@@ -230,10 +232,27 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			libfiles="${libfilesnostub}"
 		fi
 
+		if test "$proj" = "tk"; then
+			libfiles="${libfilesnostub}"
+			if test -n "$libfiles"; then
+				DC_DO_TK
+				AC_DEFINE(KIT_INCLUDES_TK, [1], [Specify this if we link statically to Tk])
+
+				if test -n "${TK_VERSION}"; then
+					AC_DEFINE_UNQUOTED(KIT_TK_VERSION, "${TK_VERSION}${TK_PATCH_LEVEL}", [Specify the version of Tk])
+				fi
+
+				if test "$host_os" = "mingw32msvc" -o "$host_os" = "mingw32"; then
+					WISH_CFLAGS="-mwindows"
+				fi
+			fi
+		fi
+
 		ARCHS="${ARCHS} ${libfiles}"
 
 		AC_MSG_RESULT([${libfiles}])
 	done
 
+	AC_SUBST(WISH_CFLAGS)
 	AC_SUBST(ARCHS)
 ])

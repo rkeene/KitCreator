@@ -1,4 +1,15 @@
-#include <tcl.h>
+#ifdef KIT_INCLUDES_TK
+#  include <tk.h>
+#else
+#  include <tcl.h>
+#endif /* KIT_INCLUDES_TK */
+
+#ifdef _WIN32
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+#  undef WIN32_LEAN_AND_MEAN
+#endif /* _WIN32 */
+
 #include "tclInt.h"
 
 #if defined(HAVE_TCL_GETENCODINGNAMEFROMENVIRONMENT) && defined(HAVE_TCL_SETSYSTEMENCODING)
@@ -35,6 +46,11 @@ static char *preInitCmd =
 	"::tclkit::init::initInterp\n"
 	"rename ::tclkit::init::initInterp {}\n"
 	"uplevel #0 $s\n"
+#if defined(KIT_INCLUDES_TK) && defined(KIT_TK_VERSION)
+	"package ifneeded Tk " KIT_TK_VERSION " {\n"
+		"load {} Tk\n"
+	"}\n"
+#endif
 #ifdef _WIN32
 	"catch {load {} dde}\n"
 	"catch {load {} registry}\n"
@@ -89,6 +105,9 @@ void __attribute__((constructor)) _Tclkit_Init(void) {
 	Tcl_StaticPackage(0, "dde", Dde_Init, NULL);
 	Tcl_StaticPackage(0, "registry", Registry_Init, NULL);
 #endif
+#ifdef KIT_INCLUDES_TK
+	Tcl_StaticPackage(0, "Tk", Tk_Init, Tk_SafeInit);
+#endif  
 
 	TclSetPreInitScript(preInitCmd);
 
