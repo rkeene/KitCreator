@@ -91,7 +91,9 @@ if [ "${buildfailed}" != "0" ]; then
 	echo 'WARNING: Build is likely incomplete or failed.' >&2
 fi
 
-cp 'kitdll/build'/kitdll-*/libtcl.* "$(basename 'kitdll/build'/kitdll-*/libtcl.* | sed "s@\..*\$@-${TCLVERS}&@")" >/dev/null 2>/dev/null
+for kitdllfile in 'kitdll/build'/kitdll-*/libtcl.*; do
+	cp "${kitdllfile}" "$(echo "${kitdllfile}" | sed "s@^.*/@@;s@\..*\$@-${TCLVERS}&@")" >/dev/null 2>/dev/null
+done
 cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}"
 
 exit "${buildfailed}"
