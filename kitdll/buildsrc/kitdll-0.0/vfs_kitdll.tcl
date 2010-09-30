@@ -186,15 +186,16 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 	}
 
 	if {$pattern == ""} {
-
 		set children [list $relative]
 	} else {
 		set children [::vfs::kitdll::data::getChildren $hashkey $relative]
 	}
 
 	foreach child $children {
-		if {![string match $pattern $child]} {
-			continue
+		if {$pattern != ""} {
+			if {![string match $pattern $child]} {
+				continue
+			}
 		}
 
 		unset -nocomplain metadata
