@@ -35,7 +35,7 @@ done
 # We're all done if we're in clean or distclean mode
 if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
 	rm -f tclkit-*
-	rm -f libtcl.*
+	rm -f libtcl-*.*
 
 	exit 0
 fi
