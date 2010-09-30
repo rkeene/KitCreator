@@ -9,7 +9,7 @@ OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o
 TCLSH_NATIVE = tclsh
 
 # Default target
-all: libtcl.@SHOBJEXT@
+all: libtclkit.@SHOBJEXT@
 
 # Build targets
 ## VFS Build
@@ -27,17 +27,17 @@ rechan.o: rechan.c
 pwb.o: pwb.c
 
 ## DLL Build
-libtcl.@SHOBJEXT@: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtcl.@SHOBJEXT@ $(OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
+libtclkit.@SHOBJEXT@: $(OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit.@SHOBJEXT@ $(OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
 
 # Test driver
 tclsh.o: tclsh.c
-tclsh: tclsh.o libtcl.@SHOBJEXT@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o -L. -ltcl -Wl,-R,`pwd`
+tclsh: tclsh.o libtclkit.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o -L. -ltclkit -Wl,-R,`pwd`
 
 # Cleanup routeines
 clean:
-	rm -f libtcl.@SHOBJEXT@
+	rm -f libtclkit.@SHOBJEXT@
 	rm -f $(OBJS)
 	rm -f vfs_kitdll_data_tcl.c
 	rm -f vfs_kitdll.tcl.h
