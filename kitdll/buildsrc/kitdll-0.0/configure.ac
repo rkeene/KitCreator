@@ -10,7 +10,6 @@ AC_GNU_SOURCE
 
 dnl Determine system information
 DC_CHK_OS_INFO
-DC_SETUP_TCL_PLAT_DEFS
 
 dnl Find the appropriate libraries to link to
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
@@ -28,6 +27,9 @@ LIBS="${ARCHS} ${LIBS}"
 dnl Check for the ability to get the current system encoding
 AC_CHECK_FUNCS(Tcl_GetEncodingNameFromEnvironment Tcl_SetSystemEncoding)
 LIBS="${SAVE_LIBS}"
+
+dnl Find required libs
+DC_FIND_TCLKIT_LIBS
 
 dnl Check for optional headers
 AC_HEADER_STDC

@@ -215,3 +215,21 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 			;;
 	esac
 ])
+
+AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
+	DC_SETUP_TCL_PLAT_DEFS
+
+	for proj in tclvfs; do
+		AC_MSG_CHECKING([for libraries required for ${proj}])
+
+		libdir="../../../${proj}/inst"
+		libfiles="`find "${libdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
+		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
+
+		ARCHS="${ARCHS} ${libfiles}"
+
+		AC_MSG_RESULT([${libfiles}])
+	done
+
+	AC_SUBST(ARCHS)
+])

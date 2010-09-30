@@ -4,7 +4,7 @@ CPPFLAGS = @CPPFLAGS@ @DEFS@ -DKITDLL_MAKE_LOADABLE=1
 LDFLAGS = @LDFLAGS@
 SHOBJLDFLAGS = @SHOBJLDFLAGS@
 LIBS = @LIBS@
-STATICLIBS = @TCL_LIB_SPEC@ ../../../tclvfs/inst/lib/vfs1.3/libvfs1.3.a
+STATICLIBS = @TCL_LIB_SPEC@ @ARCHS@
 OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o
 TCLSH_NATIVE = tclsh
 
@@ -47,5 +47,7 @@ distclean: clean
 	rm -f config.status config.log
 	rm -f *~
 	rm -f Makefile
+
+mrproper: distclean
 
 .PHONY: all clean distclean
