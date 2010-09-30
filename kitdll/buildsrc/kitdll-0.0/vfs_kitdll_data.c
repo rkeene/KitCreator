@@ -178,7 +178,7 @@ static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST o
 		return(TCL_ERROR);
 	}
 
-	ret_str = Tcl_NewStringObj((const char *) finfo->data + start, (end - start));
+	ret_str = Tcl_NewByteArrayObj(finfo->data + start, (end - start));
 
 	Tcl_SetObjResult(interp, ret_str);
 
