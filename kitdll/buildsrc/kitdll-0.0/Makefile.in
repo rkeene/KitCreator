@@ -54,6 +54,7 @@ distclean: clean
 	rm -f config.status config.log
 	rm -f *~
 	rm -f Makefile
+	rm -rf starpack.vfs
 
 mrproper: distclean
 

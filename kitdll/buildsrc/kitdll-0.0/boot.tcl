@@ -2,19 +2,19 @@ proc tclInit {} {
 	rename tclInit {}
 
 	global auto_path tcl_library tcl_libPath
-	global tcl_version tcl_rcFileName
+	global tcl_version
   
 	# Set path where to mount VFS
-	set noe "/.KITDLL_TCL"
+	set tcl_mountpoint "/.KITDLL_TCL"
 
-	set tcl_library [file join $noe lib tcl$tcl_version]
-	set tcl_libPath [list $tcl_library [file join $noe lib]]
+	set tcl_library [file join $tcl_mountpoint lib tcl$tcl_version]
+	set tcl_libPath [list $tcl_library [file join $tcl_mountpoint lib]]
 
 	# get rid of a build residue
 	unset -nocomplain ::tclDefaultLibrary
 
 	# the following code only gets executed once on startup
-	if {[info exists tcl_rcFileName]} {
+	if {[info exists ::initVFS]} {
 		set vfsHandler [list ::vfs::kitdll::vfshandler tcl]
 
 		# alter path to find encodings
@@ -50,17 +50,18 @@ proc tclInit {} {
 		vfs::filesystem unmount [lindex [::vfs::filesystem info] 0]
 
 		# Resolve symlinks
-		set noe [file dirname [file normalize [file join $noe __dummy__]]]
+		set tcl_mountpoint [file dirname [file normalize [file join $tcl_mountpoint __dummy__]]]
 
-		set tcl_library [file join $noe lib tcl$tcl_version]
-		set tcl_libPath [list $tcl_library [file join $noe lib]]
+		set tcl_library [file join $tcl_mountpoint lib tcl$tcl_version]
+		set tcl_libPath [list $tcl_library [file join $tcl_mountpoint lib]]
 
-		vfs::filesystem mount $noe $vfsHandler
+		vfs::filesystem mount $tcl_mountpoint $vfsHandler
+
 	}
-  
+
 	# load config settings file if present
 	namespace eval ::vfs { variable tclkit_version 1 }
-	catch { uplevel #0 [list source [file join $noe config.tcl]] }
+	catch { uplevel #0 [list source [file join $tcl_mountpoint config.tcl]] }
 
 	uplevel #0 [list source [file join $tcl_library init.tcl]]
   
@@ -71,4 +72,33 @@ proc tclInit {} {
 	# "clock scan" is used within "vfs::zip", which may be
 	# loaded before this is run causing the root VFS to break
 	catch { clock scan }
+
+	# Load these, the original Tclkit does so it should be safe.
+	uplevel #0 [list source [file join $tcl_mountpoint lib vfs vfsUtils.tcl]]
+
+	# Now that the initialization is complete, mount the user VFS if needed
+	## Mount the VFS from the Shared Object
+	if {[info exists ::initVFS] && [info exists ::tclKitFilename]} {
+		catch {
+			package require vfs::zip
+
+			vfs::zip::Mount $::tclKitFilename "/.KITDLL_USER"
+
+			lappend auto_path [file normalize "/.KITDLL_USER/lib"]
+		}
+	}
+
+	## Mount the VFS from executable
+	if {[info exists ::initVFS]} {
+		catch {
+			package require vfs::zip
+
+			vfs::zip::Mount [info nameofexecutable] "/.KITDLL_APP"
+
+			lappend auto_path [file normalize "/.KITDLL_APP/lib"]
+		}
+	}
+
+	# Clean up after the kitInit.c:preInitCmd
+	unset -nocomplain ::initVFS ::tclKitFilename
 }

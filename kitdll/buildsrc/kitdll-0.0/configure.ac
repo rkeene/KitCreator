@@ -38,5 +38,11 @@ dnl Check for optional headers
 AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h string.h strings.h)
 
+dnl Check for optional system calls
+AC_CHECK_FUNCS(readlink)
+
+dnl Check for acceptable dladdr so we can find ourselves on UNIX
+DC_CHECK_FOR_ACCEPTABLE_DLADDR
+
 dnl Produce output
 AC_OUTPUT(Makefile)

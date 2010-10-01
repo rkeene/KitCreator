@@ -256,3 +256,30 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	AC_SUBST(WISH_CFLAGS)
 	AC_SUBST(ARCHS)
 ])
+
+AC_DEFUN(DC_CHECK_FOR_ACCEPTABLE_DLADDR, [
+	AC_CHECK_HEADERS(dlfcn.h)
+	AC_CHECK_FUNCS(dladdr)
+
+	AC_MSG_CHECKING([for acceptable dladdr])
+
+	AC_LINK_IFELSE(
+		AC_LANG_PROGRAM([[
+#ifdef HAVE_DLFCN_H
+#include <dlfcn.h>
+#endif
+			]], [[
+char *x;
+Dl_info syminfo;
+dladdr((void *) 0, &syminfo);
+x = syminfo.dli_fname;
+			]]
+		),
+		[
+			AC_MSG_RESULT([found])
+			AC_DEFINE(HAVE_ACCEPTABLE_DLADDR, [1], [Define to 1 if you have an acceptable dladdr implementation with dli_fname])
+		], [
+			AC_MSG_RESULT([not found])
+		]
+	)
+])
