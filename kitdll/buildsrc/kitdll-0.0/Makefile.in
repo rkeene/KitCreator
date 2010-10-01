@@ -11,7 +11,7 @@ EXTRA_OBJS = @EXTRA_OBJS@
 TCLSH_NATIVE = tclsh
 
 # Default target
-all: libtclkit.@SHOBJEXT@
+all: libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 
 # Build targets
 ## VFS Build
@@ -29,21 +29,21 @@ rechan.o: rechan.c
 pwb.o: pwb.c
 
 ## DLL Build
-libtclkit.@SHOBJEXT@: $(OBJS) $(EXTRA_OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
+libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
 
 # Test driver
 tclsh.o: tclsh.c
-tclsh: tclsh.o $(EXTRA_OBJS) libtclkit.@SHOBJEXT@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o $(EXTRA_OBJS) -L. -ltclkit -Wl,-R,`pwd`
+tclsh: tclsh.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ -Wl,-R,`pwd`
 
 wish.o: wish.c
-wish: wish.o $(EXTRA_OBJS) libtclkit.@SHOBJEXT@
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o $(EXTRA_OBJS) -L. -ltclkit -Wl,-R,`pwd`
+wish: wish.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ -Wl,-R,`pwd`
 
 # Cleanup routeines
 clean:
-	rm -f libtclkit.@SHOBJEXT@
+	rm -f libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 	rm -f $(OBJS)
 	rm -f vfs_kitdll_data_tcl.c
 	rm -f vfs_kitdll.tcl.h

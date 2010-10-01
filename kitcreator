@@ -35,7 +35,7 @@ done
 # We're all done if we're in clean or distclean mode
 if [ "${mode}" = "clean" -o "${mode}" = "distclean" ]; then
 	rm -f tclkit-*
-	rm -f libtclkit-*.*
+	rm -f libtclkit*.*
 
 	exit 0
 fi
@@ -116,9 +116,7 @@ if [ "${buildfailed}" != "0" ]; then
 	echo 'WARNING: Build is likely incomplete or failed.' >&2
 fi
 
-for kitdllfile in 'kitdll/build'/kitdll-*/libtclkit.*; do
-	cp "${kitdllfile}" "$(echo "${kitdllfile}" | sed "s@^.*/@@;s@\..*\$@-${TCLVERS}&@")" >/dev/null 2>/dev/null
-done
+cp 'kitdll/build'/kitdll-*/libtclkit* . >/dev/null 2>/dev/null
 cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}" >/dev/null 2>/dev/null
 
 exit "${buildfailed}"

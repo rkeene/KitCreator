@@ -122,13 +122,15 @@ AC_DEFUN(DC_DO_TCL, [
 		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		LIBS="${LIBS} ${TCL_LIBS}"
+
+		KITDLL_LIB_VERSION=`echo "${TCL_VERSION}${TCL_PATCH_LEVEL}" | sed 's@\.@@g'`
 	fi
 
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
 	AC_SUBST(LIBS)
 
-	AC_SUBST(TCL_LIB_SPEC)
+	AC_SUBST(KITDLL_LIB_VERSION)
 
 	AC_MSG_RESULT([$tclconfigsh])
 ])
