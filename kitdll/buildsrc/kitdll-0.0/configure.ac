@@ -31,6 +31,9 @@ LIBS="${SAVE_LIBS}"
 dnl Find required libs
 DC_FIND_TCLKIT_LIBS
 
+dnl Find extra objects we need to link as a part of "libtclkit"
+AC_SUBST(EXTRA_OBJS)
+
 dnl Check for optional headers
 AC_HEADER_STDC
 AC_CHECK_HEADERS(unistd.h string.h strings.h)

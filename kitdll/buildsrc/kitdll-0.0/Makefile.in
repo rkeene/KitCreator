@@ -7,6 +7,7 @@ SHOBJLDFLAGS = @SHOBJLDFLAGS@
 LIBS = @LIBS@
 STATICLIBS = @ARCHS@
 OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o
+EXTRA_OBJS = @EXTRA_OBJS@
 TCLSH_NATIVE = tclsh
 
 # Default target
@@ -28,17 +29,17 @@ rechan.o: rechan.c
 pwb.o: pwb.c
 
 ## DLL Build
-libtclkit.@SHOBJEXT@: $(OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit.@SHOBJEXT@ $(OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
+libtclkit.@SHOBJEXT@: $(OBJS) $(EXTRA_OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
 
 # Test driver
 tclsh.o: tclsh.c
-tclsh: tclsh.o libtclkit.@SHOBJEXT@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o -L. -ltclkit -Wl,-R,`pwd`
+tclsh: tclsh.o $(EXTRA_OBJS) libtclkit.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o $(EXTRA_OBJS) -L. -ltclkit -Wl,-R,`pwd`
 
 wish.o: wish.c
-wish: wish.o libtclkit.@SHOBJEXT@
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o -L. -ltclkit -Wl,-R,`pwd`
+wish: wish.o $(EXTRA_OBJS) libtclkit.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o $(EXTRA_OBJS) -L. -ltclkit -Wl,-R,`pwd`
 
 # Cleanup routeines
 clean:

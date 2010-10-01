@@ -74,6 +74,28 @@ mkdir 'out' 'inst' || exit 1
 	## Install "boot.tcl"
 	cp 'boot.tcl' 'starpack.vfs/'
 
+	# Include extra objects as required
+	## Initialize list of extra objects
+	EXTRA_OBJS=""
+
+	## Figure out if zlib compiled (if not, the system zlib will be used and we
+	## will need to have that present)
+	ZLIBDIR="$(cd "${OTHERPKGSDIR}/zlib/inst" 2>/dev/null && pwd)"
+	export ZLIBDIR
+	if [ -n "${ZLIBDIR}" -a -f "${ZLIBDIR}/lib/libz.a" ]; then
+		EXTRA_OBJS="${EXTRA_OBJS} ${ZLIBDIR}/lib/libz.a"
+	fi
+
+	## Tk Resources (needed for Win32 support)
+	TKDIR="$(cd "${OTHERPKGSDIR}/tk/inst" && pwd)"
+	TKRSRC="${TKDIR}/lib/tkbase.res.o"
+	if [ -n "${TKDIR}" -a -f "${TKRSRC}" ]; then
+		EXTRA_OBJS="${EXTRA_OBJS} ${TKRSRC}"
+	fi
+
+	## Export to the environment, to be picked up by the "configure" script
+	export EXTRA_OBJS
+
 	# Build KitDLL
 	echo "Running: ./configure --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 	./configure --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
