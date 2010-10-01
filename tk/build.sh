@@ -142,12 +142,18 @@ fi
 			fi
 		fi
 
-		# Update pkgIndex to load libtk from the local directory rather
-		# than the parent directory
-		for pkgIndex in "${INSTDIR}"/lib/tk*/pkgIndex.tcl; do
-			sed 's@ \.\. @ @g' "${pkgIndex}" > "${pkgIndex}.new"
-			mv "${pkgIndex}.new" "${pkgIndex}"
-		done
+		if [ "${STATICTK}" = "1" ]; then
+			# If we are building statically, don't create a
+			# pkgIndex.tcl
+			rm -f "${INSTDIR}"/lib/tk*/pkgIndex.tcl
+		else
+			# Update pkgIndex to load libtk from the local directory rather
+			# than the parent directory
+			for pkgIndex in "${INSTDIR}"/lib/tk*/pkgIndex.tcl; do
+				sed 's@ \.\. @ @g' "${pkgIndex}" > "${pkgIndex}.new"
+				mv "${pkgIndex}.new" "${pkgIndex}"
+			done
+		fi
 
 		mkdir "${OUTDIR}/lib" || exit 1
 		cp -r "${INSTDIR}/lib"/tk* "${OUTDIR}/lib/"
