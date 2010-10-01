@@ -52,15 +52,20 @@ if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads' >/dev/null 2>/dev/null;
 	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
 fi
 
+# Set default target
+KITTARGET="kitsh"
+export KITTARGET
+
 # Fix up package list
-## If building KitDLL, it must come last
+## If building KitDLL, define it as our target
 if echo " ${KITCREATOR_PKGS} " | grep ' kitdll ' >/dev/null 2>/dev/null; then
-	KITCREATOR_PKGS="$(echo " ${KITCREATOR_PKGS} " | sed 's@ kitdll @ @g;s@^  *@@;s@  *$@@;s@   *@ @g') kitdll"
+	KITCREATOR_PKGS="$(echo " ${KITCREATOR_PKGS} " | sed 's@ kitdll @ @g;s@^  *@@;s@  *$@@;s@   *@ @g')"
+	KITTARGET="kitdll"
 fi
 
 ## If building KitDLL and Tk, must do Tk statically
 ### (Well, we don't HAVE to, but it would defeat much of the purpose)
-if echo " ${KITCREATOR_PKGS} " | grep ' kitdll ' >/dev/null 2>/dev/null; then
+if [ "${KITTARGET}" = "kitdll" ]; then
 	if echo " ${KITCREATOR_PKGS} " | grep ' tk ' >/dev/null 2>/dev/null; then
 		if [ "${STATICTK}" != "1" -a "${STATICTK}" != "-1" ]; then
 			echo 'Warning: Linking Tk statically because you are building KitDLL' 2>&1
@@ -74,7 +79,7 @@ fi
 
 failedpkgs=""
 buildfailed="0"
-for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
+for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} "${KITTARGET}"; do
 	echo -n "Building ${pkg} ..."
 
 	failed="0"
@@ -114,6 +119,6 @@ fi
 for kitdllfile in 'kitdll/build'/kitdll-*/libtclkit.*; do
 	cp "${kitdllfile}" "$(echo "${kitdllfile}" | sed "s@^.*/@@;s@\..*\$@-${TCLVERS}&@")" >/dev/null 2>/dev/null
 done
-cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}"
+cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}" >/dev/null 2>/dev/null
 
 exit "${buildfailed}"
