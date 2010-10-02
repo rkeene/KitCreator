@@ -35,11 +35,11 @@ libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_OBJS)
 # Test driver
 tclsh.o: tclsh.c
 tclsh: tclsh.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ -Wl,-R,`pwd`
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ -Wl,-rpath,.
 
 wish.o: wish.c
 wish: wish.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ -Wl,-R,`pwd`
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ -Wl,-rpath,.
 
 # Cleanup routeines
 clean:
