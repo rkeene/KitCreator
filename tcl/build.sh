@@ -60,7 +60,10 @@ fi
 	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do
 		if [ -f "${patchscript}" ]; then
 			echo "Running patch script: ${patchscript}"
-			. "${patchscript}"
+
+			(
+				. "${patchscript}"
+			)
 		fi
 	done
 

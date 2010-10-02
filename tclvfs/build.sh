@@ -71,6 +71,12 @@ fi
 		export CFLAGS
 	fi
 
+	# If we are building for KitDLL, compile with '-fPIC'
+	if [ "${KITTARGET}" = "kitdll" ]; then
+		CFLAGS="${CFLAGS} -fPIC"
+		export CFLAGS
+	fi
+
 	# Build static version
 	echo "Running: ./configure --disable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}

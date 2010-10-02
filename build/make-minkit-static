@@ -4,9 +4,6 @@
 CC='diet gcc'
 export CC
 
-rm -rf tcl/patchscripts
-mkdir tcl/patchscripts || exit 1
-
 cat << \__EOF__ > tcl/patchscripts/dietlibc.sh
 sed 's@^# *include *<string.h>$@&@;T s;p;s@string.h@strings.h@;:s' generic/tclInt.h > generic/tclInt.h.new && cat generic/tclInt.h.new > generic/tclInt.h
 rm -f generic/tclInt.h.new
@@ -14,6 +11,6 @@ __EOF__
 
 ./build/make-minkit "$@" --disable-load --disable-threads
 
-rm -rf tcl/patchscripts
+rm -f tcl/patchscripts/dietlibc.sh
 
 exit 0
