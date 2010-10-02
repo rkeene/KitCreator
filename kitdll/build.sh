@@ -84,6 +84,9 @@ mkdir 'out' 'inst' || exit 1
 	export ZLIBDIR
 	if [ -n "${ZLIBDIR}" -a -f "${ZLIBDIR}/lib/libz.a" ]; then
 		EXTRA_OBJS="${EXTRA_OBJS} ${ZLIBDIR}/lib/libz.a"
+
+		LDFLAGS="${LDFLAGS} -L${ZLIBDIR}/lib"
+		export LDFLAGS
 	fi
 
 	## Tk Resources (needed for Win32 support)

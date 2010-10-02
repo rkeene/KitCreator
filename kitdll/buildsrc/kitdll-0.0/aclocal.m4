@@ -251,6 +251,10 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		libfiles="`find "${libdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
 		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
+		for libfile in ${libfiles}; do
+			LDFLAGS="${LDFLAGS} -L`dirname "${libfile}"`"
+		done
+
 		if test "$proj" = "tcl"; then
 			DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $libfilesnostub], [
 				libfiles="${libfilesnostub}"
