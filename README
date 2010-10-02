@@ -78,7 +78,10 @@ Environment variables:
 
 	4. STATICTK
 		Specify this as "1" to statically link to Tk.  The default
-		action on most platforms is to dynamically link to Tk.
+		action on most platforms is to dynamically link to Tk.  When
+		building KitDLL, STATICTK is "1" by default.  If you want to
+		enable dynamic linking of Tk with KitDLL you will have to
+		specify this as "-1".
 
 	5. STRIP
 		Specifies the tool you wish to be called to strip object files,
@@ -89,11 +92,15 @@ Environment variables:
 		Specify which non-required packages to build.  The default list
 		is:
 			tk itcl mk4tcl
+
 		If mk4tcl is not present a Zip-based storage mechanism will be
 		used instead.  To specify that the default be used, do not set
 		this or set it to the empty string.  To specify that no
 		non-required packages be built, set it to a string that
 		contains only white space.
+
+		If "kitdll" is specified in the list the target becomes KitDLL
+		and no Tclkit will built, but instead libtclkit.
 
 	7. KITCREATOR_MINENCODINGS
 		Set this variable to a non-empty string to generate a Tclkit
@@ -171,13 +178,14 @@ from the "tclConfig.sh" script), compiling it, installing a functional copy
 into the per-project "inst" directory, and installing anything that needs to
 be in the Tclkit's VFS root into the per-project "out" directory.
 
-The exception to this is the "kitsh" project.  It is the glue that binds all
-the individual projects together into a single executable.  Its build script
-does not create an "inst" or an "out" directory because it is not a library.
-Instead, it collects all the other project's "out" directories into a single
-directory (starpack.vfs), as well a static file (boot.tcl).  It then compiles
-the source code, and then installs the Metakit database containing the VFS
-onto the resulting executable.
+The exception to this is the "kitsh" and "kitdll" projects.  They are the glue
+that binds all the individual projects together into a single executable.  Its
+build script does not create an "inst" or an "out" directory because it is not
+a library.  Instead, it collects all the other project's "out" directories
+into a single directory (starpack.vfs), as well a static file (boot.tcl).
+It then compiles the source code, and then installs the VFS onto the resulting
+executable.  The VFS is created by the "installvfs.tcl" script for Kitsh.  For
+KitDLL the VFS is created by "dir2c.tcl".
 
 If the "mk4tcl" project fails to build (or is not requested to be built),
 the rest of the project will be built using zip files instead of Metakit
@@ -192,3 +200,10 @@ order):
 The second method will not work if the built Tclkit is not executable on the
 current platform (i.e., in the case of cross-compilation) and so it may be
 necessary to bootstrap a runnable Tclkit first.
+
+KitDLL mounts the VFS for every interpreter that calls Tcl_Init().  The system
+VFS that is created at build time is mounted at /.KITDLL_TCL.  Additionally,
+if there is a ZIP file appended to the DLL it will be mounted at /.KITDLL_USER
+and if there is a ZIP file appended to the executable it will be mounted at
+/.KITDLL_APP.  All VFSes that are mounted have the "lib" sub-directory appended
+to the interpreters "auto_path" variable.
