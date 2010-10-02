@@ -106,6 +106,27 @@ mkdir 'out' 'inst' || exit 1
 	# Strip the KitDLL of debugging symbols, if possible
 	"${STRIP:-strip}" -g libtclkit* >/dev/null 2>/dev/null
 
+	# Fix up Win32 DLL names
+	## .DLL.A -> .LIB
+	for file in libtclkit*.dll.a; do
+		if [ ! -f "${file}" ]; then
+			continue
+		fi
+
+		newfile="$(basename "${file}" .dll.a).lib"
+		mv "${file}" "${newfile}"
+	done
+
+	## .DLL.DEF -> .DEF
+	for file in libtclkit*.dll.def; do
+		if [ ! -f "${file}" ]; then
+			continue
+		fi
+
+		newfile="$(basename "${file}" .dll.def).def"
+		mv "${file}" "${newfile}"
+	done
+
 	exit 0
 ) || exit 1
 
