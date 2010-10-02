@@ -218,6 +218,27 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 	esac
 ])
 
+AC_DEFUN(DC_TEST_WHOLE_ARCHIVE_SHARED_LIB, [
+	SAVE_LIBS="${LIBS}"
+
+	LIBS="-Wl,--whole-archive $1 -Wl,--no-whole-archive ${SAVE_LIBS}"
+	AC_LINK_IFELSE(
+		AC_LANG_PROGRAM([[
+			]], [[
+			]]
+		),
+		[
+			LIBS="${SAVE_LIBS}"
+
+			$2
+		], [
+			LIBS="${SAVE_LIBS}"
+
+			$3
+		]
+	)
+])
+
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
@@ -231,13 +252,26 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
 		if test "$proj" = "tcl"; then
-			libfiles="${libfilesnostub}"
+			DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $libfilesnostub], [
+				libfiles="${libfilesnostub}"
+			], [
+				DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $libfiles], [
+					libfiles="${libfiles}"
+				])
+			])
 		fi
 
 		if test "$proj" = "tk"; then
-			libfiles="${libfilesnostub}"
 			if test -n "$libfiles"; then
 				DC_DO_TK
+				DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $libfilesnostub], [
+					libfiles="${libfilesnostub}"
+				], [
+					DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $libfiles], [
+						libfiles="${libfiles}"
+					])
+				])
+
 				AC_DEFINE(KIT_INCLUDES_TK, [1], [Specify this if we link statically to Tk])
 
 				if test -n "${TK_VERSION}"; then
