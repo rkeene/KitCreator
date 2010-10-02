@@ -204,6 +204,10 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
  */
 static int tclkit_init_initinterp(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
 	char *kitdll_path;
+#ifdef TCLKIT_CAN_SET_ENCODING
+	Tcl_DString encodingName;
+#endif /* TCLKIT_CAN_SET_ENCODING */
+
 
 #ifdef _WIN32
 	Tcl_SetVar(interp, "tcl_rcFileName", "~/tclkitrc.tcl", TCL_GLOBAL_ONLY);
@@ -224,7 +228,7 @@ static int tclkit_init_initinterp(ClientData cd, Tcl_Interp *interp, int objc, T
 	/* Set the encoding from the Environment */
 	Tcl_GetEncodingNameFromEnvironment(&encodingName);
 	Tcl_SetSystemEncoding(NULL, Tcl_DStringValue(&encodingName));
-	Tcl_SetVar(interp, "tclkit_system_encoding", Tcl_DStringValue(&encodingName), 0);
+	Tcl_SetVar(interp, "tclkit_system_encoding", Tcl_DStringValue(&encodingName), TCL_GLOBAL_ONLY);
 	Tcl_DStringFree(&encodingName);
 #endif  
 
