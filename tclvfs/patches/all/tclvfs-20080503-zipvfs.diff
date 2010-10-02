@@ -1,6 +1,6 @@
 diff -uNr tclvfs-20080503.orig/library/zipvfs.tcl tclvfs-20080503-1rsk/library/zipvfs.tcl
 --- tclvfs-20080503.orig/library/zipvfs.tcl	2008-04-15 16:11:53.000000000 -0500
-+++ tclvfs-20080503-1rsk/library/zipvfs.tcl	2010-09-28 16:43:12.000000000 -0500
++++ tclvfs-20080503-1rsk/library/zipvfs.tcl	2010-10-01 21:48:38.000000000 -0500
 @@ -107,6 +107,10 @@
  	    
  	    ::zip::stat $zipfd $name sb
@@ -44,7 +44,19 @@ diff -uNr tclvfs-20080503.orig/library/zipvfs.tcl tclvfs-20080503-1rsk/library/z
      return $res
  }
  
-@@ -381,7 +385,12 @@
+@@ -360,6 +364,11 @@
+     # after the whole file has been searched.
+ 
+     set sz  [tell $fd]
++    if {[info exists ::zip::max_header_seek]} {
++        if {$::zip::max_header_seek < $sz} {
++            set sz $::zip::max_header_seek
++        }
++    }
+     set len 512
+     set at  512
+     while {1} {
+@@ -381,7 +390,12 @@
      }
  
      set hdr [string range $hdr [expr $pos + 4] [expr $pos + 21]]
@@ -58,7 +70,7 @@ diff -uNr tclvfs-20080503.orig/library/zipvfs.tcl tclvfs-20080503-1rsk/library/z
  
      binary scan $hdr ssssiis \
  	cb(ndisk) cb(cdisk) \
-@@ -396,10 +405,15 @@
+@@ -396,10 +410,15 @@
  
      # Compute base for situations where ZIP file
      # has been appended to another media (e.g. EXE)
@@ -75,7 +87,7 @@ diff -uNr tclvfs-20080503.orig/library/zipvfs.tcl tclvfs-20080503-1rsk/library/z
      upvar 1 $arr sb
  
      set buf [read $fd 46]
-@@ -410,6 +424,8 @@
+@@ -410,6 +429,8 @@
        flen elen clen sb(disk) sb(attr) \
        sb(atx) sb(ino)
  
@@ -84,7 +96,7 @@ diff -uNr tclvfs-20080503.orig/library/zipvfs.tcl tclvfs-20080503-1rsk/library/z
      if { ![string equal "PK\01\02" $hdr] } {
  	binary scan $hdr H* x
  	error "bad central header: $x"
-@@ -442,7 +458,7 @@
+@@ -442,7 +463,7 @@
  	
  	zip::EndOfArchive $fd cb
  

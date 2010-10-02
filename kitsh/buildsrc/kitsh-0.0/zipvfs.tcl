@@ -332,6 +332,11 @@ proc zip::EndOfArchive {fd arr} {
     # after the whole file has been searched.
 
     set sz  [tell $fd]
+    if {[info exists ::zip::max_header_seek]} {
+        if {$::zip::max_header_seek < $sz} {
+            set sz $::zip::max_header_seek
+        }
+    } 
     set len 512
     set at  512
     while {1} {

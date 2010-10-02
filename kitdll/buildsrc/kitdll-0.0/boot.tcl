@@ -76,12 +76,17 @@ proc tclInit {} {
 	# Load these, the original Tclkit does so it should be safe.
 	uplevel #0 [list source [file join $tcl_mountpoint lib vfs vfsUtils.tcl]]
 
+	# Set a maximum seek to avoid reading the entire DLL looking for a
+	# zip header
+	catch {
+		package require vfs::zip
+		set ::zip::max_header_seek 8192
+	}
+
 	# Now that the initialization is complete, mount the user VFS if needed
 	## Mount the VFS from the Shared Object
 	if {[info exists ::initVFS] && [info exists ::tclKitFilename]} {
 		catch {
-			package require vfs::zip
-
 			vfs::zip::Mount $::tclKitFilename "/.KITDLL_USER"
 
 			lappend auto_path [file normalize "/.KITDLL_USER/lib"]
@@ -91,13 +96,14 @@ proc tclInit {} {
 	## Mount the VFS from executable
 	if {[info exists ::initVFS]} {
 		catch {
-			package require vfs::zip
-
 			vfs::zip::Mount [info nameofexecutable] "/.KITDLL_APP"
 
 			lappend auto_path [file normalize "/.KITDLL_APP/lib"]
 		}
 	}
+
+	# Clean up
+	unset -nocomplain ::zip::max_header_seek
 
 	# Clean up after the kitInit.c:preInitCmd
 	unset -nocomplain ::initVFS ::tclKitFilename
