@@ -53,7 +53,7 @@ DISPLAY=:31
 export DISPLAY
 
 failed=""
-for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 linux-arm-min; do
+for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-notk-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-notk-kitdll linux-arm-min linux-arm-min-kitdll; do
 	kitcreator="./kitcreator"
 	args=""
 	runnable="1"
@@ -62,6 +62,7 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 	notk="0"
 	nomk4="0"
 	xcompile="0"
+	kitdll="0"
 	kitruncmd=""
 
 	# Handle base configuration
@@ -135,6 +136,9 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 				nomk4="1"
 				iszip="1"
 				;;
+			*-kitdll-*)
+				kitdll="1"
+				;;
 		esac
 	done
 
@@ -146,9 +150,15 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 		fi
 
 		# Create Tclkit
-		createdkit="tclkit-${version}"
-		outputname="${TESTDIR}/kits/tclkit-${version}-${kit}"
-		failoutputname="${TESTDIR}/kits/failed/tclkit-${version}-${kit}"
+		if [ "${kitdll}" = "1" ]; then
+			createdkit="libtclkit*.dll libtclkit*.*"
+			outputname="${TESTDIR}/kits/libtclkit-${version}-${kit}"
+			failoutputname="${TESTDIR}/kits/failed/libtclkit-${version}-${kit}"
+		else
+			createdkit="tclkit-${version}"
+			outputname="${TESTDIR}/kits/tclkit-${version}-${kit}"
+			failoutputname="${TESTDIR}/kits/failed/tclkit-${version}-${kit}"
+		fi
 		buildlog="${outputname}-build.log"
 		failbuildlog="${failoutputname}-build.log"
 		testresultslog="${outputname}-tests.log"
@@ -163,6 +173,9 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 
 				continue
 			fi
+
+			rm -f tclsh
+			./kitcreator clean >/dev/null 2>/dev/null
 
 			echo "Creating Tclkit ${version}/${kit}..."
 			echo " *** Build started $(whoami)@$(hostname) on $(date)" > "${buildlog}"
@@ -180,6 +193,15 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 					KITCREATOR_PKGS="$(echo "${KITCREATOR_PKGS}" | sed 's@mk4tcl@@')"
 				fi
 			fi
+
+			if [ "${kitdll}" = "1" ]; then
+				if [ -z "${KITCREATOR_PKGS}" ]; then
+					KITCREATOR_PKGS='tk itcl mk4tcl kitdll'
+				else
+					KITCREATOR_PKGS="${KITCREATOR_PKGS} kitdll"
+				fi
+			fi
+
 			export KITCREATOR_PKGS
 
 			if [ -n "${KITCREATOR_PKGS}" ]; then
@@ -221,6 +243,24 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			"${kitcreator}" "${version}" ${args} >> "${buildlog}" 2>&1 || buildfailed="1"
 			grep -n '^' */build.log >> "${buildlog}" 2>&1
 
+			if [ "${kitdll}" = "1" ]; then
+				# Create test drivers for KitDLL
+				(
+					echo ""
+					echo ""
+					echo ""
+					echo " *** Building KitDLL test driver (tclsh)"
+					echo ""
+
+					cd kitdll/build/kitdll-*/ || exit 1
+					make tclsh
+					cp tclsh ../../../
+				) >> "${buildlog}" 2>&1
+			fi
+
+			# Perform wildcard expansion
+			createdkit="$(ls -f1 ${createdkit} 2>/dev/null | head -n 1)"
+
 			if [ ! -f "${createdkit}" ]; then
 				echo "Failed to create kit ${version}/${kit}" >&2
 
@@ -229,14 +269,27 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 				touch "${failoutputname}"
 				mv "${buildlog}" "${failbuildlog}"
 
+				rm -f tclsh
+
 				continue
 			fi
 
 			# Verify sanity of created kit
 			issane=1
 
-			## Verify the Win32 kits are 
+			## Verify that Win32 builds are of correct type
+			## Verify that DLL builds are of correct type
 			case "-${version}-${kit}-" in
+				*-win32-kitdll-*|*-win32-*-kitdll-*)
+					if ! file "${createdkit}" | grep 'MS Windows (DLL)' >/dev/null; then
+						issane=0
+					fi
+					;;
+				*-kitdll-*)
+					if ! file "${createdkit}" | grep 'shared object' >/dev/null; then
+						issane=0
+					fi
+					;;
 				*-win32-notk-*|*-win32-*-notk-*)
 					if ! file "${createdkit}" | grep 'MS Windows (console)' >/dev/null; then
 						echo "Kit failed sanity check for being a console application" >&2
@@ -267,11 +320,21 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 				mv "${createdkit}" "${failoutputname}"
 				mv "${buildlog}" "${failbuildlog}"
 
+				rm -f tclsh
+
 				continue
 			fi
 
 			# Rename created kit to final destination
 			mv "${createdkit}" "${outputname}"
+			if [ -f "tclsh" ]; then
+				mv "tclsh" "${outputname}-tclsh"
+			fi
+
+			# For KitDLL, make a note of the original name
+			if [ "${kitdll}" = "1" ]; then
+				echo "${createdkit}" > "${outputname}-origname"
+			fi
 		fi
 
 		# Test zip status
@@ -292,6 +355,13 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 		# Do not continue past here for un-runnable kits
 		if [ "${runnable}" != "1" ]; then
 			continue
+		fi
+
+		# If the name of the original build matters, symlink it up
+		if [ -f "${outputname}-origname" ]; then
+			createdkit="$(cat "${outputname}-origname")"
+
+			ln -s "${outputname}" "${createdkit}"
 		fi
 
 		# Perform battery of tests
@@ -322,7 +392,11 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 					. "${testscppre}"
 				fi
 
-				${kitruncmd} "${outputname}" "${testscp}" "${outputname}" "${kit}" "${version}"
+				if [ "${kitdll}" = "1" ]; then
+					${kitruncmd} "${outputname}-tclsh" "${testscp}" "${outputname}" "${kit}" "${version}"
+				else
+					${kitruncmd} "${outputname}" "${testscp}" "${outputname}" "${kit}" "${version}"
+				fi
 			) > "${scplogfile}" 2>&1
 
 			if [ "$?" != "0" ]; then
@@ -344,6 +418,10 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 
 			rm -f "${scplogfile}"
 		done
+
+		if [ -f "${outputname}-origname" ]; then
+			rm -f "${createdkit}"
+		fi
 	done
 done
 
@@ -353,3 +431,7 @@ fi
 
 # Terminate Xvfb
 kill -9 "${XVFB_PID}"
+
+# Cleanup
+./kitcreator clean
+rm -f tclsh

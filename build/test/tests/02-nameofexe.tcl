@@ -1,6 +1,12 @@
 #! /usr/bin/env tclsh
 
 set outputname [lindex $argv 0]
+set buildflags [split [lindex $argv 1] -]
+
+# If we built a KitDLL, the executable name will be "./tclsh"
+if {[lsearch -exact $buildflags "kitdll"] != -1} {
+	set outputname "${outputname}-tclsh"
+}
 
 if {[info nameofexecutable] == $outputname} {
 	exit 0

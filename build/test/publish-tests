@@ -61,9 +61,12 @@ proc pretty_print_key {key} {
 
 proc pretty_print_buildinfo {buildinfo} {
 	set desc [list]
-	foreach tag [list min static notk nomk4 statictk unthreaded threaded zip] {
+	foreach tag [list kitdll min static notk nomk4 statictk unthreaded threaded zip] {
 		if {[lsearch -exact $buildinfo $tag] != -1} {
 			switch -- $tag {
+				"kitdll" {
+					lappend desc "Built as a Library"
+				}
 				"min" {
 					lappend desc "Minimally Built"
 				}
