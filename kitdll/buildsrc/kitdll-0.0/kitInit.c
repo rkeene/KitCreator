@@ -34,6 +34,9 @@
 
 Tcl_AppInitProc Vfs_Init, Rechan_Init;
 Tcl_AppInitProc Vfs_kitdll_data_tcl_Init;
+#ifdef KIT_INCLUDES_MK4TCL
+Tcl_AppInitProc Mk4tcl_Init;
+#endif
 #ifdef KIT_INCLUDES_PWB
 Tcl_AppInitProc Pwb_Init;
 #endif
@@ -52,6 +55,9 @@ Tcl_AppInitProc Dde_Init, Registry_Init;
 static char *preInitCmd =
 "proc tclKitInit {} {\n"
 	"rename tclKitInit {}\n"
+#ifdef KIT_INCLUDES_MK4TCL
+	"catch { load {} Mk4tcl }\n"
+#endif
 	"load {} tclkit::init\n"
 	"load {} rechan\n"
 	"load {} vfs\n"
@@ -264,6 +270,9 @@ void __attribute__((constructor)) _Tclkit_Init(void) {
 	Tcl_StaticPackage(0, "rechan", Rechan_Init, NULL);
 	Tcl_StaticPackage(0, "vfs", Vfs_Init, NULL);
 	Tcl_StaticPackage(0, "vfs_kitdll_data_tcl", Vfs_kitdll_data_tcl_Init, NULL);
+#ifdef KIT_INCLUDES_MK4TCL
+	Tcl_StaticPackage(0, "Mk4tcl", Mk4tcl_Init, NULL);
+#endif
 #ifdef KIT_INCLUDES_PWB
 	Tcl_StaticPackage(0, "pwb", Pwb_Init, NULL);
 #endif

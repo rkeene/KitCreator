@@ -265,8 +265,14 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			])
 		fi
 
+		if test "${proj}" = "mk4tcl"; then
+			if test -n "$libfilesnostub"; then
+				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
+			fi
+		fi
+
 		if test "$proj" = "tk"; then
-			if test -n "$libfiles"; then
+			if test -n "$libfilesnostub"; then
 				DC_DO_TK
 				DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $libfilesnostub], [
 					libfiles="${libfilesnostub}"
