@@ -68,9 +68,18 @@ fi
 		export CPPFLAGS
 	fi
 
-	# Build static libraries for linking against Tclkit
-	echo "Running: ./configure --disable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
-	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+
+	# If we are building for KitDLL, compile as shared
+	isshared="0"
+	if [ "${KITTARGET}" = "kitdll" ]; then
+		isshared="1"
+
+		echo "Running: ./configure --enable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
+		./configure --enable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+	else
+		echo "Running: ./configure --disable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
+		./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+	fi
 
 	echo "Running: ${MAKE:-make} tcllibdir=\"${INSTDIR}/lib\" AR=\"${AR:-ar}\" RANLIB=\"${RANLIB:-ranlib}\""
 	${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" && \
@@ -80,6 +89,11 @@ fi
 
 		exit 1
 	) || exit 1
+
+	if [ "${isshared}" = "1" ]; then
+		# If we are building a shared version of Mk4tcl, put it in the VFS directory
+		cp -r "${INSTDIR}/lib" "${OUTDIR}"
+	fi
 
 	exit 0
 ) || exit 1
