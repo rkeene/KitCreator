@@ -74,7 +74,9 @@ proc tclInit {} {
 	catch { clock scan }
 
 	# Load these, the original Tclkit does so it should be safe.
-	uplevel #0 [list source [file join $tcl_mountpoint lib vfs vfsUtils.tcl]]
+	foreach vfsfile [list vfsUtils vfslib] {
+		uplevel #0 [list source [file join $tcl_mountpoint lib vfs ${vfsfile}.tcl]]
+	}
 
 	# Set a maximum seek to avoid reading the entire DLL looking for a
 	# zip header
