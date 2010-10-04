@@ -2,6 +2,7 @@
 
 set buildflags [split [lindex $argv 1] -]
 
+# Determine if Threads was requested (or in 8.6+, unrequested)
 if {$tcl_version == "8.6"} {
 	if {[lsearch -exact $buildflags "unthreaded"] == -1} {
 		set isthreaded 1
@@ -14,6 +15,11 @@ if {$tcl_version == "8.6"} {
 	} else {
 		set isthreaded 1
 	}
+}
+
+# Static builds don't come with threads.
+if {[lsearch -exact $buildflags "static"] != -1} {
+	set isthreaded 0
 }
 
 if {!$isthreaded} {
