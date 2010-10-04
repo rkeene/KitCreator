@@ -341,7 +341,7 @@ AC_DEFUN(DC_CHECK_FOR_WHOLE_ARCHIVE, [
 
 	wholearchive=""
 
-	for check in "-Wl,-z,allextract -Wl,-z,defaultextract" "-Wl,--whole-archive -Wl,--no-whole-archive"; do
+	for check in "-Wl,--whole-archive -Wl,--no-whole-archive" "-Wl,-z,allextract -Wl,-z,defaultextract"; do
 		CFLAGS="${SAVE_CFLAGS} ${check}"
 
 		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []),
