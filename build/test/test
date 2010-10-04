@@ -53,7 +53,7 @@ DISPLAY=:31
 export DISPLAY
 
 failed=""
-for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-notk-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-notk-kitdll linux-arm-min linux-arm-min-kitdll; do
+for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-kitdll normal-nomk4-notk-kitdll normal-threaded-nomk4-kitdll normal-threaded-notk-nomk4-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-kitdll win32-i586-nomk4-notk-kitdll win32-i586-threaded-nomk4-kitdll win32-i586-threaded-notk-nomk4-kitdll linux-arm-min linux-arm-min-kitdll; do
 	kitcreator="./kitcreator"
 	args=""
 	runnable="1"
@@ -72,11 +72,11 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 		normal|normal-*)
 			kit="$(echo "${kit}" | sed "s@^normal@$os-$cpu@")"
 			;;
-		min)
+		min|min-kitdll)
 			kitcreator="./build/make-minkit"
 			iszip="1"
 			notk="1"
-			kit="${os}-${cpu}-min"
+			kit="$(echo "${kit}" | sed "s@^min@$os-$cpu-min@")"
 			;;
 		min-static)
 			kitcreator="./build/make-minkit-static"
@@ -89,7 +89,7 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			xcompile="1"
 			kitruncmd="wine"
 			;;
-		linux-arm-min)
+		linux-arm-min|linux-arm-min-kitdll)
 			kitcreator="./build/make-kit-arm"
 			runnable="0"
 			xcompile="1"
@@ -141,6 +141,11 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 				;;
 		esac
 	done
+
+	if [ "${kitdll}" = "1" ]; then
+		# Currently no KitDLL uses Zip
+		iszip="0"
+	fi
 
 	for version in ${VERSIONS}; do
 		# Work around changes in default behaviour
