@@ -219,9 +219,10 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 ])
 
 AC_DEFUN(DC_TEST_WHOLE_ARCHIVE_SHARED_LIB, [
+
 	SAVE_LIBS="${LIBS}"
 
-	LIBS="-Wl,--whole-archive $1 -Wl,--no-whole-archive ${SAVE_LIBS}"
+	LIBS="${WHOLEARCHIVE} $1 ${NOWHOLEARCHIVE} ${SAVE_LIBS}"
 	AC_LINK_IFELSE(
 		AC_LANG_PROGRAM([[
 			]], [[
@@ -243,6 +244,9 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
 	WISH_CFLAGS=""
+
+	dnl We will need this for the Tcl project, which we will always have
+	DC_CHECK_FOR_WHOLE_ARCHIVE
 
 	for proj in tcl tclvfs tk; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
@@ -328,4 +332,39 @@ x = syminfo.dli_fname;
 			AC_MSG_RESULT([not found])
 		]
 	)
+])
+
+AC_DEFUN(DC_CHECK_FOR_WHOLE_ARCHIVE, [
+	AC_MSG_CHECKING([for how to link whole archive])
+
+	SAVE_CFLAGS="${CFLAGS}"
+
+	wholearchive=""
+
+	for check in "-Wl,-z,allextract -Wl,-z,defaultextract" "-Wl,--whole-archive -Wl,--no-whole-archive"; do
+		CFLAGS="${SAVE_CFLAGS} ${check}"
+
+		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []),
+			[
+				wholearchive="${check}"
+
+				break
+			]
+		)
+
+	done
+
+	CFLAGS="${SAVE_CFLAGS}"
+
+	if test -z "${wholearchive}"; then
+		AC_MSG_RESULT([not found])
+	else
+		AC_MSG_RESULT([${wholearchive}])
+
+		WHOLEARCHIVE=`echo "${wholearchive}" | cut -f 1 -d ' '`
+		NOWHOLEARCHIVE=`echo "${wholearchive}" | cut -f 2 -d ' '`
+	fi
+
+	AC_SUBST(WHOLEARCHIVE)
+	AC_SUBST(NOWHOLEARCHIVE)
 ])

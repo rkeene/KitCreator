@@ -30,7 +30,7 @@ pwb.o: pwb.c
 
 ## DLL Build
 libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_OBJS)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) -Wl,--whole-archive $(STATICLIBS) -Wl,--no-whole-archive $(LIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) @WHOLEARCHIVE@ $(STATICLIBS) @NOWHOLEARCHIVE@ $(LIBS)
 
 # Test driver
 tclsh.o: tclsh.c
