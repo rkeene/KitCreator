@@ -9,6 +9,11 @@
 <?
 	set haveTests 0
 	foreach subdir [lsort -dictionary [glob -type d *]] {
+		file lstat $subdir subdirinfo
+		if {$subdirinfo(type) == "link"} {
+			continue
+		}
+
 		if {$subdir == "tests"} {
 			set haveTests 1
 
