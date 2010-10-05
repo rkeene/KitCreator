@@ -31,6 +31,9 @@
 #if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 85
 #  define KIT_INCLUDES_PWB 1
 #endif
+#if 10 * TCL_MAJOR_VERSION + TCL_MINOR_VERSION < 86
+#  define KIT_INCLUDES_ZLIB 1
+#endif
 
 Tcl_AppInitProc Vfs_Init, Rechan_Init;
 Tcl_AppInitProc Vfs_kitdll_data_tcl_Init;
@@ -39,6 +42,9 @@ Tcl_AppInitProc Mk4tcl_Init;
 #endif
 #ifdef KIT_INCLUDES_PWB
 Tcl_AppInitProc Pwb_Init;
+#endif
+#ifdef KIT_INCLUDES_ZLIB
+Tcl_AppInitProc Zlib_Init;
 #endif
 #ifdef TCL_THREADS
 Tcl_AppInitProc Thread_Init;
@@ -55,13 +61,16 @@ Tcl_AppInitProc Dde_Init, Registry_Init;
 static char *preInitCmd =
 "proc tclKitInit {} {\n"
 	"rename tclKitInit {}\n"
-#ifdef KIT_INCLUDES_MK4TCL
-	"catch { load {} Mk4tcl }\n"
+#ifdef KIT_INCLUDES_ZLIB
+	"catch { load {} zlib }\n"
 #endif
 	"load {} tclkit::init\n"
 	"load {} rechan\n"
 	"load {} vfs\n"
 	"load {} vfs_kitdll_data_tcl\n"
+#ifdef KIT_INCLUDES_MK4TCL
+	"catch { load {} Mk4tcl }\n"
+#endif
 #include "vfs_kitdll.tcl.h"
 	"if {![file exists \"/.KITDLL_TCL/boot.tcl\"]} {\n"
 		"vfs::kitdll::Mount tcl /.KITDLL_TCL\n"
@@ -270,6 +279,9 @@ void __attribute__((constructor)) _Tclkit_Init(void) {
 	Tcl_StaticPackage(0, "rechan", Rechan_Init, NULL);
 	Tcl_StaticPackage(0, "vfs", Vfs_Init, NULL);
 	Tcl_StaticPackage(0, "vfs_kitdll_data_tcl", Vfs_kitdll_data_tcl_Init, NULL);
+#ifdef KIT_INCLUDES_ZLIB
+        Tcl_StaticPackage(0, "zlib", Zlib_Init, NULL);
+#endif
 #ifdef KIT_INCLUDES_MK4TCL
 	Tcl_StaticPackage(0, "Mk4tcl", Mk4tcl_Init, NULL);
 #endif

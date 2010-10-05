@@ -6,7 +6,7 @@ LDFLAGS = @LDFLAGS@
 SHOBJLDFLAGS = @SHOBJLDFLAGS@
 LIBS = @LIBS@
 STATICLIBS = @ARCHS@
-OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o
+OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o zlib.o
 EXTRA_OBJS = @EXTRA_OBJS@
 TCLSH_NATIVE = tclsh
 
@@ -27,6 +27,7 @@ vfs_kitdll.tcl.h: vfs_kitdll.tcl
 ## Extensions
 rechan.o: rechan.c
 pwb.o: pwb.c
+zlib.o: zlib.c
 
 ## DLL Build
 libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_OBJS)
