@@ -85,8 +85,14 @@ mkdir 'out' 'inst' || exit 1
 	if [ -n "${ZLIBDIR}" -a -f "${ZLIBDIR}/lib/libz.a" ]; then
 		EXTRA_OBJS="${EXTRA_OBJS} ${ZLIBDIR}/lib/libz.a"
 
+		### Add lib directory for zlib
 		LDFLAGS="${LDFLAGS} -L${ZLIBDIR}/lib"
 		export LDFLAGS
+
+		### Add include directory for zlib
+		CFLAGS="${CFLAGS} -I${ZLIBDIR}/include"
+		CPPFLAGS="${CPPFLAGS} -I${ZLIBDIR}/include"
+		export CFLAGS CPPFLAGS
 	fi
 
 	## Tk Resources (needed for Win32 support)
