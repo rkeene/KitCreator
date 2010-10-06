@@ -74,6 +74,14 @@ if [ "${KITTARGET}" = "kitdll" ]; then
 			STATICTK="1"
 			export STATICTK
 		fi
+
+		if [ -z "${STATICMK4}" ]; then
+			echo 'Warning: Linking Mk4tcl dynamically because you are building KitDLL' 2>&1
+			echo '         Set STATICMK4 to 1 if you really want to link Mk4tcl statically.' >&2
+
+			STATICMK4="0"
+			export STATICMK4
+		fi
 	fi
 fi
 

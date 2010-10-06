@@ -240,6 +240,50 @@ AC_DEFUN(DC_TEST_WHOLE_ARCHIVE_SHARED_LIB, [
 	)
 ])
 
+AC_DEFUN(DC_DO_STATIC_LINK_LIB, [
+	AC_MSG_CHECKING([for how to statically link to $1])
+	 
+	SAVELIBS="${LIBS}"
+	staticlib=""
+	found="0"
+	dnl HP/UX uses -Wl,-a,archive -lstdc++ -Wl,-a,shared_archive
+	dnl Linux and Solaris us -Wl,-Bstatic ... -Wl,-Bdynamic
+	for trylink in "-Wl,-a,archive $2 -Wl,-a,shared_archive" "-Wl,-Bstatic $2 -Wl,-Bdynamic" "$2"; do
+		LIBS="${SAVELIBS} ${trylink}"
+	       
+		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []), [
+			staticlib="${trylink}"
+			found="1"
+	       
+			break
+		])
+	done   
+	 
+	if test "${found}" = "1"; then
+		SAVELIBS=`echo "$SAVELIBS" | sed 's@ $2 @ @'`
+		LIBS="${SAVELIBS} ${staticlib}"
+
+		AC_MSG_RESULT([${staticlib}])
+
+		AC_SUBST(LIBS)
+
+		$3
+	else    
+		LIBS="${SAVELIBS}"
+		
+		AC_MSG_RESULT([cant])
+		
+		$4
+	fi
+])
+
+AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
+	dnl Sun Studio uses -lCstd -lCrun, most platforms use -lstdc++
+	DC_DO_STATIC_LINK_LIB([C++ Library (Sun Studio)], [-lCstd -lCrun],, [
+		DC_DO_STATIC_LINK_LIB([C++ Library (UNIX)], [-lstdc++])
+	])
+])
+
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
@@ -248,7 +292,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	dnl We will need this for the Tcl project, which we will always have
 	DC_CHECK_FOR_WHOLE_ARCHIVE
 
-	for proj in tcl tclvfs tk; do
+	for proj in tcl tclvfs tk mk4tcl; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
 		libdir="../../../${proj}/inst"
@@ -270,8 +314,9 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		fi
 
 		if test "${proj}" = "mk4tcl"; then
-			if test -n "$libfilesnostub"; then
+			if test -n "$libfiles"; then
 				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
+				DC_DO_STATIC_LINK_LIBCXX
 			fi
 		fi
 

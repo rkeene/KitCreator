@@ -83,12 +83,21 @@ Environment variables:
 		enable dynamic linking of Tk with KitDLL you will have to
 		specify this as "-1".
 
-	5. STRIP
+	5. STATICMK4
+		Specify this as "0" to attempt to create create the "mk4tcl"
+		project as a shared object.  If this fails, it will fall back
+		to building statically.  Specify it as "-1" to force building
+		it as a shared object.  Any other value, including being unset
+		results in "mk4tcl" being built and linked statically.  KitDILL
+		sets this to variable to "0".  If Metakit4 is built shared, it
+		cannot be used for the kit storage for Tclkit.
+
+	6. STRIP
 		Specifies the tool you wish to be called to strip object files,
 		archives, and shared objects.  The default is "strip".  You
 		should probably set this if you are cross-compiling.
 
-	6. KITCREATOR_PKGS
+	7. KITCREATOR_PKGS
 		Specify which non-required packages to build.  The default list
 		is:
 			tk itcl mk4tcl
@@ -102,13 +111,13 @@ Environment variables:
 		If "kitdll" is specified in the list the target becomes KitDLL
 		and no Tclkit will built, but instead libtclkit.
 
-	7. KITCREATOR_MINENCODINGS
+	8. KITCREATOR_MINENCODINGS
 		Set this variable to a non-empty string to generate a Tclkit
 		without all encodings, only including the following:
 			ascii.enc cp1252.enc iso8859-1.enc iso8859-15.enc
 			iso8859-2.enc koi8-r.enc macRoman.enc
 
-	8. KITCREATOR_MINBUILD
+	9. KITCREATOR_MINBUILD
 		Set this variable to a non-empty string to exclude unnecessary
 		packages from Tcl build.  This excludes the following packages:
 			tcltest
@@ -117,7 +126,7 @@ Kitsh Configure Options:
 	1. --enable-kit-storage={zip|mk4|auto}
 		Specify which type of storage to use with the Tclkit.  The
 		default is to auto-detect.  Auto-detection uses Mk4 if
-		available, otherwise it falls back to Zip.
+		available and built statically, otherwise it falls back to Zip.
 
 -------------------
 Method of Operation

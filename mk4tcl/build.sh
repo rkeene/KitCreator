@@ -66,32 +66,63 @@ fi
 	if [ "${BUILDTYPE}" = "win" ]; then
 		CPPFLAGS="${CPPFLAGS} -DBUILD_tcl=1"
 		export CPPFLAGS
+
+		if [ "${STATICMK4}" != "-1" ]; then
+			if [ "${STATICMK4}" = "0" ]; then
+				echo 'Warning: Metakit4 fails to build shared on Win32, converting to static linking'
+
+				STATICMK4="1"
+			fi
+		else
+			STATICMK4="0"
+		fi
+		export STATICMK4
 	fi
 
-
-	# If we are building for KitDLL, compile as shared
-	isshared="0"
-	if [ "${KITTARGET}" = "kitdll" ]; then
-		isshared="1"
-
-		echo "Running: ./configure --enable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
-		./configure --enable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+	# Try to build as a shared object if requested
+	if [ "${STATICMK4}" = "0" ]; then
+		tryopts="--enable-shared --disable-shared"
+	elif [ "${STATICMK4}" = "-1" ]; then
+		tryopts="--enable-shared"
 	else
-		echo "Running: ./configure --disable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
-		./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+		tryopts="--disable-shared"
 	fi
 
-	echo "Running: ${MAKE:-make} tcllibdir=\"${INSTDIR}/lib\" AR=\"${AR:-ar}\" RANLIB=\"${RANLIB:-ranlib}\""
-	${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" && \
-	${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" install || (
+	for tryopt in $tryopts __fail__; do
+		# Clean up, if needed
+		make distclean >/dev/null 2>/dev/null
 		rm -rf "${INSTDIR}"
 		mkdir "${INSTDIR}"
 
-		exit 1
-	) || exit 1
+		if [ "${tryopt}" = "__fail__" ]; then
+			exit 1
+		fi
 
+		if [ "${tryopt}" == "--enable-shared" ]; then
+			isshared="1"
+		else
+			isshared="0"
+		fi
+
+		(
+			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
+			./configure $tryopt --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}/../generic" ${CONFIGUREEXTRA}
+
+			echo "Running: ${MAKE:-make} tcllibdir=\"${INSTDIR}/lib\" AR=\"${AR:-ar}\" RANLIB=\"${RANLIB:-ranlib}\""
+			${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" || exit 1
+
+			echo "Running: ${MAKE:-make} tcllibdir=\"${INSTDIR}/lib\" AR=\"${AR:-ar}\" RANLIB=\"${RANLIB:-ranlib}\" install"
+			${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" install || exit 1
+		) || continue
+
+		break
+	done
+
+	# Clean up "libmk4.*", it's not needed
+	rm -f "${INSTDIR}/lib"/libmk4.*
+
+	# If we are building a shared version of Mk4tcl, put it in the VFS directory
 	if [ "${isshared}" = "1" ]; then
-		# If we are building a shared version of Mk4tcl, put it in the VFS directory
 		cp -r "${INSTDIR}/lib" "${OUTDIR}"
 	fi
 
