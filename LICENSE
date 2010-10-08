@@ -13,6 +13,11 @@ The MIT License is applied to all files in this distribution, except:
 	kitsh/buildsrc/kitsh-0.0/winMain.c
 	kitsh/buildsrc/kitsh-0.0/mk4tcl.tcl
 	kitsh/buildsrc/kitsh-0.0/mk4tcl.tcl.h
+	kitdll/buildsrc/kitdll-0.0/rechan.c
+	kitdll/buildsrc/kitdll-0.0/zlib.c
+	kitdll/buildsrc/kitdll-0.0/kitInit.c
+	kitdll/buildsrc/kitdll-0.0/boot.tcl
+	kitdll/buildsrc/kitdll-0.0/pwb.c
 
 Please see "kitsh/buildsrc/kitsh-0.0/license.terms" for licensing information
 regarding these files.
