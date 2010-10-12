@@ -17,7 +17,11 @@ export FOSSIL_CHANGE TESTNAME
 
 if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
 	# Don't re-run the tests if nothing has changed
-	exit 0
+	if [ -f "${KITCREATORDIR}/build/test/force_nightly" ]; then
+		rm -f "${KITCREATORDIR}/build/test/force_nightly"
+	else
+		exit 0
+	fi
 fi
 
 cd build/test || exit 1
