@@ -17,7 +17,8 @@ BUILDDIR="$(pwd)/build/tcl${TCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
 PATCHSCRIPTDIR="$(pwd)/patchscripts"
-export SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR
+PATCHDIR="$(pwd)/patches"
+export SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
 
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
@@ -55,6 +56,17 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
+
+	# Apply patches if needed
+	for patch in "${PATCHDIR}/all"/tcl-${TCLVERS}-*.diff "${PATCHDIR}/${TCLVERS}"/tcl-${TCLVERS}-*.diff; do
+		if [ ! -f "${patch}" ]; then
+			continue
+		fi
+                
+		echo "Applying: ${patch}"
+		${PATCH:-patch} -p1 < "${patch}"
+	done
+
 
 	# Apply patch scripts if needed
 	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do

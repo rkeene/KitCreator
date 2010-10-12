@@ -1,0 +1,24 @@
+diff -uNr tcl8.4.19.orig/win/tclWinDde.c tcl8.4.19-1rsk/win/tclWinDde.c
+--- tcl8.4.19.orig/win/tclWinDde.c	2006-04-05 15:50:46.000000000 -0500
++++ tcl8.4.19-1rsk/win/tclWinDde.c	2010-10-12 10:40:23.000000000 -0500
+@@ -1308,7 +1308,7 @@
+ 	    }
+ 
+ 	    objc -= (async + 3);
+-	    ((Tcl_Obj **) objv) += (async + 3);
++	    objv += (async + 3);
+ 
+             /*
+ 	     * See if the target interpreter is local.  If so, execute
+diff -uNr tcl8.4.19.orig/win/tclWinReg.c tcl8.4.19-1rsk/win/tclWinReg.c
+--- tcl8.4.19.orig/win/tclWinReg.c	2007-05-15 11:08:22.000000000 -0500
++++ tcl8.4.19-1rsk/win/tclWinReg.c	2010-10-12 10:40:20.000000000 -0500
+@@ -790,7 +790,7 @@
+ 		    Tcl_NewStringObj(Tcl_DStringValue(&buf),
+ 			    Tcl_DStringLength(&buf)));
+ 	    if (regWinProcs->useWide) {
+-		while (*((Tcl_UniChar *)p)++ != 0) {}
++		while ((*((Tcl_UniChar *)p))++ != 0) {}
+ 	    } else {
+ 		while (*p++ != '\0') {}
+ 	    }
