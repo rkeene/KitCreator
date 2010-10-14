@@ -33,6 +33,6 @@ export KITDLLROOTDIR
 	make distclean
 ) || exit 1
 
-rm -rf tcl/patchscripts/
+rm -f tcl/patchscripts/dietlibc.sh
 
 find . -name '.*.sw?' -type f | xargs rm -f
