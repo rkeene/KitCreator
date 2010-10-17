@@ -211,7 +211,7 @@ puts $fd "  <head>"
 puts $fd "    <title>KitCreator Build and Test Status</title>"
 puts $fd "  </head>"
 puts $fd "  <body>"
-puts $fd "    <h1>KitCreator Build and Test Status</h1>"
+puts $fd "    <h1><a href=\"http://kitcreator.rkeene.org/\">KitCreator</a> Build and Test Status</h1>"
 puts $fd "    <p>The following table represents the status of the test results from the KitCreator test suite.</p>"
 puts $fd "    <table cellpadding=\"2\" border=\"1\">"
 foreach key [lsort -dictionary [array names allkitinfo]] {
