@@ -15,6 +15,14 @@ FOSSIL_CHANGE="$(fossil timeline -n 1 -t ci | grep '^[0-9:]* \[' | sed 's@^[0-9:
 TESTNAME="fossil_${FOSSIL_CHANGE}"
 export FOSSIL_CHANGE TESTNAME
 
+# On Wednesday, do a distclean to force redownloading everything (mainly
+# for CVS Head) and force a rebuild to ensure up-to-date build status
+if [ "$(date '+%u')" = "3" ]; then
+	./kitcreator distclean || exit 1
+
+	touch "${KITCREATORDIR}/build/test/force_nightly"
+fi
+
 if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
 	# Don't re-run the tests if nothing has changed
 	if [ -f "${KITCREATORDIR}/build/test/force_nightly" ]; then
