@@ -126,7 +126,17 @@ fi
 		fi
 
 		echo "Running: ${MAKE:-make}"
-		${MAKE:-make} || continue
+		${MAKE:-make} || (
+			# Workaround a bug in Tk on FreeBSD 8.1:
+			#   https://sourceforge.net/tracker/?func=detail&atid=112997&aid=3107390&group_id=12997
+			LIBTKFILE="$(ls libtk*.so.1 2>/dev/null | head -1)"
+			if [ -f "${LIBTKFILE}" ]; then
+				NEWLIBTKFILE="$(echo "${LIBTKFILE}" | sed 's@\.so\.1@.so@')"
+				cp "${LIBTKFILE}" "${NEWLIBTKFILE}"
+			fi
+
+			${MAKE:-make}
+		) || continue
 
 		echo "Running: ${MAKE:-make} install"
 		${MAKE:-make} install || continue
