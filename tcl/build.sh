@@ -28,16 +28,27 @@ if [ ! -f "${SRC}" ]; then
 
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
 		CVSTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
+		if [ "${CVSTAG}" = "HEAD" ]; then
+			CVSTAG="trunk"
+		fi
 		export CVSTAG
 
 		(
 			cd src || exit 1
 
-			cvs -z3 -d:pserver:anonymous@tcl.cvs.sourceforge.net:/cvsroot/tcl co -r "${CVSTAG}" -P tcl
+			rm -f "tmp-tcl.zip"
+			wget -O "tmp-tcl.zip" "http://tcltk.oc9.org/fossils/tcl/zip/unnamed-${CVSTAG}.zip?uuid=${CVSTAG}" || rm -f "tmp-tcl.zip"
+			unzip "tmp-tcl.zip"
+			rm -f "tmp-tcl.zip"
 
-			mv tcl "tcl${TCLVERS}"
+			rm -rf "tcl${TCLVERS}"
+			mv "unnamed-${CVSTAG}" "tcl${TCLVERS}"
 
-			tar -cf - "tcl${TCLVERS}" | gzip -c > "../${SRC}"
+			if [ -d "tcl${TCLVERS}" ]; then
+				find "tcl${TCLVERS}" -name configure -type f | xargs chmod +x
+
+				tar -cf - "tcl${TCLVERS}" | gzip -c > "../${SRC}"
+			fi
 		)
 	else
 		rm -f "${SRC}.tmp"
