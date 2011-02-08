@@ -154,10 +154,23 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
-	for proj in mk4tcl tcl tclvfs tk; do
-		AC_MSG_CHECKING([for libraries required for ${proj}])
+	for projdir in ../../../*/; do
+		proj="`basename "${projdir}"`"
+
+		if test "${proj}" = "zlib"; then
+			continue
+		fi
 
 		libdir="../../../${proj}/inst"
+
+		if test -d "${libdir}"; then
+			true
+		else
+			continue
+		fi
+
+		AC_MSG_CHECKING([for libraries required for ${proj}])
+
 		libfiles="`find "${libdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
 		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
