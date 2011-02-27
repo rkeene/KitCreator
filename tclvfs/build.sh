@@ -85,7 +85,7 @@ fi
 	${MAKE:-make} || exit 1
 
 	echo "Running: ${MAKE:-make} install"
-	${MAKE:-make} install
+	${MAKE:-make} install || exit 1
 
 	mkdir "${OUTDIR}/lib" || exit 1
 	cp -r "${INSTDIR}/lib"/vfs* "${OUTDIR}/lib/"

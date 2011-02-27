@@ -100,6 +100,7 @@ mkdir 'out' 'inst' || exit 1
 	if echo 'exit 0' | "${TCLKIT}" >/dev/null 2>/dev/null; then
 		## Install using existing Tclkit
 		### Call installer
+		echo "Running: \"${TCLKIT}\" installvfs.tcl kit starpack.vfs \"${ENABLECOMPRESSION}\""
 		"${TCLKIT}" installvfs.tcl kit starpack.vfs "${ENABLECOMPRESSION}"
 	else
 		## Bootstrap (cannot cross-compile)
@@ -108,6 +109,8 @@ mkdir 'out' 'inst' || exit 1
 		echo "set argv [list kit starpack.vfs {${ENABLECOMPRESSION}}]" > setup.tcl
 		echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
 		echo 'source installvfs.tcl' >> setup.tcl
+
+		echo 'Running: echo | ./runkit'
 		echo | ./runkit
 	fi
 
