@@ -58,6 +58,10 @@ rm -rf "${WEBROOTDIR}"/svn_r*/ "${WEBROOTDIR}"/fossil_*/
 # Publish New Results
 ./publish-tests "${TESTNAME}"
 
+# Create nightly symlink
+rm -f "${WEBROOTDIR}/nightly"
+ln -s "${TESTNAME}" "${WEBROOTDIR}/nightly"
+
 # Clean
 rm -f '__AUTO_TESTS_RUNNING__'
 
