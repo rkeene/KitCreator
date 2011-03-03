@@ -71,6 +71,7 @@ if [ ! -f "${SRC}" ]; then
 
 			rm -f "tmp-tcl.zip" "tmp-itcl.zip" "tmp-thread.zip" "tmp-tclconfig.zip"
 			rm -rf "tcl-${CVSTAG}" "itcl-${CVSTAG}" "thread-${CVSTAG}" "tclconfig-${CVSTAG}"
+			rm -rf "tcl${TCLVERS}"
 		)
 	else
 		rm -f "${SRC}.tmp"
@@ -111,17 +112,6 @@ fi
 			)
 		fi
 	done
-
-	# Patch Win32 builds to always provide DllMain if we are building KitDLL
-	if [ "${KITTARGET}" = "kitdll" ]; then
-		## DllMain is needed when building KitDLL
-		for filetopatch in win/tclWin32Dll.c win/tclWinInit.c; do
-			echo "Undefining STATIC_BUILD in \"${filetopatch}\""
-
-			sed 's@STATIC_BUILD@NEVER_STATIC_BUILD@g' "${filetopatch}" > "${filetopatch}.new" && cat "${filetopatch}.new" > "${filetopatch}"
-			rm -f "${filetopatch}.new"
-		done
-	fi
 
 	for dir in unix win macosx __fail__; do
 		if [ "${dir}" = "__fail__" ]; then

@@ -17,7 +17,8 @@ BUILDDIR="$(pwd)/build/tk${TCLVERS}"
 PATCHDIR="$(pwd)/patches"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR
+PATCHSCRIPTDIR="$(pwd)/patchscripts"
+export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR PATCHSCRIPTDIR
 
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
@@ -58,6 +59,7 @@ if [ ! -f "${SRC}" ]; then
 			fi
 
 			rm -f "tmp-tk.zip"
+			rm -rf "tk-${CVSTAG}"
 			rm -rf "tk${TCLVERS}"
 		)
 	else
@@ -100,6 +102,17 @@ fi
 			${PATCH:-patch} -p1 < "${patch}"
 		done
 	)
+
+	# Apply patch scripts if needed
+	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do
+		if [ -f "${patchscript}" ]; then
+			echo "Running patch script: ${patchscript}"
+                                
+			(
+				. "${patchscript}"
+			)
+		fi
+	done
 
 	for dir in unix win macosx win64 __fail__; do
 		if [ "${dir}" = "__fail__" ]; then
