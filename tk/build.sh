@@ -44,18 +44,21 @@ if [ ! -f "${SRC}" ]; then
 			cd src || exit 1
 
 			rm -f "tmp-tk.zip"
-			wget -O "tmp-tk.zip" "http://tcltk.oc9.org/fossils/tk/zip/unnamed-${CVSTAG}.zip?uuid=${CVSTAG}" || rm -f "tmp-tk.zip"
+			wget -O "tmp-tk.zip" "http://rkeene.org/projects/tcl/tk.fossil/zip/tk-${CVSTAG}.zip?uuid=${CVSTAG}" || rm -f "tmp-tk.zip"
 			unzip "tmp-tk.zip"
 			rm -f "tmp-tk.zip"
 
 			rm -rf "tk${TCLVERS}"
-			mv "unnamed-${CVSTAG}" "tk${TCLVERS}"
+			mv "tk-${CVSTAG}" "tk${TCLVERS}"
                         
 			if [ -d "tk${TCLVERS}" ]; then
 				find "tk${TCLVERS}" -name configure -type f | xargs chmod +x
                                 
 				tar -cf - "tk${TCLVERS}" | gzip -c > "../${SRC}"
 			fi
+
+			rm -f "tmp-tk.zip"
+			rm -rf "tk${TCLVERS}"
 		)
 	else
 		rm -f "${SRC}.tmp"
