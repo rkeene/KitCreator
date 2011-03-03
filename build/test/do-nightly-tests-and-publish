@@ -19,15 +19,9 @@ export FOSSIL_CHANGE TESTNAME
 # for CVS Head) and force a rebuild to ensure up-to-date build status
 if [ "$(date '+%u')" = "3" ]; then
 	./kitcreator distclean || exit 1
-
-	touch "${KITCREATORDIR}/build/test/force_nightly"
-fi
-
-if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
-	# Don't re-run the tests if nothing has changed
-	if [ -f "${KITCREATORDIR}/build/test/force_nightly" ]; then
-		rm -f "${KITCREATORDIR}/build/test/force_nightly"
-	else
+else
+	if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
+		# Don't re-run the tests if nothing has changed
 		exit 0
 	fi
 fi

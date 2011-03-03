@@ -1,4 +1,5 @@
-This will build a Tclkit named "tclkit-<version>".
+This will build a Tclkit named "tclkit-<version>" or a KitDLL named
+"libtclkit<version>.so".
 
 ---------------
 Using This Tool
