@@ -18,8 +18,8 @@ if {[catch {
 		}
 	}
 
-	# Static builds don't come with threads.
-	if {[lsearch -exact $buildflags "static"] != -1} {
+	# Minimal builds don't come with threads.
+	if {[lsearch -exact $buildflags "min"] != -1} {
 		set isthreaded 0
 	}
 

@@ -129,6 +129,10 @@ Environment variables:
 		packages from Tcl build.  This excludes the following packages:
 			tcltest
 
+		Additionally, any bundled packages (in the "pkgs" directory)
+		are excluded.  This typically includes (as of Tcl 8.6):
+			itcl thread
+
 Kitsh Configure Options:
 	1. --enable-kit-storage={zip|mk4|auto}
 		Specify which type of storage to use with the Tclkit.  The
