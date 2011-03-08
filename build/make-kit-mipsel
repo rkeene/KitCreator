@@ -8,4 +8,4 @@ RANLIB=mipsel-unknown-linux-uclibc-ranlib
 STRIP=mipsel-unknown-linux-uclibc-strip
 export PATH AR CC CXX RANLIB STRIP
 
-./build/make-minkit "$@" --host=mipsel-linux-uclibc
+./build/make-minkit "$@" --host=mipsel-unknown-linux-uclibc
