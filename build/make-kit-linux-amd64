@@ -1,0 +1,11 @@
+#! /bin/sh
+
+PATH="${PATH}:${HOME}/root/cross-compilers/x86_64-unknown-linux-gnu/bin/"
+AR=x86_64-unknown-linux-gnu-ar
+CC=x86_64-unknown-linux-gnu-gcc
+CXX=x86_64-unknown-linux-gnu-g++
+RANLIB=x86_64-unknown-linux-gnu-ranlib
+STRIP=x86_64-unknown-linux-gnu-strip
+export PATH AR CC CXX RANLIB STRIP
+
+./build/make-minkit "$@" --host=x86_64-unknown-linux-gnu
