@@ -8,4 +8,4 @@ RANLIB=x86_64-unknown-linux-gnu-ranlib
 STRIP=x86_64-unknown-linux-gnu-strip
 export PATH AR CC CXX RANLIB STRIP
 
-./build/make-minkit "$@" --host=x86_64-unknown-linux-gnu
+./kitcreator "$@" --host=x86_64-unknown-linux-gnu
