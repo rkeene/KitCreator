@@ -212,7 +212,7 @@ if {[string match "fossil_*" $kitcreator_vers]} {
 
 	set kitcreator_fossil_vers [lindex $work 1]
 
-	set kitcreator_readable_vers "Fossil trunk release checkin ${kitcreator_fossil_vers}"
+	set kitcreator_readable_vers "Fossil trunk check-in ${kitcreator_fossil_vers}"
 
 	set url "http://kitcreator.rkeene.org/fossil/tarball/kitcreator-${kitcreator_vers}.tar.gz?uuid=${kitcreator_fossil_vers}"
 } else {
