@@ -44,21 +44,22 @@ if [ ! -f "${SRC}" ]; then
 		(       
 			cd src || exit 1
 
-			rm -f "tmp-tk.zip"
-			wget -O "tmp-tk.zip" "http://rkeene.org/projects/tcl/tk.fossil/zip/tk-${CVSTAG}.zip?uuid=${CVSTAG}" || rm -f "tmp-tk.zip"
-			unzip "tmp-tk.zip"
-			rm -f "tmp-tk.zip"
+			rm -f "tmp-tk.tar.gz"
+			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tk.tar.gz'
+
+			gzip -dc "tmp-tk.tar.gz" | tar -xf -
+			rm -f "tmp-tk.tar.gz"
+			if [ -d "tk-${CVSTAG}.tar" ]; then
+				rm -rf "tk-${CVSTAG}"
+				mv "tk-${CVSTAG}.tar" "tk-${CVSTAG}"
+			fi
 
 			rm -rf "tk${TCLVERS}"
 			mv "tk-${CVSTAG}" "tk${TCLVERS}"
                         
-			if [ -d "tk${TCLVERS}" ]; then
-				find "tk${TCLVERS}" -name configure -type f | xargs chmod +x
-                                
-				tar -cf - "tk${TCLVERS}" | gzip -c > "../${SRC}"
-			fi
+			tar -cf - "tk${TCLVERS}" | gzip -c > "../${SRC}"
 
-			rm -f "tmp-tk.zip"
+			rm -f "tmp-tk.tar.gz"
 			rm -rf "tk-${CVSTAG}"
 			rm -rf "tk${TCLVERS}"
 		)
