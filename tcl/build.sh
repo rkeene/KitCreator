@@ -36,42 +36,35 @@ if [ ! -f "${SRC}" ]; then
 		(
 			cd src || exit 1
 
-			rm -f "tmp-tcl.tar.gz" "tmp-itcl.tar.gz" "tmp-thread.tar.gz" "tmp-tclconfig.tar.gz"
-			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tcl.tar.gz'
-			wget -O "tmp-itcl.tar.gz" "http://rkeene.org/projects/tcl/itcl.fossil/tarball/itcl-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-itcl.tar.gz'
-			wget -O "tmp-thread.tar.gz" "http://rkeene.org/projects/tcl/thread.fossil/tarball/thread-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-thread.tar.gz"
-			wget -O "tmp-tclconfig.tar.gz" "http://rkeene.org/projects/tcl/tclconfig.fossil/tarball/tclconfig-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-tclconfig.tar.gz"
+			workdir="tmp-$$${RANDOM}${RANDOM}${RANDOM}"
+			rm -rf "${workdir}"
+
+			mkdir "${workdir}" || exit 1
+			cd "${workdir}" || exit 1
+
+			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tcl.tar.gz'
+			wget -O "tmp-itcl.tar.gz" "http://rkeene.org/projects/tcl/itcl.fossil/tarball/itcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-itcl.tar.gz'
+			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-thread.tar.gz"
+			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-tclconfig.tar.gz"
 
 			gzip -dc 'tmp-tcl.tar.gz' | tar -xf -
-			rm -f "tmp-tcl.tar.gz"
-			if [ -d "tcl-${CVSTAG}.tar" ]; then
-				rm -rf "tcl-${CVSTAG}"
-				mv "tcl-${CVSTAG}.tar" "tcl-${CVSTAG}"
-			fi
-
 			gzip -dc "tmp-itcl.tar.gz" | tar -xf -
-			rm -f "tmp-itcl.tar.gz"
-
 			gzip -dc "tmp-thread.tar.gz" | tar -xf -
-			rm -f "tmp-thread.tar.gz"
-
 			gzip -dc "tmp-tclconfig.tar.gz" | tar -xf -
-			rm -f "tmp-tclconfig.tar.gz"
 
-			rm -rf "tcl${TCLVERS}"
-			mv "tcl-${CVSTAG}" "tcl${TCLVERS}"
-			mv "itcl-${CVSTAG}" "tcl${TCLVERS}/pkgs/itcl"
-			mv "thread-${CVSTAG}" "tcl${TCLVERS}/pkgs/thread"
-			cp -r "tclconfig-${CVSTAG}" "tcl${TCLVERS}/pkgs/itcl/tclconfig"
-			cp -r "tclconfig-${CVSTAG}" "tcl${TCLVERS}/pkgs/thread/tclconfig"
-			mv "tclconfig-${CVSTAG}" "tcl${TCLVERS}/tclconfig"
+			mv "tcl-fossil" "tcl${TCLVERS}"
+			mv "itcl-fossil" "tcl${TCLVERS}/pkgs/itcl"
+			mv "thread-fossil" "tcl${TCLVERS}/pkgs/thread"
+			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/itcl/tclconfig"
+			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/thread/tclconfig"
+			mv "tclconfig-fossil" "tcl${TCLVERS}/tclconfig"
 
-			tar -cf - "tcl${TCLVERS}" | gzip -c > "../${SRC}"
+			tar -cf - "tcl${TCLVERS}" | gzip -c > "../../${SRC}"
 
-			rm -f "tmp-tcl.tar.gz" "tmp-itcl.tar.gz" "tmp-thread.tar.gz" "tmp-tclconfig.tar.gz"
-			rm -rf "tcl-${CVSTAG}" "itcl-${CVSTAG}" "thread-${CVSTAG}" "tclconfig-${CVSTAG}"
-			rm -rf "tcl${TCLVERS}"
-		)
+			cd ..
+
+			rm -rf "${workdir}"
+		) || exit 1
 	else
 		rm -f "${SRC}.tmp"
 		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1

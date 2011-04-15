@@ -44,24 +44,21 @@ if [ ! -f "${SRC}" ]; then
 		(       
 			cd src || exit 1
 
-			rm -f "tmp-tk.tar.gz"
+			workdir="tmp-$$${RANDOM}${RANDOM}${RANDOM}"
+			rm -rf "${workdir}"
+
+			mkdir "${workdir}" || exit 1
+			cd "${workdir}" || exit 1
+
 			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tk.tar.gz'
-
 			gzip -dc "tmp-tk.tar.gz" | tar -xf -
-			rm -f "tmp-tk.tar.gz"
-			if [ -d "tk-${CVSTAG}.tar" ]; then
-				rm -rf "tk-${CVSTAG}"
-				mv "tk-${CVSTAG}.tar" "tk-${CVSTAG}"
-			fi
 
-			rm -rf "tk${TCLVERS}"
 			mv "tk-${CVSTAG}" "tk${TCLVERS}"
                         
-			tar -cf - "tk${TCLVERS}" | gzip -c > "../${SRC}"
+			tar -cf - "tk${TCLVERS}" | gzip -c > "../../${SRC}"
 
-			rm -f "tmp-tk.tar.gz"
-			rm -rf "tk-${CVSTAG}"
-			rm -rf "tk${TCLVERS}"
+			cd ..
+			rm -rf "${workdir}"
 		)
 	else
 		rm -f "${SRC}.tmp"

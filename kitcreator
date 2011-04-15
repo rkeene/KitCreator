@@ -27,6 +27,8 @@ for pkg in ${KITCREATOR_ALLPKGS}; do
 	rm -f "${pkg}/build.log"
 	rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
 
+	rm -rf "${pkg}/src"/tmp-*
+
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
 	fi
