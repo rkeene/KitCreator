@@ -43,7 +43,7 @@ if [ ! -f "${SRC}" ]; then
 			cd "${workdir}" || exit 1
 
 			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tcl.tar.gz'
-			wget -O "tmp-itcl.tar.gz" "http://rkeene.org/projects/tcl/itcl.fossil/tarball/itcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-itcl.tar.gz'
+			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-itcl.tar.gz'
 			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-thread.tar.gz"
 			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-tclconfig.tar.gz"
 
