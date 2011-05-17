@@ -168,6 +168,12 @@ fi
 
 		# Update to include resources, if found
 		if [ "${dir}" = "win" ]; then
+			echo ' *** Importing user-specified icon'
+			cp "${KITCREATOR_ICON}" rc/tk.ico
+
+			echo ' *** Importing user-specified resources'
+			cat "${KITCREATOR_RC}" | grep -v '^ *tclsh  *ICON' >> "./rc/tk_base.rc"
+
 			echo ' *** Creating tkbase.res.o to support Windows build'
 			echo "\"${RC:-windres}\" -o tkbase.res.o  --define STATIC_BUILD --include \"./../generic\" --include \"${TCLCONFIGDIR}/../generic\" --include \"${TCLCONFIGDIR}\" --include \"./rc\" \"./rc/tk_base.rc\""
 			"${RC:-windres}" -o tkbase.res.o  --define STATIC_BUILD --include "./../generic" --include "${TCLCONFIGDIR}/../generic" --include "${TCLCONFIGDIR}" --include "./rc" "./rc/tk_base.rc"

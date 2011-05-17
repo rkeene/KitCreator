@@ -43,22 +43,22 @@ mkdir 'out' 'inst' || exit 1
 	fi
 
 	# Copy user specified kit.rc and kit.ico in to build directory, if found
-	if [ -f "${OTHERPKGSDIR}/kit.rc" ]; then
-		cp "${OTHERPKGSDIR}/kit.rc" "${BUILDDIR}"
-	fi
-	if [ -f "${OTHERPKGSDIR}/kit.ico" ]; then
-		cp "${OTHERPKGSDIR}/kit.ico" "${BUILDDIR}"
-	fi
+	cp "${KITCREATOR_ICON}" "${BUILDDIR}/kit.ico"
+	cp "${KITCREATOR_RC}" "${BUILDDIR}/kit.rc"
 
 	# Include extra objects as required
 	## Initialize list of extra objects
 	EXTRA_OBJS=""
 
-	## Tk Resources (needed for Win32 support)
+	## Tk Resources (needed for Win32 support) -- remove kit-found resources to prevent the symbols from being in conflict
 	TKDIR="$(cd "${OTHERPKGSDIR}/tk/inst" && pwd)"
 	TKRSRC="${TKDIR}/lib/tkbase.res.o"
 	if [ -n "${TKDIR}" -a -f "${TKRSRC}" ]; then
 		EXTRA_OBJS="${EXTRA_OBJS} ${TKRSRC}"
+
+		echo ' *** Removing "kit.rc" since we have Tk with its own resource file'
+
+		rm -f "${BUILDDIR}/kit.rc"
 	fi
 
 	## Export to the environment, to be picked up by the "configure" script

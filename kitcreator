@@ -87,6 +87,19 @@ if [ "${KITTARGET}" = "kitdll" ]; then
 	fi
 fi
 
+# Find Windows resource-related files
+if [ -f "kit.ico" ]; then
+	KITCREATOR_ICON="$(pwd)/kit.ico"
+else
+	KITCREATOR_ICON="$(echo "$(pwd)/kitsh/buildsrc"/kitsh-*/kit.ico)"
+fi
+if [ -f "kit.rc" ]; then
+	KITCREATOR_RC="$(pwd)/kit.rc"
+else
+	KITCREATOR_RC="$(echo "$(pwd)/kitsh/buildsrc"/kitsh-*/kit.rc)"
+fi
+export KITCREATOR_ICON KITCREATOR_RC
+
 failedpkgs=""
 buildfailed="0"
 for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} "${KITTARGET}"; do
