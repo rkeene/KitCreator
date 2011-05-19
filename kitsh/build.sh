@@ -101,7 +101,7 @@ mkdir 'out' 'inst' || exit 1
 		## Install using existing Tclkit
 		### Call installer
 		echo "Running: \"${TCLKIT}\" installvfs.tcl kit starpack.vfs \"${ENABLECOMPRESSION}\""
-		"${TCLKIT}" installvfs.tcl kit starpack.vfs "${ENABLECOMPRESSION}"
+		"${TCLKIT}" installvfs.tcl kit starpack.vfs "${ENABLECOMPRESSION}" || exit 1
 	else
 		## Bootstrap (cannot cross-compile)
 		### Call installer
@@ -111,7 +111,7 @@ mkdir 'out' 'inst' || exit 1
 		echo 'source installvfs.tcl' >> setup.tcl
 
 		echo 'Running: echo | ./runkit'
-		echo | ./runkit
+		echo | ./runkit || exit 1
 	fi
 
 	exit 0

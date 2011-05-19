@@ -49,7 +49,7 @@ mkdir 'out' 'inst' || exit 1
 	done
 
 	# Determine how we invoke a Tcl interpreter
-	for testsh in "${TCLSH_NATIVE:-false}" "${TCLKIT:-tclkit}"; do
+	for testsh in "${TCLSH_NATIVE:-false}" tclsh tclsh8.4 tclsh8.5 tclsh8.6 "${TCLKIT:-tclkit}"; do
 		if echo 'exit 0' | "${testsh}" >/dev/null 2>/dev/null; then
 			TCLSH_NATIVE="${testsh}"
 
