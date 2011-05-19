@@ -28,8 +28,11 @@ dnl Check for Windows Resource Compiler
 AC_CHECK_TOOL([RC], [windres], [false])
 
 dnl If we found the resource compiler, add "kit.res.o" to our list of objects to build
+dnl (as long as the source for such an object exists)
 if ! test "$RC" = "false"; then
-	EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
+	if test -f kit.rc; then
+		EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
+	fi
 fi
 
 dnl Check for Tcl features

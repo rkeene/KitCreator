@@ -3,7 +3,7 @@
     <title>KitCreator Build and Test Status</title>
   </head>
   <body>
-    <h1>KitCreator Build and Test Status</h1>
+    <h1><a href="http://kitcreator.rkeene.org/">KitCreator</a> Build and Test Status</h1>
     <p>The follow versions of KitCreator have test suite results:</p>
     <ul>
 <?
@@ -27,7 +27,7 @@
 <?
 	if {$haveTests} {
 ?>
-    <p>The actual tests can be found in <a href="tests/?listing=long">the "tests" directory</a></p>
+    <p>The actual tests can be found in <a href="http://kitcreator.rkeene.org/fossil/dir?name=build/test/tests&ci=trunk">the "tests" directory</a></p>
 <?
 	}
 ?>

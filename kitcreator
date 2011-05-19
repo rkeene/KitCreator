@@ -27,6 +27,8 @@ for pkg in ${KITCREATOR_ALLPKGS}; do
 	rm -f "${pkg}/build.log"
 	rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
 
+	rm -rf "${pkg}/src"/tmp-*
+
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
 	fi
@@ -84,6 +86,19 @@ if [ "${KITTARGET}" = "kitdll" ]; then
 		fi
 	fi
 fi
+
+# Find Windows resource-related files
+if [ -f "kit.ico" ]; then
+	KITCREATOR_ICON="$(pwd)/kit.ico"
+else
+	KITCREATOR_ICON="$(echo "$(pwd)/kitsh/buildsrc"/kitsh-*/kit.ico)"
+fi
+if [ -f "kit.rc" ]; then
+	KITCREATOR_RC="$(pwd)/kit.rc"
+else
+	KITCREATOR_RC="$(echo "$(pwd)/kitsh/buildsrc"/kitsh-*/kit.rc)"
+fi
+export KITCREATOR_ICON KITCREATOR_RC
 
 failedpkgs=""
 buildfailed="0"

@@ -53,7 +53,7 @@ DISPLAY=:31
 export DISPLAY
 
 failed=""
-for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-kitdll normal-nomk4-notk-kitdll normal-threaded-nomk4-kitdll normal-threaded-notk-nomk4-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-kitdll win32-i586-nomk4-notk-kitdll win32-i586-threaded-nomk4-kitdll win32-i586-threaded-notk-nomk4-kitdll linux-arm-min linux-arm-min-kitdll; do
+for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-kitdll normal-nomk4-notk-kitdll normal-threaded-nomk4-kitdll normal-threaded-notk-nomk4-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-kitdll win32-i586-nomk4-notk-kitdll win32-i586-threaded-nomk4-kitdll win32-i586-threaded-notk-nomk4-kitdll linux-mipsel-min linux-mipsel-min-kitdll linux-amd64-notk linux-amd64-notk-kitdll; do
 	kitcreator="./kitcreator"
 	args=""
 	runnable="1"
@@ -89,12 +89,18 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			xcompile="1"
 			kitruncmd="wine"
 			;;
-		linux-arm-min|linux-arm-min-kitdll)
-			kitcreator="./build/make-kit-arm"
+		linux-mipsel-min|linux-mipsel-min-kitdll)
+			kitcreator="./build/make-kit-mipsel"
 			runnable="0"
 			xcompile="1"
 			notk="1"
 			iszip="1"
+			;;
+		linux-amd64|linux-amd64-*)
+			kitcreator="./build/make-kit-linux-amd64"
+			runnable="0"
+			xcompile="1"
+			iszip="0"
 			;;
 	esac
 

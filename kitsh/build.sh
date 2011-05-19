@@ -43,22 +43,22 @@ mkdir 'out' 'inst' || exit 1
 	fi
 
 	# Copy user specified kit.rc and kit.ico in to build directory, if found
-	if [ -f "${OTHERPKGSDIR}/kit.rc" ]; then
-		cp "${OTHERPKGSDIR}/kit.rc" "${BUILDDIR}"
-	fi
-	if [ -f "${OTHERPKGSDIR}/kit.ico" ]; then
-		cp "${OTHERPKGSDIR}/kit.ico" "${BUILDDIR}"
-	fi
+	cp "${KITCREATOR_ICON}" "${BUILDDIR}/kit.ico"
+	cp "${KITCREATOR_RC}" "${BUILDDIR}/kit.rc"
 
 	# Include extra objects as required
 	## Initialize list of extra objects
 	EXTRA_OBJS=""
 
-	## Tk Resources (needed for Win32 support)
+	## Tk Resources (needed for Win32 support) -- remove kit-found resources to prevent the symbols from being in conflict
 	TKDIR="$(cd "${OTHERPKGSDIR}/tk/inst" && pwd)"
 	TKRSRC="${TKDIR}/lib/tkbase.res.o"
 	if [ -n "${TKDIR}" -a -f "${TKRSRC}" ]; then
 		EXTRA_OBJS="${EXTRA_OBJS} ${TKRSRC}"
+
+		echo ' *** Removing "kit.rc" since we have Tk with its own resource file'
+
+		rm -f "${BUILDDIR}/kit.rc"
 	fi
 
 	## Export to the environment, to be picked up by the "configure" script
@@ -100,6 +100,7 @@ mkdir 'out' 'inst' || exit 1
 	if echo 'exit 0' | "${TCLKIT}" >/dev/null 2>/dev/null; then
 		## Install using existing Tclkit
 		### Call installer
+		echo "Running: \"${TCLKIT}\" installvfs.tcl kit starpack.vfs \"${ENABLECOMPRESSION}\""
 		"${TCLKIT}" installvfs.tcl kit starpack.vfs "${ENABLECOMPRESSION}"
 	else
 		## Bootstrap (cannot cross-compile)
@@ -108,6 +109,8 @@ mkdir 'out' 'inst' || exit 1
 		echo "set argv [list kit starpack.vfs {${ENABLECOMPRESSION}}]" > setup.tcl
 		echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
 		echo 'source installvfs.tcl' >> setup.tcl
+
+		echo 'Running: echo | ./runkit'
 		echo | ./runkit
 	fi
 

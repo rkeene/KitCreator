@@ -285,6 +285,8 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 ])
 
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
+	AC_CHECK_TOOL(OBJCOPY, objcopy, [:])
+
 	DC_SETUP_TCL_PLAT_DEFS
 
 	WISH_CFLAGS=""
@@ -303,6 +305,8 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			LDFLAGS="${LDFLAGS} -L`dirname "${libfile}"`"
 		done
 
+		hide_symbols="1"
+
 		if test "$proj" = "tcl"; then
 			DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $libfilesnostub], [
 				libfiles="${libfilesnostub}"
@@ -311,6 +315,8 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 					libfiles="${libfiles}"
 				])
 			])
+
+			hide_symbols="0"
 		fi
 
 		if test "${proj}" = "mk4tcl"; then
@@ -340,16 +346,24 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 				if test "$host_os" = "mingw32msvc" -o "$host_os" = "mingw32"; then
 					WISH_CFLAGS="-mwindows"
 				fi
+
+				hide_symbols="0"
 			fi
 		fi
 
 		ARCHS="${ARCHS} ${libfiles}"
 
 		AC_MSG_RESULT([${libfiles}])
+
+		if test "${hide_symbols}" = "1"; then
+			STRIPLIBS="${STRIPLIBS} ${libfiles}"
+		fi
+
 	done
 
 	AC_SUBST(WISH_CFLAGS)
 	AC_SUBST(ARCHS)
+	AC_SUBST(STRIPLIBS)
 ])
 
 AC_DEFUN(DC_CHECK_FOR_ACCEPTABLE_DLADDR, [

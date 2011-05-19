@@ -17,7 +17,8 @@ BUILDDIR="$(pwd)/build/tk${TCLVERS}"
 PATCHDIR="$(pwd)/patches"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR
+PATCHSCRIPTDIR="$(pwd)/patchscripts"
+export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR PATCHSCRIPTDIR
 
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
@@ -35,16 +36,29 @@ if [ ! -f "${SRC}" ]; then
 
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
 		CVSTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
+		if [ "${CVSTAG}" = "HEAD" ]; then
+			CVSTAG="trunk"
+		fi
 		export CVSTAG
 
 		(       
 			cd src || exit 1
 
-			cvs -z3 -d:pserver:anonymous@tcl.cvs.sourceforge.net:/cvsroot/tktoolkit co -r "${CVSTAG}" -P tk
+			workdir="tmp-$$${RANDOM}${RANDOM}${RANDOM}"
+			rm -rf "${workdir}"
 
-			mv tk "tk${TCLVERS}"
+			mkdir "${workdir}" || exit 1
+			cd "${workdir}" || exit 1
 
-			tar -cf - "tk${TCLVERS}" | gzip -c > "../${SRC}"
+			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tk.tar.gz'
+			gzip -dc "tmp-tk.tar.gz" | tar -xf -
+
+			mv "tk-${CVSTAG}" "tk${TCLVERS}"
+                        
+			tar -cf - "tk${TCLVERS}" | gzip -c > "../../${SRC}"
+
+			cd ..
+			rm -rf "${workdir}"
 		)
 	else
 		rm -f "${SRC}.tmp"
@@ -86,6 +100,17 @@ fi
 			${PATCH:-patch} -p1 < "${patch}"
 		done
 	)
+
+	# Apply patch scripts if needed
+	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do
+		if [ -f "${patchscript}" ]; then
+			echo "Running patch script: ${patchscript}"
+                                
+			(
+				. "${patchscript}"
+			)
+		fi
+	done
 
 	for dir in unix win macosx win64 __fail__; do
 		if [ "${dir}" = "__fail__" ]; then
@@ -143,6 +168,12 @@ fi
 
 		# Update to include resources, if found
 		if [ "${dir}" = "win" ]; then
+			echo ' *** Importing user-specified icon'
+			cp "${KITCREATOR_ICON}" rc/tk.ico
+
+			echo ' *** Importing user-specified resources'
+			cat "${KITCREATOR_RC}" | grep -v '^ *tclsh  *ICON' >> "./rc/tk_base.rc"
+
 			echo ' *** Creating tkbase.res.o to support Windows build'
 			echo "\"${RC:-windres}\" -o tkbase.res.o  --define STATIC_BUILD --include \"./../generic\" --include \"${TCLCONFIGDIR}/../generic\" --include \"${TCLCONFIGDIR}\" --include \"./rc\" \"./rc/tk_base.rc\""
 			"${RC:-windres}" -o tkbase.res.o  --define STATIC_BUILD --include "./../generic" --include "${TCLCONFIGDIR}/../generic" --include "${TCLCONFIGDIR}" --include "./rc" "./rc/tk_base.rc"

@@ -28,17 +28,43 @@ if [ ! -f "${SRC}" ]; then
 
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
 		CVSTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
+		if [ "${CVSTAG}" = "HEAD" ]; then
+			CVSTAG="trunk"
+		fi
 		export CVSTAG
 
 		(
 			cd src || exit 1
 
-			cvs -z3 -d:pserver:anonymous@tcl.cvs.sourceforge.net:/cvsroot/tcl co -r "${CVSTAG}" -P tcl
+			workdir="tmp-$$${RANDOM}${RANDOM}${RANDOM}"
+			rm -rf "${workdir}"
 
-			mv tcl "tcl${TCLVERS}"
+			mkdir "${workdir}" || exit 1
+			cd "${workdir}" || exit 1
 
-			tar -cf - "tcl${TCLVERS}" | gzip -c > "../${SRC}"
-		)
+			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tcl.tar.gz'
+			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-itcl.tar.gz'
+			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-thread.tar.gz"
+			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-tclconfig.tar.gz"
+
+			gzip -dc 'tmp-tcl.tar.gz' | tar -xf -
+			gzip -dc "tmp-itcl.tar.gz" | tar -xf -
+			gzip -dc "tmp-thread.tar.gz" | tar -xf -
+			gzip -dc "tmp-tclconfig.tar.gz" | tar -xf -
+
+			mv "tcl-fossil" "tcl${TCLVERS}"
+			mv "itcl-fossil" "tcl${TCLVERS}/pkgs/itcl"
+			mv "thread-fossil" "tcl${TCLVERS}/pkgs/thread"
+			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/itcl/tclconfig"
+			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/thread/tclconfig"
+			mv "tclconfig-fossil" "tcl${TCLVERS}/tclconfig"
+
+			tar -cf - "tcl${TCLVERS}" | gzip -c > "../../${SRC}"
+
+			cd ..
+
+			rm -rf "${workdir}"
+		) || exit 1
 	else
 		rm -f "${SRC}.tmp"
 		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
@@ -78,17 +104,6 @@ fi
 			)
 		fi
 	done
-
-	# Patch Win32 builds to always provide DllMain if we are building KitDLL
-	if [ "${KITTARGET}" = "kitdll" ]; then
-		## DllMain is needed when building KitDLL
-		for filetopatch in win/tclWin32Dll.c win/tclWinInit.c; do
-			echo "Undefining STATIC_BUILD in \"${filetopatch}\""
-
-			sed 's@STATIC_BUILD@NEVER_STATIC_BUILD@g' "${filetopatch}" > "${filetopatch}.new" && cat "${filetopatch}.new" > "${filetopatch}"
-			rm -f "${filetopatch}.new"
-		done
-	fi
 
 	for dir in unix win macosx __fail__; do
 		if [ "${dir}" = "__fail__" ]; then

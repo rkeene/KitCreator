@@ -19,15 +19,9 @@ export FOSSIL_CHANGE TESTNAME
 # for CVS Head) and force a rebuild to ensure up-to-date build status
 if [ "$(date '+%u')" = "3" ]; then
 	./kitcreator distclean || exit 1
-
-	touch "${KITCREATORDIR}/build/test/force_nightly"
-fi
-
-if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
-	# Don't re-run the tests if nothing has changed
-	if [ -f "${KITCREATORDIR}/build/test/force_nightly" ]; then
-		rm -f "${KITCREATORDIR}/build/test/force_nightly"
-	else
+else
+	if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
+		# Don't re-run the tests if nothing has changed
 		exit 0
 	fi
 fi
@@ -57,6 +51,10 @@ rm -rf "${WEBROOTDIR}"/svn_r*/ "${WEBROOTDIR}"/fossil_*/
 
 # Publish New Results
 ./publish-tests "${TESTNAME}"
+
+# Create nightly symlink
+rm -f "${WEBROOTDIR}/nightly"
+ln -s "${TESTNAME}" "${WEBROOTDIR}/nightly"
 
 # Clean
 rm -f '__AUTO_TESTS_RUNNING__'
