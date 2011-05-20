@@ -1,6 +1,5 @@
 #! /bin/sh
 
-
 PATH="${PATH}:/home/rkeene/root/cross-compilers/mipsel-unknown-linux-uclibc/bin"
 AR=mipsel-unknown-linux-uclibc-ar
 CC=mipsel-unknown-linux-uclibc-gcc
