@@ -26,7 +26,7 @@ clean:
 	rm -f kit $(OBJS) kit.res.o
 
 distclean: clean
-	rm -f config.h Makefile config.log config.status
+	rm -f config.h Makefile Makefile.in config.log config.status
 	rm -rf autom4te.cache
 
 mrproper: distclean

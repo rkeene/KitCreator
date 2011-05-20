@@ -26,6 +26,9 @@ if {[string match "*KIT_STORAGE_ZIP*" $data]} {
 if {[string match "*KIT_STORAGE_MK4*" $data]} {
 	set tclKitStorage mk4
 }
+if {[string match "*KIT_STORAGE_CVFS*" $data]} {
+	set tclKitStorage cvfs
+}
 
 if {![info exists tclKitStorage]} {
 	if {[string match "*KIT_INCLUDES_MK4TCL*" $data]} {

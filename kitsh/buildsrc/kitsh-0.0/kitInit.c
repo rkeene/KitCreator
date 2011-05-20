@@ -17,9 +17,8 @@
 
 #ifdef KIT_INCLUDES_TK
 #  include <tk.h>
-#else
-#  include <tcl.h>
 #endif /* KIT_INCLUDES_TK */
+#include <tcl.h>
 
 #ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
@@ -62,6 +61,29 @@
 #  define KIT_INCLUDES_ZLIB 1
 #endif
 
+/* Determine which type of storage to use -- MK4, ZIP, or CVFS */
+#if defined(KIT_STORAGE_MK4) && defined(KIT_STORAGE_ZIP)
+#  undef KIT_STORAGE_ZIP
+#endif
+#if defined(KIT_STORAGE_MK4) && defined(KIT_STORAGE_CVFS)
+#  ifdef TCLKIT_DLL
+#    undef KIT_STORAGE_MK4
+#  else
+#    undef KIT_STORAGE_CVFS
+#  endif
+#endif
+#if !defined(KIT_STORAGE_MK4) && !defined(KIT_STORAGE_ZIP) && !defined(KIT_STORAGE_CVFS)
+#  ifdef TCLKIT_DLL
+#    define KIT_STORAGE_CVFS 1
+#  else
+#    ifdef KIT_INCLUDES_MK4TCL
+#      define KIT_STORAGE_MK4 1
+#    else
+#      define KIT_STORAGE_ZIP 1
+#    endif
+#  endif
+#endif
+
 #ifdef KIT_INCLUDES_ITCL
 Tcl_AppInitProc	Itcl_Init;
 #endif
@@ -75,6 +97,9 @@ Tcl_AppInitProc	Pwb_Init;
 #ifdef KIT_INCLUDES_ZLIB
 Tcl_AppInitProc Zlib_Init;
 #endif
+#ifdef KIT_STORAGE_CVFS
+Tcl_AppInitProc Vfs_kitdll_data_tcl_Init;
+#endif
 #ifdef TCL_THREADS
 Tcl_AppInitProc	Thread_Init;
 #endif
@@ -82,30 +107,39 @@ Tcl_AppInitProc	Thread_Init;
 Tcl_AppInitProc	Dde_Init, Registry_Init;
 #endif
 
-/* Determine which type of storage to use -- MK4 or ZIP */
-#if defined(KIT_STORAGE_MK4) && defined(KIT_STORAGE_ZIP)
-#  undef KIT_STORAGE_ZIP
-#endif
-#if !defined(KIT_STORAGE_MK4) && !defined(KIT_STORAGE_ZIP)
-#  ifdef KIT_INCLUDES_MK4TCL
-#    define KIT_STORAGE_MK4 1
-#  else
-#    define KIT_STORAGE_ZIP 1
-#  endif
-#endif
+#ifdef TCLKIT_DLL
+#  define TCLKIT_MOUNTPOINT "/.KITDLL_TCL"
+#else
+#  define TCLKIT_MOUNTPOINT "[info nameofexecutable]"
+#endif /* TCLKIT_DLL */
+
+#ifdef HAVE_ACCEPTABLE_DLADDR
+#  ifdef KITSH_NEED_WINMAIN
+#    ifdef _WIN32_WCE
+int wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow);
+#    else
+int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow);
+#    endif /* _WIN32_WCE */
+#  endif /* KITSH_NEED_WINMAIN */
+int main(int argc, char **argv);
+#endif /* HAVE_ACCEPTABLE_DLADDR */
 
 #ifdef TCLKIT_REQUIRE_TCLEXECUTABLENAME
 char *tclExecutableName;
 #endif
 
-    /*
-     *  Attempt to load a "boot.tcl" entry from the embedded MetaKit file.
-     *  If there isn't one, try to open a regular "setup.tcl" file instead.
-     *  If that fails, this code will throw an error, using a message box.
-     */
-
+/*
+ *  Attempt to load a "boot.tcl" entry from the embedded MetaKit file.
+ *  If there isn't one, try to open a regular "setup.tcl" file instead.
+ *  If that fails, this code will throw an error, using a message box.
+ */
+/*
+ * This Tcl code is invoked whenever Tcl_Init() is called on an
+ * interpreter.  It should mount up the VFS and make everything ready for
+ * that interpreter to do its job.
+ */
 static char *preInitCmd = 
-#ifdef _WIN32_WCE
+#if defined(_WIN32_WCE) && !defined(TCLKIT_DLL)
 /* silly hack to get wince port to launch, some sort of std{in,out,err} problem */
 "open /kitout.txt a; open /kitout.txt a; open /kitout.txt a\n"
 /* this too seems to be needed on wince - it appears to be related to the above */
@@ -121,22 +155,38 @@ static char *preInitCmd =
 	"if {$code == 2} { set code 0 }\n"
 	"return -code $code $res\n"
 "}\n"
-#endif /* _WIN32_WCE */
+#endif /* _WIN32_WCE && !TCLKIT_DLL */
 "proc tclKitInit {} {\n"
 	"rename tclKitInit {}\n"
+#ifdef KIT_INCLUDES_ZLIB
+	"catch { load {} zlib }\n"
+#endif
 #ifdef KIT_INCLUDES_MK4TCL
 	"catch { load {} Mk4tcl }\n"
 #endif
+#ifdef TCLKIT_DLL
+	"load {} tclkit::init\n"
+#endif
+	"set bootfile [file join " TCLKIT_MOUNTPOINT " boot.tcl]\n"
+	"if {[file exists $bootfile]} {\n"
+		"catch {\n"
+			"set f [open $bootfile]\n"
+			"set s [read $f]\n"
+			"close $f\n"
+		"}\n"
+	"}\n"
 #ifdef KIT_STORAGE_MK4
 	"set ::tclKitStorage \"mk4\"\n"
-	"mk::file open exe [info nameofexecutable] -readonly\n"
-	"set n [mk::select exe.dirs!0.files name boot.tcl]\n"
-	"if {$n != \"\"} {\n"
-		"set s [mk::get exe.dirs!0.files!$n contents]\n"
-		"if {![string length $s]} { error \"empty boot.tcl\" }\n"
-		"catch {load {} zlib}\n"
-		"if {[mk::get exe.dirs!0.files!$n size] != [string length $s]} {\n"
-			"set s [zlib decompress $s]\n"
+	"if {![info exists s]} {\n"
+		"mk::file open exe [info nameofexecutable] -readonly\n"
+		"set n [mk::select exe.dirs!0.files name boot.tcl]\n"
+		"if {$n != \"\"} {\n"
+			"set s [mk::get exe.dirs!0.files!$n contents]\n"
+			"if {![string length $s]} { error \"empty boot.tcl\" }\n"
+			"catch {load {} zlib}\n"
+			"if {[mk::get exe.dirs!0.files!$n size] != [string length $s]} {\n"
+				"set s [zlib decompress $s]\n"
+			"}\n"
 		"}\n"
 	"}\n"
 #endif /* KIT_STORAGE_MK4 */
@@ -144,30 +194,37 @@ static char *preInitCmd =
 	"set ::tclKitStorage \"zip\"\n"
 	"catch { load {} vfs }\n"
 	"if {![info exists s]} {\n"
-		"catch {\n"
-			"set bootfile [file join [info nameofexecutable] boot.tcl]\n"
-			"if {[file exists $bootfile]} {\n"
-				"set f [open $bootfile]\n"
-				"set s [read $f]\n"
-				"close $f\n"
-			"}\n"
-		"}\n"
-	"}\n"
-	"if {![info exists s]} {\n"
 #  include "zipvfs.tcl.h"
 		"catch {\n"
 			"set ::tclKitStorage_fd [::zip::open [info nameofexecutable]]\n"
 			"::zip::stat $::tclKitStorage_fd boot.tcl sb\n"
 			"seek $::tclKitStorage_fd $sb(ino)\n"
-			"zip::Data $::tclKitStorage_fd sb s\n"
+			"::zip::Data $::tclKitStorage_fd sb s\n"
 		"}\n"
 	"}\n"
 #endif /* KIT_STORAGE_ZIP */
+#ifdef KIT_STORAGE_CVFS
+	"set ::tclKitStorage \"cvfs\"\n"
+	"load {} rechan\n"
+	"load {} vfs\n"
+	"load {} vfs_kitdll_data_tcl\n"
+#include "vfs_kitdll.tcl.h"
+	"if {![info exists s]} {\n"
+		"catch {\n"
+			"set s [::vfs::kitdll::data::getData tcl boot.tcl]\n"
+		"}\n"
+	"}\n"
+#endif /* KIT_STORAGE_CVFS */
+#ifdef TCLKIT_DLL
+	"::tclkit::init::initInterp\n"
+	"rename ::tclkit::init::initInterp {}\n"
+#else
 	"if {![info exists s]} {\n"
 		"set f [open setup.tcl]\n"
 		"set s [read $f]\n"
 		"close $f\n"
 	"}\n"
+#endif /* TCLKIT_DLL */
 	"uplevel #0 $s\n"
 #if defined(KIT_INCLUDES_TK) && defined(KIT_TK_VERSION)
 	"package ifneeded Tk " KIT_TK_VERSION " {\n"
@@ -246,10 +303,39 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 #endif /* HAVE_READLINK */
 
 #ifdef HAVE_ACCEPTABLE_DLADDR
+#  ifndef TCLKIT_DLL
 	if (Tcl_GetNameOfExecutable() == NULL) {
 		dladdr_ret = dladdr(&SetExecName, &syminfo);
 		if (dladdr_ret != 0) {
 			SetExecName(interp, syminfo.dli_fname);
+
+			return;
+		}
+	}
+#  endif /* !TCLKIT_DLL */
+
+#  ifdef KITSH_NEED_WINMAIN
+	if (Tcl_GetNameOfExecutable() == NULL) {
+#    ifdef _WIN32_WCE
+		dladdr_ret = dladdr(&WinMain, &syminfo);
+#    else
+		dladdr_ret = dladdr(&wWinMain, &syminfo);
+#    endif /* _WIN32_WCE */
+
+		if (dladdr_ret != 0) {
+			SetExecName(interp, syminfo.dli_fname);
+
+			return;
+		}
+	}
+#  endif /* KITSH_NEED_WINMAIN */
+
+	if (Tcl_GetNameOfExecutable() == NULL) {
+		dladdr_ret = dladdr(&main, &syminfo);
+		if (dladdr_ret != 0) {
+			SetExecName(interp, syminfo.dli_fname);
+
+			return;
 		}
 	}
 #endif /* HAVE_ACCEPTABLE_DLADDR */
@@ -266,18 +352,7 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 	return;
 }
 
-int TclKit_AppInit(Tcl_Interp *interp) {
-#ifdef KIT_INCLUDES_TK
-#  ifdef _WIN32
-#    ifndef _WIN32_WCE
-	char msgBuf[2049];
-#    endif /* !_WIN32_WCE */
-#  endif /* _WIN32 */
-#endif /* KIT_INCLUDES_TK */
-#ifdef TCLKIT_CAN_SET_ENCODING
-	Tcl_DString encodingName;
-#endif /* TCLKIT_CAN_SET_ENCODING */
-
+static void _Tclkit_Generic_Init(void) {
 #ifdef KIT_INCLUDES_ITCL
 	Tcl_StaticPackage(0, "Itcl", Itcl_Init, NULL);
 #endif 
@@ -292,6 +367,9 @@ int TclKit_AppInit(Tcl_Interp *interp) {
 #ifdef KIT_INCLUDES_ZLIB
 	Tcl_StaticPackage(0, "zlib", Zlib_Init, NULL);
 #endif
+#ifdef KIT_STORAGE_CVFS
+	Tcl_StaticPackage(0, "vfs_kitdll_data_tcl", Vfs_kitdll_data_tcl_Init, NULL);
+#endif
 #ifdef TCL_THREADS
 	Tcl_StaticPackage(0, "Thread", Thread_Init, NULL);
 #endif
@@ -302,6 +380,16 @@ int TclKit_AppInit(Tcl_Interp *interp) {
 #ifdef KIT_INCLUDES_TK
 	Tcl_StaticPackage(0, "Tk", Tk_Init, Tk_SafeInit);
 #endif
+
+	TclSetPreInitScript(preInitCmd);
+
+	return;
+}
+
+static void _Tclkit_Interp_Init(Tcl_Interp *interp) {
+#ifdef TCLKIT_CAN_SET_ENCODING
+	Tcl_DString encodingName;
+#endif /* TCLKIT_CAN_SET_ENCODING */
 
 	/* the tcl_rcFileName variable only exists in the initial interpreter */
 #ifdef _WIN32
@@ -323,7 +411,23 @@ int TclKit_AppInit(Tcl_Interp *interp) {
 	 * before and after that command is run. */
 	FindAndSetExecName(interp);
 
-	TclSetPreInitScript(preInitCmd);
+	return;
+}
+
+int TclKit_AppInit(Tcl_Interp *interp) {
+#ifdef KIT_INCLUDES_TK
+#  ifdef _WIN32
+#    ifndef _WIN32_WCE
+	char msgBuf[2049];
+#    endif /* !_WIN32_WCE */
+#  endif /* _WIN32 */
+#endif /* KIT_INCLUDES_TK */
+
+	/* Perform common initialization */
+	_Tclkit_Generic_Init();
+
+	_Tclkit_Interp_Init(interp);
+
 	if (Tcl_Init(interp) == TCL_ERROR) {
 		goto error;
 	}
@@ -380,3 +484,98 @@ error:
 
 	return TCL_ERROR;
 }
+
+
+#ifdef TCLKIT_DLL
+#  ifdef HAVE_ACCEPTABLE_DLADDR
+/* Symbol to resolve against dladdr() */
+static void _tclkit_dummy_func(void) {
+	return;
+}
+#  endif /* HAVE_ACCEPTABLE_DLADDR */
+
+/*
+ * This function will return a pathname we can open() to treat as a VFS,
+ * hopefully
+ */
+static char *find_tclkit_dll_path(void) {
+#ifdef HAVE_ACCEPTABLE_DLADDR
+	Dl_info syminfo;
+	int dladdr_ret;
+#endif /* HAVE_ACCEPTABLE_DLADDR */
+#ifdef _WIN32
+	TCHAR modulename[8192];
+	DWORD gmfn_ret;
+#endif /* _WIN32 */
+
+#ifdef HAVE_ACCEPTABLE_DLADDR
+	dladdr_ret = dladdr(&_tclkit_dummy_func, &syminfo);
+	if (dladdr_ret != 0) {
+		if (syminfo.dli_fname && syminfo.dli_fname[0] != '\0') {
+			return(strdup(syminfo.dli_fname));
+		}
+	}
+#endif /* HAVE_ACCEPTABLE_DLADDR */
+
+#ifdef _WIN32
+	gmfn_ret = GetModuleFileName(TclWinGetTclInstance(), modulename, sizeof(modulename) / sizeof(modulename[0]) - 1);
+
+	if (gmfn_ret != 0) {
+		return(strdup(modulename));
+	}
+#endif /* _WIN32 */
+
+	return(NULL);
+}
+
+/*
+ * This function exists to allow C code to initialize a particular
+ * interpreter.
+ */
+static int tclkit_init_initinterp(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
+	char *kitdll_path;
+
+	kitdll_path = find_tclkit_dll_path();
+	if (kitdll_path != NULL) {
+		Tcl_SetVar(interp, "tclKitFilename", kitdll_path, TCL_GLOBAL_ONLY);
+
+		free(kitdll_path);
+	}
+
+	_Tclkit_Interp_Init(interp);
+
+	return(TCL_OK);
+}
+
+/*
+ * Create a package for initializing a particular interpreter.  This is
+ * our hook to have Tcl invoke C commands when creating an interpreter.
+ * The preInitCmd will load the package in the new interpreter and invoke
+ * this function.
+ */
+int Tclkit_init_Init(Tcl_Interp *interp) {
+	Tcl_Command tclCreatComm_ret;
+	int tclPkgProv_ret;
+
+	tclCreatComm_ret = Tcl_CreateObjCommand(interp, "::tclkit::init::initInterp", tclkit_init_initinterp, NULL, NULL);
+	if (!tclCreatComm_ret) {
+		return(TCL_ERROR);
+	}
+
+	tclPkgProv_ret = Tcl_PkgProvide(interp, "tclkit::init", "1.0");
+
+	return(tclPkgProv_ret);
+}
+
+/*
+ * Initialize the Tcl system when we are loaded, that way Tcl functions
+ * are ready to be used when invoked.
+ */
+void __attribute__((constructor)) _Tclkit_Init(void) {
+	Tcl_StaticPackage(0, "tclkit::init", Tclkit_init_Init, NULL);
+
+	_Tclkit_Generic_Init();
+
+	return;
+}
+#endif
