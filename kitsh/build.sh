@@ -34,6 +34,19 @@ mkdir 'out' 'inst' || exit 1
 	# Cleanup, just incase the incoming directory was not pre-cleaned
 	${MAKE:-make} distclean >/dev/null 2>/dev/null
 
+	# Create VFS directory
+	mkdir "starpack.vfs"
+	mkdir "starpack.vfs/lib"
+
+	## Copy in all built directories
+	cp -r "${OTHERPKGSDIR}"/*/out/* 'starpack.vfs/'
+
+	## Rename the "vfs" package directory to what "boot.tcl" expects
+	mv 'starpack.vfs/lib'/vfs* 'starpack.vfs/lib/vfs'
+
+	## Install "boot.tcl"
+	cp 'boot.tcl' 'starpack.vfs/'
+
 	# Figure out if zlib compiled (if not, the system zlib will be used and we
 	# will need to have that present)
 	ZLIBDIR="$(cd "${OTHERPKGSDIR}/zlib/inst" 2>/dev/null && pwd)"
@@ -80,19 +93,6 @@ mkdir 'out' 'inst' || exit 1
 
 	# Strip the kit of all symbols, if possible
 	"${STRIP:-strip}" kit >/dev/null 2>/dev/null
-
-	# Create VFS directory
-	mkdir "starpack.vfs"
-	mkdir "starpack.vfs/lib"
-
-	## Copy in all built directories
-	cp -r "${OTHERPKGSDIR}"/*/out/* 'starpack.vfs/'
-
-	## Rename the "vfs" package directory to what "boot.tcl" expects
-	mv 'starpack.vfs/lib'/vfs* 'starpack.vfs/lib/vfs'
-
-	## Install "boot.tcl"
-	cp 'boot.tcl' 'starpack.vfs/'
 
 	# Intall VFS onto kit
 	## Determine if we have a Tclkit to do this work

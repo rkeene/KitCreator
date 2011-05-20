@@ -32,7 +32,7 @@ dnl Find the appropriate libraries to link to
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
 AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl)!]) ])
 
-if test "x$TARGET" = "tclkit"; then
+if test "$TARGET" = "tclkit"; then
 	dnl Figure out how to statically link to libgcc, if needed
 	DC_STATIC_LIBGCC
 else
@@ -100,7 +100,7 @@ AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
 ])
 
 dnl Only needed for Tclkit
-if test "x$TARGET" = "tclkit"; then
+if test "$TARGET" = "tclkit"; then
 	DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
 		DC_DO_STATIC_LINK_LIB(zlib, -lzlib,, [
 			AC_SEARCH_LIBS(inflate, z zlib,, [
@@ -153,7 +153,7 @@ AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4|cvfs}],
 AC_MSG_RESULT([$storage_mech])
 
 dnl Verify sanity of storage mechanism
-if ! test "x$TARGET" = "tclkit"; then
+if ! test "$TARGET" = "tclkit"; then
 	case "$storage_mech" in
 		auto|cvfs)
 			true
