@@ -1,0 +1,11 @@
+TCLSH_NATIVE = tclsh
+
+# Build targets
+## VFS Build
+vfs_kitdll_data_tcl.o: vfs_kitdll_data_tcl.c
+vfs_kitdll_data_tcl.c: dir2c.tcl starpack.vfs vfs_kitdll_data.c
+	"$(TCLSH_NATIVE)" dir2c.tcl tcl starpack.vfs > vfs_kitdll_data_tcl.c
+
+## Tclkit Build
+vfs_kitdll.tcl.h: vfs_kitdll.tcl
+	"$(TCLSH_NATIVE)" ./stringify.tcl vfs_kitdll.tcl > vfs_kitdll.tcl.h
