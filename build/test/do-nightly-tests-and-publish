@@ -11,8 +11,8 @@ MARKERFILE="/web/customers/kitcreator.rkeene.org/repo/__AUTO_TESTS_RUNNING__"
 TMPWORKDIR="${TMPDIR:-/var/tmp}/kitcreator-test-$$${RANDOM}${RANDOM}${RANDOM}"
 export KITCREATORFOSSIL WEBROOTDIR MARKERFILE TMPWORKDIR
 
-# Determine change of fossil revision
-FOSSIL_CHANGE="$(fossil timeline --repository "${KITCREATORFOSSIL}" -n 1 -t ci | grep '^[0-9:]* \[' | sed 's@^[0-9:]* \[\([0-9a-f]*\)\].*$@\1@')"
+# Determine change of fossil revision on trunk
+FOSSIL_CHANGE="$(fossil timeline --repository "${KITCREATORFOSSIL}" children trunk -n 1 -t ci | grep '^[0-9:]* \[' | sed 's@^[0-9:]* \[\([0-9a-f]*\)\].*$@\1@')"
 TESTNAME="fossil_${FOSSIL_CHANGE}"
 export FOSSIL_CHANGE TESTNAME
 
