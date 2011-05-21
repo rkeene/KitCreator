@@ -74,6 +74,9 @@ proc tclInit {} {
 				set vfsHandler [list ::vfs::zip::handler $::tclKitStorage_fd]
 				unset ::tclKitStorage_fd
 			}
+			"cvfs" {
+				set vfsHandler [list ::vfs::kitdll::vfshandler tcl]
+			}
 		}
 
 		# mount the executable, i.e. make all runtime files available

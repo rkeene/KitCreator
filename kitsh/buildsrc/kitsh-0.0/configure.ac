@@ -169,4 +169,4 @@ rm -f Makefile.in
 cp Makefile.${TARGET}.in Makefile.in
 
 dnl Produce output
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile Makefile.common)
