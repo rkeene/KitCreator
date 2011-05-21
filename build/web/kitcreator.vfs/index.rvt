@@ -4,6 +4,8 @@
 		regexp {^kitcreator-(.*).tar.gz$} $file -> vers
 		set kitcreator_versions($vers) $vers
 	}
+	set kitcreator_version_selected [lindex [lsort -dictionary [array names kitcreator_versions]] end]
+
 	set kitcreator_versions(trunk) "Fossil Trunk Tip"
 
 	set tcl_versions(8.4.19) 8.4.19
@@ -15,9 +17,32 @@
 	set platforms(linux-mipsel) "Linux on MIPSEL"
 	set platforms(windows-x86) "Windows on x86"
 
+	set disable {
+		platform linux-amd64 tk
+		platform linux-mipsel tk
+	}
+
+	set specific {
+		platform windows-x86 file icon {Kit Icon}
+		platform windows-x86 text description {Description}
+	}
 ?><html>
   <head>
     <title>KitCreator, Web Interface</title>
+    <script>
+<!--
+	function verifyOptions() {
+		var kitcreator_version;
+		var tcl_version;
+		var platform;
+
+		kitcreator_version = document.getElementsByName('kitcreator_version')[0].value;
+		tcl_version = document.getElementsByName('tcl_version')[0].value;
+		platform = document.getElementsByName('platform')[0].value;
+
+	}
+-->
+    </script>
   </head>
   <body>
     <h1>KitCreator Web Interface</h1>
@@ -26,11 +51,18 @@
         <tr>
           <td>KitCreator Version:</td>
           <td>
-            <select name="kitcreator_version">
+            <select name="kitcreator_version" onChange="verifyOptions();">
 <?
 	foreach kitcreator_version [lsort -dictionary [array names kitcreator_versions]] {
 		set kitcreator_version_name $kitcreator_versions($kitcreator_version)
-		puts "              <option value=\"${kitcreator_version}\">${kitcreator_version_name}</option>"
+
+		if {$kitcreator_version == $kitcreator_version_selected} {
+			set selected " selected"
+		} else {
+			set selected ""
+		}
+
+		puts "              <option value=\"${kitcreator_version}\"${selected}>${kitcreator_version_name}</option>"
 	}
 ?>
             </select>
@@ -39,7 +71,7 @@
         <tr>
           <td>Tcl Version:</td>
           <td>
-            <select name="tcl_version">
+            <select name="tcl_version" onChange="verifyOptions();">
 <?
 	foreach tcl_version [lsort -dictionary [array names tcl_versions]] {
 		set tcl_version_name $tcl_versions($tcl_version)
@@ -52,7 +84,7 @@
         <tr>
           <td>Platform:</td>
           <td>
-            <select name="platform">
+            <select name="platform" onChange="verifyOptions();">
 <?
 	foreach platform [lsort -dictionary [array names platforms]] {
 		set platform_name $platforms($platform)
@@ -85,6 +117,7 @@
           </td>
         </tr>
       </table>
+      <input type="submit" name="submit" value="Create">
     </form>
   </body>
 </html>
