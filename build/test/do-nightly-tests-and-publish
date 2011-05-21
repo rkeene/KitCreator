@@ -16,6 +16,24 @@ FOSSIL_CHANGE="$(fossil timeline --repository "${KITCREATORFOSSIL}" -n 1 -t ci |
 TESTNAME="fossil_${FOSSIL_CHANGE}"
 export FOSSIL_CHANGE TESTNAME
 
+# Verify sanity
+issane=1
+if [ ! -f "${KITCREATORFOSSIL}" ]; then
+	echo "Missing Kitcreator Fossil Repo: ${KITCREATORFOSSIL}" >&2
+
+	issane=0
+fi
+
+if [ ! -d "${WEBROOTDIR}" ]; then
+	echo "Missing Web Root Directory: ${WEBROOTDIR}" >&2
+
+	issane=0
+fi
+
+if [ "${issane}" = '0' ]; then
+	exit 1
+fi
+
 # On Wednesday, do a distclean to force redownloading everything (mainly
 # for CVS Head) and force a rebuild to ensure up-to-date build status
 if [ "$(date '+%u')" != "3" ]; then
