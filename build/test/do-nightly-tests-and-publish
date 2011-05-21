@@ -18,8 +18,8 @@ export FOSSIL_CHANGE TESTNAME
 
 # Verify sanity
 issane=1
-if [ ! -f "${KITCREATORFOSSIL}" ]; then
-	echo "Missing Kitcreator Fossil Repo: ${KITCREATORFOSSIL}" >&2
+if [ -z "${FOSSIL_CHANGE}" ]; then
+	echo "Unable to determine name of latest revision, likely missing Kitcreator Fossil Repo: ${KITCREATORFOSSIL}" >&2
 
 	issane=0
 fi
@@ -67,7 +67,7 @@ function die () {
 }
 
 # Download latest tarball
-wget -O 'kitcreator-trunk-tip.tar.gz' -o /dev/null 'http://kitcreator.rkeene.org/fossil/tarball/kitcreator-trunk-tip.tar.gz?uuid=trunk'
+wget -O 'kitcreator-trunk-tip.tar.gz' -o /dev/null "http://kitcreator.rkeene.org/fossil/tarball/kitcreator-trunk-tip.tar.gz?uuid=${FOSSIL_CHANGE}"
 
 tar -xf kitcreator-trunk-tip.tar.gz || die 'Tarball Extraction Failed'
 
