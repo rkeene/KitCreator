@@ -33,6 +33,8 @@ AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!])
 AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl)!]) ])
 
 AS_IF([test "$TARGET" = "tclkit"], [
+	dnl We have Tclkit
+
 	dnl Figure out how to statically link to libgcc, if needed
 	DC_STATIC_LIBGCC
 
@@ -47,12 +49,15 @@ AS_IF([test "$TARGET" = "tclkit"], [
 	dnl Determine how to create a shared object
 	DC_GET_SHOBJFLAGS
 
-	dnl KitDLL always uses C-VFS
-	AC_DEFINE([KIT_STORAGE_CVFS], [1], [Define if you are going to use C-VFS for kit storage])
+	dnl Determine if we have "objcopy" available to weaken non-Tcl/Tk symbols
+	AC_CHECK_TOOL(OBJCOPY, objcopy, [:])
 
 	dnl Define KitDLL usage
 	AC_DEFINE([TCLKIT_DLL], [1], [Define if you are using a KitDLL rather than a Tclkit])
 ])
+
+dnl Set linker rpath for tclsh/wish
+DC_SETLDRUNPATH([.])
 
 dnl Find the appropriate Tcl headers and libraries
 DC_DO_TCL
@@ -62,6 +67,7 @@ DC_FIND_TCLKIT_LIBS
 
 dnl Find extra objects we need to link as a part of "kit"
 AC_SUBST(EXTRA_OBJS)
+AC_SUBST(EXTRA_VFS_OBJS)
 
 dnl Check for Windows Resource Compiler
 AC_CHECK_TOOL([RC], [windres], [false])
@@ -103,12 +109,10 @@ AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
 ])
 
 dnl Only needed for Tclkit
-AS_IF([test "$TARGET" = "tclkit"], [
-	DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
-		DC_DO_STATIC_LINK_LIB(zlib, -lzlib,, [
-			AC_SEARCH_LIBS(inflate, z zlib,, [
-				AC_MSG_WARN([Couldn't find inflate (normally in zlib)!])
-			])
+DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
+	DC_DO_STATIC_LINK_LIB(zlib, -lzlib,, [
+		AC_SEARCH_LIBS(inflate, z zlib,, [
+			AC_MSG_WARN([Couldn't find inflate (normally in zlib)!])
 		])
 	])
 ])
@@ -183,6 +187,7 @@ AS_CASE([$storage_mech],
 
 		dnl Add appropriate dependencies
 		EXTRA_KIT_DEPS="vfs_kitdll.tcl.h"
+		EXTRA_VFS_OBJS="${EXTRA_VFS_OBJS} vfs_kitdll_data_tcl.o"
 	]
 )
 

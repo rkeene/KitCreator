@@ -15,7 +15,7 @@ if {[lindex $argv 2] != ""} {
 }
 
 # Determine what storage mechanism is being used
-set fd [open Makefile r]
+set fd [open Makefile.common r]
 set data [read $fd]
 close $fd
 

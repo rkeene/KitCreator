@@ -10,7 +10,9 @@ LIBS = @LIBS@
 ARCHS = @ARCHS@
 STRIPLIBS = @STRIPLIBS@ @EXTRA_OBJS@
 EXTRA_OBJS = @EXTRA_OBJS@
+LDRUNPATH = @LDRUNPATH@
 EXTRA_KIT_DEPS = @EXTRA_KIT_DEPS@
+EXTRA_VFS_OBJS = @EXTRA_VFS_OBJS@
 TCLSH_NATIVE = tclsh
 
 # Build targets
@@ -43,7 +45,7 @@ kit.res.o: kit.rc kit.ico
 clean:
 	rm -f kit kit.res.o
 	rm -f libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
-	rm -f $(OBJS)
+	rm -f $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS)
 	rm -f vfs_kitdll_data_tcl.c
 	rm -f vfs_kitdll.tcl.h
 	rm -f tclsh.o tclsh tclsh.exe

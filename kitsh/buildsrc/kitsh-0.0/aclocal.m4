@@ -37,11 +37,14 @@ AC_DEFUN(DC_DO_TCL, [
 		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		LIBS="${LIBS} ${TCL_LIBS}"
+
+		KITDLL_LIB_VERSION=`echo "${TCL_VERSION}${TCL_PATCH_LEVEL}" | sed 's@\.@@g'`
 	fi
 
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
 	AC_SUBST(LIBS)
+	AC_SUBST(KITDLL_LIB_VERSION)
 
 	AC_MSG_RESULT([$tclconfigsh])
 ])
@@ -154,26 +157,44 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
+	dnl We will need this for the Tcl project, which we will always have
+	DC_CHECK_FOR_WHOLE_ARCHIVE
+
 	for proj in mk4tcl tcl tclvfs tk; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
-		libdir="../../../${proj}/inst"
-		libfiles="`find "${libdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
-		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
+		projlibdir="../../../${proj}/inst"
+		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
+		projlibfilesnostub="`find "${projlibdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
-		ARCHS="${ARCHS} ${libfiles}"
+		AC_MSG_RESULT([${projlibfilesnostub}])
 
-		AC_MSG_RESULT([${libfiles}])
+		hide_symbols="1"
 
-		if test "${libfilesnostub}" != ""; then
-			if test "${proj}" = "mk4tcl"; then
+		if test "${proj}" = "tcl"; then
+			DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfilesnostub], [
+				projlibfiles="${projlibfilesnostub}"
+			], [
+				DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfiles], [
+					projlibfiles="${projlibfiles}"
+				])
+			])
+
+			hide_symbols="0"
+		fi
+
+		if test "${proj}" = "mk4tcl"; then
+			if test -n "${projlibfiles}"; then
 				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
 
 				kc_cv_feature_kit_includes_mk4tcl='1'
 
 				DC_DO_STATIC_LINK_LIBCXX
 			fi
-			if test "${proj}" = "tk"; then
+		fi
+
+		if test "${proj}" = "tk"; then
+			if test "${projlibfilesnostub}" != ""; then
 				DC_DO_TK
 				AC_DEFINE(KIT_INCLUDES_TK, [1], [Specify this if we link statically to Tk])
 				if test -n "${TK_VERSION}"; then
@@ -184,11 +205,20 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 					AC_DEFINE(KITSH_NEED_WINMAIN, [1], [Define if you need WinMain (Windows)])
 					CFLAGS="${CFLAGS} -mwindows"
 				fi
+
+				hide_symbols="0"
 			fi
+		fi
+
+		ARCHS="${ARCHS} ${projlibfiles}"
+
+		if test "${hide_symbols}" = "1"; then
+			STRIPLIBS="${STRIPLIBS} ${projlibfiles}"
 		fi
 	done
 
 	AC_SUBST(ARCHS)
+	AC_SUBST(STRIPLIBS)
 ])
 
 AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
@@ -201,6 +231,7 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 	case $host_os in
 		mingw32*)
 			CFLAGS="${CFLAGS} -mno-cygwin -mms-bitfields"
+			WISH_CFLAGS="-mwindows"
 
 			dnl If we are building for Win32, we need to define "BUILD_tcl" so that
 			dnl TCL_STORAGE_CLASS gets defined as DLLEXPORT, to make static linking
@@ -210,8 +241,11 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 			;;
 		cygwin*)
 			CFLAGS="${CFLAGS} -mms-bitfields"
+			WISH_CFLAGS="-mwindows"
 			;;
 	esac
+
+	AC_SUBST(WISH_CFLAGS)
 ])
 
 AC_DEFUN(DC_STATIC_LIBGCC, [
@@ -407,4 +441,21 @@ AC_DEFUN(DC_CHECK_FOR_WHOLE_ARCHIVE, [
 
 	AC_SUBST(WHOLEARCHIVE)
 	AC_SUBST(NOWHOLEARCHIVE)
+])
+
+AC_DEFUN(DC_SETLDRUNPATH, [
+	OLD_LDFLAGS="${LDFLAGS}"
+
+	for testldflags in "-Wl,-rpath -Wl,$1" "-Wl,-R -Wl,$1"; do
+		LDFLAGS="${OLD_LDFLAGS} ${testldflags}"
+		AC_TRY_LINK([#include <stdio.h>], [ return(0); ], [
+			LDRUNPATH="$LDRUNPATH $testldflags"
+
+			break
+		])
+	done
+
+	LDFLAGS="${OLD_LDFLAGS}"
+
+	AC_SUBST(LDRUNPATH)
 ])

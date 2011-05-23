@@ -61,7 +61,10 @@ Examples:
 	9. Create a Tclkit with Metakit4 support, but using Zip for storage:
 		a. $ ./kitcreator --enable-kit-storage=zip
 
-	10. Create a KitDLL without Metakit support (will not create a Tclkit
+	10. Create a Tclkit with Metakit4 support, but using C-VFS for storage
+		a. $ ./kitcreator --enable-kit-storage=cvfs
+
+	11. Create a KitDLL without Metakit support (will not create a Tclkit
 	    binary, just the library):
 		a. $ KITCREATOR_PKGS='tk itcl kitdll'
 		b. $ export KITCREATOR_PKGS

@@ -86,8 +86,10 @@ Tcl_AppInitProc	Dde_Init, Registry_Init;
 
 #ifdef TCLKIT_DLL
 #  define TCLKIT_MOUNTPOINT "/.KITDLL_TCL"
+#  define TCLKIT_VFSSOURCE "$::tclKitFilename"
 #else
 #  define TCLKIT_MOUNTPOINT "[info nameofexecutable]"
+#  define TCLKIT_VFSSOURCE "[info nameofexecutable]"
 #endif /* TCLKIT_DLL */
 
 #ifdef HAVE_ACCEPTABLE_DLADDR
@@ -143,7 +145,9 @@ static char *preInitCmd =
 #endif
 #ifdef TCLKIT_DLL
 	"load {} tclkit::init\n"
-#endif
+	"::tclkit::init::initInterp\n"
+	"rename ::tclkit::init::initInterp {}\n"
+#endif /* TCLKIT_DLL */
 	"set bootfile [file join " TCLKIT_MOUNTPOINT " boot.tcl]\n"
 	"if {[file exists $bootfile]} {\n"
 		"catch {\n"
@@ -155,7 +159,7 @@ static char *preInitCmd =
 #ifdef KIT_STORAGE_MK4
 	"set ::tclKitStorage \"mk4\"\n"
 	"if {![info exists s]} {\n"
-		"mk::file open exe [info nameofexecutable] -readonly\n"
+		"mk::file open exe " TCLKIT_VFSSOURCE " -readonly\n"
 		"set n [mk::select exe.dirs!0.files name boot.tcl]\n"
 		"if {$n != \"\"} {\n"
 			"set s [mk::get exe.dirs!0.files!$n contents]\n"
@@ -173,7 +177,7 @@ static char *preInitCmd =
 	"if {![info exists s]} {\n"
 #  include "zipvfs.tcl.h"
 		"catch {\n"
-			"set ::tclKitStorage_fd [::zip::open [info nameofexecutable]]\n"
+			"set ::tclKitStorage_fd [::zip::open " TCLKIT_VFSSOURCE "]\n"
 			"::zip::stat $::tclKitStorage_fd boot.tcl sb\n"
 			"seek $::tclKitStorage_fd $sb(ino)\n"
 			"::zip::Data $::tclKitStorage_fd sb s\n"
@@ -192,16 +196,22 @@ static char *preInitCmd =
 		"}\n"
 	"}\n"
 #endif /* KIT_STORAGE_CVFS */
-#ifdef TCLKIT_DLL
-	"::tclkit::init::initInterp\n"
-	"rename ::tclkit::init::initInterp {}\n"
-#else
+#ifndef TCLKIT_DLL
 	"if {![info exists s]} {\n"
 		"set f [open setup.tcl]\n"
 		"set s [read $f]\n"
 		"close $f\n"
 	"}\n"
+#endif /* !TCLKIT_DLL */
+#ifdef TCLKIT_DLL
+	"set ::TCLKIT_TYPE \"kitdll\"\n"
+#else
+	"set ::TCLKIT_TYPE \"tclkit\"\n"
 #endif /* TCLKIT_DLL */
+	"set ::TCLKIT_MOUNTPOINT " TCLKIT_MOUNTPOINT "\n"
+	"set ::TCLKIT_VFSSOURCE " TCLKIT_VFSSOURCE "\n"
+	"set ::TCLKIT_MOUNTPOINT_VAR {" TCLKIT_MOUNTPOINT "}\n"
+	"set ::TCLKIT_VFSSOURCE_VAR {" TCLKIT_VFSSOURCE "}\n"
 	"uplevel #0 $s\n"
 #if defined(KIT_INCLUDES_TK) && defined(KIT_TK_VERSION)
 	"package ifneeded Tk " KIT_TK_VERSION " {\n"
@@ -368,12 +378,15 @@ static void _Tclkit_Interp_Init(Tcl_Interp *interp) {
 	Tcl_DString encodingName;
 #endif /* TCLKIT_CAN_SET_ENCODING */
 
+#ifndef TCLKIT_DLL
 	/* the tcl_rcFileName variable only exists in the initial interpreter */
-#ifdef _WIN32
+#  ifdef _WIN32
 	Tcl_SetVar(interp, "tcl_rcFileName", "~/tclkitrc.tcl", TCL_GLOBAL_ONLY);
-#else
+#  else
 	Tcl_SetVar(interp, "tcl_rcFileName", "~/.tclkitrc", TCL_GLOBAL_ONLY);
-#endif
+#  endif /* _WIN32 */
+#endif /* !TCLKIT_DLL */
+	Tcl_SetVar(interp, "TCLKIT_INITVFS", "1", TCL_GLOBAL_ONLY);
 
 #ifdef TCLKIT_CAN_SET_ENCODING
 	/* Set the encoding from the Environment */
@@ -381,7 +394,7 @@ static void _Tclkit_Interp_Init(Tcl_Interp *interp) {
 	Tcl_SetSystemEncoding(NULL, Tcl_DStringValue(&encodingName));
 	Tcl_SetVar(interp, "tclkit_system_encoding", Tcl_DStringValue(&encodingName), 0);
 	Tcl_DStringFree(&encodingName);
-#endif
+#endif /* TCLKIT_CAN_SET_ENCODING */
 
 	/* Hack to get around Tcl bug 1224888.  This must be run here and
 	 * in LibraryPathObjCmd because this information is needed both
@@ -391,6 +404,7 @@ static void _Tclkit_Interp_Init(Tcl_Interp *interp) {
 	return;
 }
 
+#ifndef TCLKIT_DLL
 int TclKit_AppInit(Tcl_Interp *interp) {
 #ifdef KIT_INCLUDES_TK
 #  ifdef _WIN32
@@ -461,6 +475,7 @@ error:
 
 	return TCL_ERROR;
 }
+#endif /* !TCLKIT_DLL */
 
 
 #ifdef TCLKIT_DLL
