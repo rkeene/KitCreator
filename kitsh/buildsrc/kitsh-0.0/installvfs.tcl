@@ -15,7 +15,6 @@ if {[lindex $argv 2] != ""} {
 }
 
 # Determine what storage mechanism is being used
-## This logic must be duplicated from "kitInit.c"
 set fd [open Makefile r]
 set data [read $fd]
 close $fd
@@ -28,14 +27,6 @@ if {[string match "*KIT_STORAGE_MK4*" $data]} {
 }
 if {[string match "*KIT_STORAGE_CVFS*" $data]} {
 	set tclKitStorage cvfs
-}
-
-if {![info exists tclKitStorage]} {
-	if {[string match "*KIT_INCLUDES_MK4TCL*" $data]} {
-		set tclKitStorage mk4
-	} else {
-		set tclKitStorage zip
-	}
 }
 
 # Define procedures
@@ -120,5 +111,8 @@ switch -- $tclKitStorage {
 
 			exit 1
 		}
+	}
+	"cvfs" {
+		# No-op
 	}
 }

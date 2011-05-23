@@ -10,21 +10,21 @@ AC_GNU_SOURCE
 
 dnl Find out if we should build a DLL or an Executable
 TARGET="tclkit"
+EXTRA_KIT_DEPS=""
 AC_MSG_CHECKING([what target to build])
 AC_ARG_ENABLE(kitdll, AC_HELP_STRING([--enable-kitdll], [Enable building KitDLL instead of Tclkit (default: no)]), [
-	case "$enableval" in
-		yes|kitdll)
+	AS_CASE([$enableval],
+		[yes|kitdll], [
 			TARGET="kitdll"
-			;;
-		no)
+		],
+		no, [
 			true
-			;;
-		*)
+		], [
 			AC_MSG_RESULT([unknown])
 
 			AC_MSG_ERROR([Invalid option: $enableval])
-			;;
-	esac
+		]
+	)
 ])
 AC_MSG_RESULT([$TARGET])
 
@@ -32,10 +32,13 @@ dnl Find the appropriate libraries to link to
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
 AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl)!]) ])
 
-if test "$TARGET" = "tclkit"; then
+AS_IF([test "$TARGET" = "tclkit"], [
 	dnl Figure out how to statically link to libgcc, if needed
 	DC_STATIC_LIBGCC
-else
+
+	dnl Specify local Appinit function
+	AC_DEFINE(DTK_LOCAL_APPINIT, [TclKit_AppInit], [Tclkit appinit function])
+], [
 	dnl We have KitDLL
 
 	dnl Determine system information
@@ -49,7 +52,7 @@ else
 
 	dnl Define KitDLL usage
 	AC_DEFINE([TCLKIT_DLL], [1], [Define if you are using a KitDLL rather than a Tclkit])
-fi
+])
 
 dnl Find the appropriate Tcl headers and libraries
 DC_DO_TCL
@@ -65,11 +68,11 @@ AC_CHECK_TOOL([RC], [windres], [false])
 
 dnl If we found the resource compiler, add "kit.res.o" to our list of objects to build
 dnl (as long as the source for such an object exists)
-if ! test "$RC" = "false"; then
-	if test -f kit.rc; then
+AS_IF([test "$RC" != "false"], [
+	AS_IF([test -f kit.rc], [
 		EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
-	fi
-fi
+	])
+])
 
 dnl Check for Tcl features
 SAVE_LIBS="${LIBS}"
@@ -100,7 +103,7 @@ AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
 ])
 
 dnl Only needed for Tclkit
-if test "$TARGET" = "tclkit"; then
+AS_IF([test "$TARGET" = "tclkit"], [
 	DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
 		DC_DO_STATIC_LINK_LIB(zlib, -lzlib,, [
 			AC_SEARCH_LIBS(inflate, z zlib,, [
@@ -108,61 +111,82 @@ if test "$TARGET" = "tclkit"; then
 			])
 		])
 	])
-fi
+])
 
 dnl Determine which storage mechanism to use
 AC_MSG_CHECKING([which Tclkit Storage mechanism to use])
 
 storage_mech="auto"
 AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4|cvfs}], [Specify storage mechanism to use for built-in VFS (default: auto)]), [
-	case "$enableval" in
-		mk4)
+	AS_CASE(["$enableval"],
+		mk4, [
 			storage_mech="mk4"
-
-			AC_DEFINE([KIT_STORAGE_MK4], [1], [Define if you are going to use Metakit4 for kit storage])
-			;;
-		zip)
+		],
+		zip, [
 			storage_mech="zip"
-
-			AC_DEFINE([KIT_STORAGE_ZIP], [1], [Define if you are going to use ZIP for kit storage])
-			;;
-		cvfs)
+		],
+		cvfs, [
 			storage_mech="cvfs"
-
-			AC_DEFINE([KIT_STORAGE_CVFS], [1], [Define if you are going to use C-VFS for kit storage])
-			;;
-		yes)
+		],
+		yes, [
 			# If they just want to enable kit storage, but nothing specifically, do nothing
 			storage_mech="auto"
-			;;
-		auto)
+		],
+		auto, [
 			# Auto is how it works by default
 			storage_mech="auto"
-			;;
-		no)
+		],
+		no, [
 			# You can't disable kit storage
 			AC_MSG_RESULT([fail])
 			AC_MSG_ERROR([Kit Storage cannot be disabled])
-			;;
-		*)
+		],
+		[
 			AC_MSG_RESULT([fail])
 			AC_MSG_ERROR([Unknown kit storage type: $enableval])
-			;;
-	esac
+		]
+	)
 ])
+
+dnl Explicitly define the storage mechanism
+AS_IF([test "$storage_mech" = "auto"], [
+	AS_IF([test "$TARGET" = 'tclkit'], [
+		AS_IF([test "x$kc_cv_feature_kit_includes_mk4tcl" = 'x1'], [
+			storage_mech="mk4"
+		], [
+			storage_mech="zip"
+		])
+	], [
+		storage_mech="cvfs"
+	])
+])
+
+dnl Note result
 AC_MSG_RESULT([$storage_mech])
 
-dnl Verify sanity of storage mechanism
-if ! test "$TARGET" = "tclkit"; then
-	case "$storage_mech" in
-		auto|cvfs)
-			true
-			;;
-		*)
-			AC_MSG_ERROR([Only "cvfs" and "auto" are valid storage mechanisms when building KitDLL])
-			;;
-	esac
-fi
+dnl Define appropriate macros for the storage mechanism
+AS_CASE([$storage_mech],
+	mk4, [
+		AC_DEFINE([KIT_STORAGE_MK4], [1], [Define if you are going to use Metakit4 for kit storage])
+	],
+	zip, [
+		AC_DEFINE([KIT_STORAGE_ZIP], [1], [Define if you are going to use ZIP for kit storage])
+
+		dnl Add appropriate dependencies
+		EXTRA_KIT_DEPS="zipvfs.tcl.h"
+	],
+	cvfs, [
+		AC_DEFINE([KIT_STORAGE_CVFS], [1], [Define if you are going to use C-VFS for kit storage])
+
+		dnl Define that C-VFS should be make [load]-able
+		AC_DEFINE([KITDLL_MAKE_LOADABLE], [1], [Specify that the C-VFS should be able to be loaded])
+
+		dnl Add appropriate dependencies
+		EXTRA_KIT_DEPS="vfs_kitdll.tcl.h"
+	]
+)
+
+AC_SUBST(EXTRA_KIT_DEPS)
 
 dnl Put correct Makefile template in place
 rm -f Makefile.in

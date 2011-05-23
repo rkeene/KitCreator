@@ -168,6 +168,9 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		if test "${libfilesnostub}" != ""; then
 			if test "${proj}" = "mk4tcl"; then
 				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
+
+				kc_cv_feature_kit_includes_mk4tcl='1'
+
 				DC_DO_STATIC_LINK_LIBCXX
 			fi
 			if test "${proj}" = "tk"; then

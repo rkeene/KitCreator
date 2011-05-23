@@ -1,34 +1,14 @@
-CC = @CC@
-OBJCOPY = @OBJCOPY@
-CFLAGS = @CFLAGS@ @SHOBJFLAGS@ -Wall
-CPPFLAGS = @CPPFLAGS@ @DEFS@ -DKITDLL_MAKE_LOADABLE=1
-WISH_CFLAGS = @WISH_CFLAGS@
-LDFLAGS = @LDFLAGS@
-SHOBJLDFLAGS = @SHOBJLDFLAGS@
-LIBS = @LIBS@
-STATICLIBS = @ARCHS@
-STRIPLIBS = @STRIPLIBS@ @EXTRA_OBJS@
 OBJS = vfs_kitdll_data_tcl.o kitInit.o rechan.o pwb.o zlib.o
-EXTRA_OBJS = @EXTRA_OBJS@
-TCLSH_NATIVE = tclsh
 
 # Default target
 all: libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 
 -include Makefile.common
 
-## Tclkit Build
-kitInit.o: kitInit.c vfs_kitdll.tcl.h
-
-## Extensions
-rechan.o: rechan.c
-pwb.o: pwb.c
-zlib.o: zlib.c
-
 ## DLL Build
-libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_OBJS)
+libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_KIT_DEPS) $(EXTRA_OBJS)
 	-for striplib in $(STRIPLIBS); do $(OBJCOPY) --weaken "$${striplib}"; done
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) @WHOLEARCHIVE@ $(STATICLIBS) @NOWHOLEARCHIVE@ $(LIBS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) @WHOLEARCHIVE@ $(ARCHS) @NOWHOLEARCHIVE@ $(LIBS)
 
 # Test driver
 tclsh.o: tclsh.c
@@ -38,22 +18,3 @@ tclsh: tclsh.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 wish.o: wish.c
 wish: wish.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ -Wl,-rpath,.
-
-# Cleanup routeines
-clean:
-	rm -f libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
-	rm -f $(OBJS)
-	rm -f vfs_kitdll_data_tcl.c
-	rm -f vfs_kitdll.tcl.h
-	rm -f tclsh.o tclsh tclsh.exe
-	rm -f wish.o wish wish.exe
-
-distclean: clean
-	rm -f config.status config.log
-	rm -f *~
-	rm -f Makefile Makefile.in Makefile.common
-	rm -rf starpack.vfs
-
-mrproper: distclean
-
-.PHONY: all clean distclean

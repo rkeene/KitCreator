@@ -61,29 +61,6 @@
 #  define KIT_INCLUDES_ZLIB 1
 #endif
 
-/* Determine which type of storage to use -- MK4, ZIP, or CVFS */
-#if defined(KIT_STORAGE_MK4) && defined(KIT_STORAGE_ZIP)
-#  undef KIT_STORAGE_ZIP
-#endif
-#if defined(KIT_STORAGE_MK4) && defined(KIT_STORAGE_CVFS)
-#  ifdef TCLKIT_DLL
-#    undef KIT_STORAGE_MK4
-#  else
-#    undef KIT_STORAGE_CVFS
-#  endif
-#endif
-#if !defined(KIT_STORAGE_MK4) && !defined(KIT_STORAGE_ZIP) && !defined(KIT_STORAGE_CVFS)
-#  ifdef TCLKIT_DLL
-#    define KIT_STORAGE_CVFS 1
-#  else
-#    ifdef KIT_INCLUDES_MK4TCL
-#      define KIT_STORAGE_MK4 1
-#    else
-#      define KIT_STORAGE_ZIP 1
-#    endif
-#  endif
-#endif
-
 #ifdef KIT_INCLUDES_ITCL
 Tcl_AppInitProc	Itcl_Init;
 #endif

@@ -1,37 +1,8 @@
-CC = @CC@
-RC = @RC@
-CFLAGS = @CFLAGS@ @DEFS@ -DTK_LOCAL_APPINIT=TclKit_AppInit
-CPPFLAGS = @CPPFLAGS@ @DEFS@ -DTK_LOCAL_APPINIT=TclKit_AppInit
-LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@
-ARCHS = @ARCHS@
 OBJS = kitInit.o main.o pwb.o rechan.o zlib.o winMain.o
-EXTRA_OBJS = @EXTRA_OBJS@
 
 all: kit
 
 -include Makefile.common
 
-kit.res.o: kit.rc kit.ico
-	$(RC) -o kit.res.o $(CPPFLAGS) kit.rc
-
-kit: $(OBJS) $(EXTRA_OBJS) $(ARCHS)
+kit: $(OBJS) $(EXTRA_OBJS) $(EXTRA_KIT_DEPS) $(ARCHS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o kit $(OBJS) $(EXTRA_OBJS) $(ARCHS) $(LDFLAGS) $(LIBS)
-
-boot.tcl.h: boot.tcl
-	"$(TCLSH_NATIVE)" ./stringify.tcl boot.tcl > boot.tcl.h
-
-zipvfs.tcl.h: zipvfs.tcl
-	"$(TCLSH_NATIVE)" ./stringify.tcl zipvfs.tcl > zipvfs.tcl.h
-
-clean:
-	rm -f kit $(OBJS) kit.res.o
-
-distclean: clean
-	rm -f config.h Makefile Makefile.in Makefile.common config.log config.status
-	rm -rf autom4te.cache
-
-mrproper: distclean
-	rm -f configure config.h boot.tcl.h zipvfs.tcl.h
-
-.PHONY: all clean distclean
