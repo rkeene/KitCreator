@@ -160,7 +160,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	dnl We will need this for the Tcl project, which we will always have
 	DC_CHECK_FOR_WHOLE_ARCHIVE
 
-	for proj in mk4tcl tcl tclvfs tk; do
+	for proj in mk4tcl tcl tclvfs tk zlib; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
 		projlibdir="../../../${proj}/inst"
@@ -206,15 +206,28 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 					CFLAGS="${CFLAGS} -mwindows"
 				fi
 
+				DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfilesnostub], [
+					projlibfiles="${projlibfilesnostub}"
+				], [
+					DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfiles], [
+						projlibfiles="${projlibfiles}"
+					])
+				])
+
 				hide_symbols="0"
 			fi
 		fi
 
-		ARCHS="${ARCHS} ${projlibfiles}"
-
 		if test "${hide_symbols}" = "1"; then
 			STRIPLIBS="${STRIPLIBS} ${projlibfiles}"
 		fi
+
+		dnl Do not explicitly link to Zlib, that will happen elsewhere
+		if test "${proj}" = "zlib"; then
+			continue
+		fi
+
+		ARCHS="${ARCHS} ${projlibfiles}"
 	done
 
 	AC_SUBST(ARCHS)

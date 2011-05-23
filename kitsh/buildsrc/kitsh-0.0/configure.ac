@@ -39,7 +39,7 @@ AS_IF([test "$TARGET" = "tclkit"], [
 	DC_STATIC_LIBGCC
 
 	dnl Specify local Appinit function
-	AC_DEFINE(DTK_LOCAL_APPINIT, [TclKit_AppInit], [Tclkit appinit function])
+	AC_DEFINE(TK_LOCAL_APPINIT, [TclKit_AppInit], [Tclkit appinit function])
 ], [
 	dnl We have KitDLL
 
