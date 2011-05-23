@@ -75,6 +75,21 @@ proc tclInit {} {
 			}
 			"cvfs" {
 				set vfsHandler [list ::vfs::kitdll::vfshandler tcl]
+
+				# Load these, the original Tclkit does so it should be safe.
+				foreach vfsfile [list vfsUtils vfslib] {
+					unset -nocomplain s
+
+					catch {
+						set s [::vfs::kitdll::data::getData tcl "lib/vfs/${vfsfile}.tcl"]
+					}
+
+					if {![info exists s]} {
+						continue
+					}
+
+					uplevel #0 $s
+				}
 			}
 		}
 
