@@ -75,7 +75,7 @@ Tcl_AppInitProc	Pwb_Init;
 Tcl_AppInitProc Zlib_Init;
 #endif
 #ifdef KIT_STORAGE_CVFS
-Tcl_AppInitProc Vfs_kitdll_data_tcl_Init;
+Tcl_AppInitProc Cvfs_data_tcl_Init;
 #endif
 #ifdef TCL_THREADS
 Tcl_AppInitProc	Thread_Init;
@@ -188,11 +188,11 @@ static char *preInitCmd =
 	"set ::tclKitStorage \"cvfs\"\n"
 	"load {} rechan\n"
 	"load {} vfs\n"
-	"load {} vfs_kitdll_data_tcl\n"
-#include "vfs_kitdll.tcl.h"
+	"load {} cvfs_data_tcl\n"
+#include "cvfs.tcl.h"
 	"if {![info exists s]} {\n"
 		"catch {\n"
-			"set s [::vfs::kitdll::data::getData tcl boot.tcl]\n"
+			"set s [::vfs::cvfs::data::getData tcl boot.tcl]\n"
 		"}\n"
 	"}\n"
 #endif /* KIT_STORAGE_CVFS */
@@ -355,7 +355,7 @@ static void _Tclkit_Generic_Init(void) {
 	Tcl_StaticPackage(0, "zlib", Zlib_Init, NULL);
 #endif
 #ifdef KIT_STORAGE_CVFS
-	Tcl_StaticPackage(0, "vfs_kitdll_data_tcl", Vfs_kitdll_data_tcl_Init, NULL);
+	Tcl_StaticPackage(0, "cvfs_data_tcl", Cvfs_data_tcl_Init, NULL);
 #endif
 #ifdef TCL_THREADS
 	Tcl_StaticPackage(0, "Thread", Thread_Init, NULL);

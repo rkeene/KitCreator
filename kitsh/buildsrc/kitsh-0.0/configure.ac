@@ -183,11 +183,11 @@ AS_CASE([$storage_mech],
 		AC_DEFINE([KIT_STORAGE_CVFS], [1], [Define if you are going to use C-VFS for kit storage])
 
 		dnl Define that C-VFS should be make [load]-able
-		AC_DEFINE([KITDLL_MAKE_LOADABLE], [1], [Specify that the C-VFS should be able to be loaded])
+		AC_DEFINE([CVFS_MAKE_LOADABLE], [1], [Specify that the C-VFS should be able to be loaded])
 
 		dnl Add appropriate dependencies
-		EXTRA_KIT_DEPS="vfs_kitdll.tcl.h"
-		EXTRA_VFS_OBJS="${EXTRA_VFS_OBJS} vfs_kitdll_data_tcl.o"
+		EXTRA_KIT_DEPS="cvfs.tcl.h"
+		EXTRA_VFS_OBJS="${EXTRA_VFS_OBJS} cvfs_data_tcl.o"
 	]
 )
 
