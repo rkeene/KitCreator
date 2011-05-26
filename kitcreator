@@ -65,6 +65,11 @@ if echo " ${KITCREATOR_PKGS} " | grep ' kitdll ' >/dev/null 2>/dev/null; then
 	KITTARGET="kitdll"
 fi
 
+# If the user manually requested "--enable-kitdll", make it so
+if echo "x $@ " | grep ' [-][-]enable-kitdll ' >/dev/null 2>/dev/null; then
+	KITTARGET="kitdll"
+fi
+
 ## If building KitDLL and Tk, must do Tk statically
 ### (Well, we don't HAVE to, but it would defeat much of the purpose)
 if [ "${KITTARGET}" = "kitdll" ]; then
