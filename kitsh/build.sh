@@ -205,6 +205,13 @@ mkdir 'out' 'inst' || exit 1
 		echo | ./runkit setup.tcl
 	fi
 
+	# Cleanup
+	if [ "${KITTARGET}" = "kitdll" ]; then
+		## Remove built interpreters if we are building KitDLL --
+		## they're just tiny stubs anyway
+		rm -f kit runkit
+	fi
+
 	exit 0
 ) || exit 1
 
