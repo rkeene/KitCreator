@@ -7,8 +7,9 @@ all: libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 
 ## DLL Build
 libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_KIT_DEPS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS)
-	-for striplib in $(STRIPLIBS); do $(OBJCOPY) --weaken "$${striplib}"; done
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) @WHOLEARCHIVE@ $(ARCHS) @NOWHOLEARCHIVE@ $(LIBS)
+	-for striplib in $(STRIPLIBS); do $(OBJCOPY) --weaken "$${striplib}"; done
+	-$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit-good@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) @WHOLEARCHIVE@ $(ARCHS) @NOWHOLEARCHIVE@ $(LIBS) && mv libtclkit-good@KITDLL_LIB_VERSION@.@SHOBJEXT@ libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 
 # Test driver
 tclsh.o: tclsh.c
