@@ -37,11 +37,14 @@ AC_DEFUN(DC_DO_TCL, [
 		CFLAGS="${CFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		CPPFLAGS="${CPPFLAGS} ${TCL_INCLUDE_SPEC} -I${TCL_SRC_DIR}/generic -I${tclconfigshdir}"
 		LIBS="${LIBS} ${TCL_LIBS}"
+
+		KITDLL_LIB_VERSION=`echo "${TCL_VERSION}${TCL_PATCH_LEVEL}" | sed 's@\.@@g'`
 	fi
 
 	AC_SUBST(CFLAGS)
 	AC_SUBST(CPPFLAGS)
 	AC_SUBST(LIBS)
+	AC_SUBST(KITDLL_LIB_VERSION)
 
 	AC_MSG_RESULT([$tclconfigsh])
 ])
@@ -154,23 +157,44 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIBCXX, [
 AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	DC_SETUP_TCL_PLAT_DEFS
 
-	for proj in mk4tcl tcl tclvfs tk; do
+	dnl We will need this for the Tcl project, which we will always have
+	DC_CHECK_FOR_WHOLE_ARCHIVE
+
+	for proj in mk4tcl tcl tclvfs tk zlib; do
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
-		libdir="../../../${proj}/inst"
-		libfiles="`find "${libdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
-		libfilesnostub="`find "${libdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
+		projlibdir="../../../${proj}/inst"
+		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
+		projlibfilesnostub="`find "${projlibdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
-		ARCHS="${ARCHS} ${libfiles}"
+		AC_MSG_RESULT([${projlibfilesnostub}])
 
-		AC_MSG_RESULT([${libfiles}])
+		hide_symbols="1"
 
-		if test "${libfilesnostub}" != ""; then
-			if test "${proj}" = "mk4tcl"; then
+		if test "${proj}" = "tcl"; then
+			DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfilesnostub], [
+				projlibfiles="${projlibfilesnostub}"
+			], [
+				DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfiles], [
+					projlibfiles="${projlibfiles}"
+				])
+			])
+
+			hide_symbols="0"
+		fi
+
+		if test "${proj}" = "mk4tcl"; then
+			if test -n "${projlibfiles}"; then
 				AC_DEFINE(KIT_INCLUDES_MK4TCL, [1], [Specify this if you link against mkt4tcl])
+
+				kc_cv_feature_kit_includes_mk4tcl='1'
+
 				DC_DO_STATIC_LINK_LIBCXX
 			fi
-			if test "${proj}" = "tk"; then
+		fi
+
+		if test "${proj}" = "tk"; then
+			if test "${projlibfilesnostub}" != ""; then
 				DC_DO_TK
 				AC_DEFINE(KIT_INCLUDES_TK, [1], [Specify this if we link statically to Tk])
 				if test -n "${TK_VERSION}"; then
@@ -181,14 +205,37 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 					AC_DEFINE(KITSH_NEED_WINMAIN, [1], [Define if you need WinMain (Windows)])
 					CFLAGS="${CFLAGS} -mwindows"
 				fi
+
+				DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfilesnostub], [
+					projlibfiles="${projlibfilesnostub}"
+				], [
+					DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfiles], [
+						projlibfiles="${projlibfiles}"
+					])
+				])
+
+				hide_symbols="0"
 			fi
 		fi
+
+		if test "${hide_symbols}" = "1"; then
+			STRIPLIBS="${STRIPLIBS} ${projlibfiles}"
+		fi
+
+		dnl Do not explicitly link to Zlib, that will happen elsewhere
+		if test "${proj}" = "zlib"; then
+			continue
+		fi
+
+		ARCHS="${ARCHS} ${projlibfiles}"
 	done
 
 	AC_SUBST(ARCHS)
+	AC_SUBST(STRIPLIBS)
 ])
 
 AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
+	AC_CANONICAL_BUILD
 	AC_CANONICAL_HOST
   
 	AC_MSG_CHECKING(host operating system)
@@ -197,6 +244,7 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 	case $host_os in
 		mingw32*)
 			CFLAGS="${CFLAGS} -mno-cygwin -mms-bitfields"
+			WISH_CFLAGS="-mwindows"
 
 			dnl If we are building for Win32, we need to define "BUILD_tcl" so that
 			dnl TCL_STORAGE_CLASS gets defined as DLLEXPORT, to make static linking
@@ -206,8 +254,11 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
 			;;
 		cygwin*)
 			CFLAGS="${CFLAGS} -mms-bitfields"
+			WISH_CFLAGS="-mwindows"
 			;;
 	esac
+
+	AC_SUBST(WISH_CFLAGS)
 ])
 
 AC_DEFUN(DC_STATIC_LIBGCC, [
@@ -259,4 +310,165 @@ x = syminfo.dli_fname;
 			AC_MSG_RESULT([not found])
 		]
 	)
+])
+
+dnl Usage:
+dnl    DC_TEST_SHOBJFLAGS(shobjflags, shobjldflags, action-if-not-found)
+dnl
+AC_DEFUN(DC_TEST_SHOBJFLAGS, [
+  AC_SUBST(SHOBJFLAGS)
+  AC_SUBST(SHOBJLDFLAGS)
+
+  OLD_LDFLAGS="$LDFLAGS"
+  SHOBJFLAGS=""
+
+  LDFLAGS="$OLD_LDFLAGS $1 $2"
+
+  AC_TRY_LINK([#include <stdio.h>
+int unrestst(void);], [ printf("okay\n"); unrestst(); return(0); ], [ SHOBJFLAGS="$1"; SHOBJLDFLAGS="$2" ], [
+  LDFLAGS="$OLD_LDFLAGS"
+  $3
+])
+
+  LDFLAGS="$OLD_LDFLAGS"
+])
+
+AC_DEFUN(DC_GET_SHOBJFLAGS, [
+  AC_SUBST(SHOBJFLAGS)
+  AC_SUBST(SHOBJLDFLAGS)
+
+  AC_MSG_CHECKING(how to create shared objects)
+
+  if test -z "$SHOBJFLAGS" -a -z "$SHOBJLDFLAGS"; then
+    DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-shared -rdynamic], [
+      DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-shared], [
+        DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-shared -rdynamic -mimpure-text], [
+          DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-shared -mimpure-text], [
+            DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-shared -rdynamic -Wl,-G,-z,textoff], [
+              DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-shared -Wl,-G,-z,textoff], [
+                DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-shared -dynamiclib -flat_namespace -undefined suppress -bind_at_load], [
+                  DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-dynamiclib -flat_namespace -undefined suppress -bind_at_load], [
+                    DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-Wl,-dynamiclib -Wl,-flat_namespace -Wl,-undefined,suppress -Wl,-bind_at_load], [
+                      DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-dynamiclib -flat_namespace -undefined suppress], [
+                        DC_TEST_SHOBJFLAGS([-fPIC -DPIC], [-dynamiclib], [
+                          AC_MSG_RESULT(cant)
+                          AC_MSG_ERROR([We are unable to make shared objects.])
+                        ])
+                      ])
+                    ])
+                  ])
+                ])
+              ])
+            ])
+          ])
+        ])
+      ])
+    ])
+  fi
+
+  AC_MSG_RESULT($SHOBJLDFLAGS $SHOBJFLAGS)
+])
+
+AC_DEFUN(DC_CHK_OS_INFO, [
+	AC_CANONICAL_BUILD
+	AC_CANONICAL_HOST
+
+	AC_SUBST(SHOBJEXT)
+	AC_SUBST(AREXT)
+        AC_SUBST(SHOBJFLAGS)
+        AC_SUBST(SHOBJLDFLAGS)
+
+        AC_MSG_CHECKING(host operating system)
+        AC_MSG_RESULT($host_os)
+
+	SHOBJEXT="so"
+	AREXT="a"
+
+        case $host_os in
+                darwin*)
+			SHOBJEXT="dylib"
+                        ;;
+		hpux*)
+			SHOBJEXT="sl"
+			;;
+		mingw*)
+			SHOBJEXT="dll"
+			SHOBJFLAGS="-mno-cygwin -mms-bitfields -DPIC"
+			SHOBJLDFLAGS='-shared -Wl,--dll -Wl,--enable-auto-image-base -Wl,--output-def,$[@].def,--out-implib,$[@].a -Wl,--export-all-symbols -Wl,--add-stdcall-alias'
+			;;
+	esac
+])
+
+AC_DEFUN(DC_TEST_WHOLE_ARCHIVE_SHARED_LIB, [
+
+	SAVE_LIBS="${LIBS}"
+
+	LIBS="${WHOLEARCHIVE} $1 ${NOWHOLEARCHIVE} ${SAVE_LIBS}"
+	AC_LINK_IFELSE(
+		AC_LANG_PROGRAM([[
+			]], [[
+			]]
+		),
+		[
+			LIBS="${SAVE_LIBS}"
+
+			$2
+		], [
+			LIBS="${SAVE_LIBS}"
+
+			$3
+		]
+	)
+])
+
+AC_DEFUN(DC_CHECK_FOR_WHOLE_ARCHIVE, [
+	AC_MSG_CHECKING([for how to link whole archive])
+
+	SAVE_CFLAGS="${CFLAGS}"
+
+	wholearchive=""
+
+	for check in "-Wl,--whole-archive -Wl,--no-whole-archive" "-Wl,-z,allextract -Wl,-z,defaultextract"; do
+		CFLAGS="${SAVE_CFLAGS} ${check}"
+
+		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []),
+			[
+				wholearchive="${check}"
+
+				break
+			]
+		)
+
+	done
+
+	CFLAGS="${SAVE_CFLAGS}"
+
+	if test -z "${wholearchive}"; then
+		AC_MSG_RESULT([not found])
+	else
+		AC_MSG_RESULT([${wholearchive}])
+
+		WHOLEARCHIVE=`echo "${wholearchive}" | cut -f 1 -d ' '`
+		NOWHOLEARCHIVE=`echo "${wholearchive}" | cut -f 2 -d ' '`
+	fi
+
+	AC_SUBST(WHOLEARCHIVE)
+	AC_SUBST(NOWHOLEARCHIVE)
+])
+
+AC_DEFUN(DC_SETLDRUNPATH, [
+	OLD_LDFLAGS="${LDFLAGS}"
+
+	for testldflags in "-Wl,-rpath -Wl,$1" "-Wl,-R -Wl,$1"; do
+		LDFLAGS="${OLD_LDFLAGS} ${testldflags}"
+		AC_TRY_LINK([#include <stdio.h>], [ return(0); ], [
+			LDRUNPATH="$LDRUNPATH $testldflags"
+
+			break
+		])
+	done
+
+	LDFLAGS="${OLD_LDFLAGS}"
+
+	AC_SUBST(LDRUNPATH)
 ])

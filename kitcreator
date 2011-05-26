@@ -22,7 +22,7 @@ if [ "$1" = "distclean" ]; then
 fi
 
 # Define the list of all packages, for cleaning purposes
-KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread kitdll"
+KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread"
 for pkg in ${KITCREATOR_ALLPKGS}; do
 	rm -f "${pkg}/build.log"
 	rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
@@ -65,6 +65,11 @@ if echo " ${KITCREATOR_PKGS} " | grep ' kitdll ' >/dev/null 2>/dev/null; then
 	KITTARGET="kitdll"
 fi
 
+# If the user manually requested "--enable-kitdll", make it so
+if echo "x $@ " | grep ' [-][-]enable-kitdll ' >/dev/null 2>/dev/null; then
+	KITTARGET="kitdll"
+fi
+
 ## If building KitDLL and Tk, must do Tk statically
 ### (Well, we don't HAVE to, but it would defeat much of the purpose)
 if [ "${KITTARGET}" = "kitdll" ]; then
@@ -102,7 +107,7 @@ export KITCREATOR_ICON KITCREATOR_RC
 
 failedpkgs=""
 buildfailed="0"
-for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} "${KITTARGET}"; do
+for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 	echo -n "Building ${pkg} ..."
 
 	failed="0"
@@ -139,7 +144,7 @@ if [ "${buildfailed}" != "0" ]; then
 	echo 'WARNING: Build is likely incomplete or failed.' >&2
 fi
 
-cp 'kitdll/build'/kitdll-*/libtclkit* . >/dev/null 2>/dev/null
+cp 'kitsh/build'/kitsh-*/libtclkit* . >/dev/null 2>/dev/null
 cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}" >/dev/null 2>/dev/null
 
 exit "${buildfailed}"

@@ -8,12 +8,56 @@ AC_PROG_INSTALL
 AC_AIX
 AC_GNU_SOURCE
 
+dnl Find out if we should build a DLL or an Executable
+TARGET="tclkit"
+EXTRA_KIT_DEPS=""
+AC_MSG_CHECKING([what target to build])
+AC_ARG_ENABLE(kitdll, AC_HELP_STRING([--enable-kitdll], [Enable building KitDLL instead of Tclkit (default: no)]), [
+	AS_CASE([$enableval],
+		[yes|kitdll], [
+			TARGET="kitdll"
+		],
+		no, [
+			true
+		], [
+			AC_MSG_RESULT([unknown])
+
+			AC_MSG_ERROR([Invalid option: $enableval])
+		]
+	)
+])
+AC_MSG_RESULT([$TARGET])
+
 dnl Find the appropriate libraries to link to
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
 AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl)!]) ])
 
-dnl Figure out how to statically link to libgcc, if needed
-DC_STATIC_LIBGCC
+AS_IF([test "$TARGET" = "tclkit"], [
+	dnl We have Tclkit
+
+	dnl Figure out how to statically link to libgcc, if needed
+	DC_STATIC_LIBGCC
+
+	dnl Specify local Appinit function
+	AC_DEFINE(TK_LOCAL_APPINIT, [TclKit_AppInit], [Tclkit appinit function])
+], [
+	dnl We have KitDLL
+
+	dnl Determine system information
+	DC_CHK_OS_INFO
+
+	dnl Determine how to create a shared object
+	DC_GET_SHOBJFLAGS
+
+	dnl Determine if we have "objcopy" available to weaken non-Tcl/Tk symbols
+	AC_CHECK_TOOL(OBJCOPY, objcopy, [:])
+
+	dnl Define KitDLL usage
+	AC_DEFINE([TCLKIT_DLL], [1], [Define if you are using a KitDLL rather than a Tclkit])
+])
+
+dnl Set linker rpath for tclsh/wish
+DC_SETLDRUNPATH([.])
 
 dnl Find the appropriate Tcl headers and libraries
 DC_DO_TCL
@@ -23,23 +67,26 @@ DC_FIND_TCLKIT_LIBS
 
 dnl Find extra objects we need to link as a part of "kit"
 AC_SUBST(EXTRA_OBJS)
+AC_SUBST(EXTRA_VFS_OBJS)
 
 dnl Check for Windows Resource Compiler
 AC_CHECK_TOOL([RC], [windres], [false])
 
 dnl If we found the resource compiler, add "kit.res.o" to our list of objects to build
 dnl (as long as the source for such an object exists)
-if ! test "$RC" = "false"; then
-	if test -f kit.rc; then
+AS_IF([test "$RC" != "false"], [
+	AS_IF([test -f kit.rc], [
 		EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
-	fi
-fi
+	])
+])
 
 dnl Check for Tcl features
 SAVE_LIBS="${LIBS}"
 LIBS="${ARCHS} ${LIBS}"
+
 dnl Determine if we have "Tcl_SetStartupScript" (8.6.x) or "TclSetStartupScriptPath" (8.4.x)
 AC_CHECK_FUNCS(Tcl_SetStartupScript TclSetStartupScriptPath)
+
 dnl Check for the ability to get the current system encoding
 AC_CHECK_FUNCS(Tcl_GetEncodingNameFromEnvironment Tcl_SetSystemEncoding)
 LIBS="${SAVE_LIBS}"
@@ -60,6 +107,8 @@ AC_ARG_WITH(zlib, AC_HELP_STRING([--with-zlib], [directory containing zlib]), [
 	CFLAGS="${CFLAGS} -I${with_zlib}/include -I${with_zlib}"
 	LDFLAGS="${LDFLAGS} -L${with_zlib}/lib -L${with_zlib}"
 ])
+
+dnl Only needed for Tclkit
 DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
 	DC_DO_STATIC_LINK_LIB(zlib, -lzlib,, [
 		AC_SEARCH_LIBS(inflate, z zlib,, [
@@ -70,37 +119,83 @@ DC_DO_STATIC_LINK_LIB(zlib, -lz,, [
 
 dnl Determine which storage mechanism to use
 AC_MSG_CHECKING([which Tclkit Storage mechanism to use])
-AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4}], [Use mk4 for storage (default: auto)]), [
-	case "$enableval" in
-		mk4)
-			AC_MSG_RESULT([mk4])
-			AC_DEFINE([KIT_STORAGE_MK4], [1], [Define if you are going to use Metakit4 for kit storage])
-			;;
-		zip)
-			AC_MSG_RESULT([zip])
-			AC_DEFINE([KIT_STORAGE_ZIP], [1], [Define if you are going to use ZIP for kit storage])
-			;;
-		yes)
+
+storage_mech="auto"
+AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4|cvfs}], [Specify storage mechanism to use for built-in VFS (default: auto)]), [
+	AS_CASE(["$enableval"],
+		mk4, [
+			storage_mech="mk4"
+		],
+		zip, [
+			storage_mech="zip"
+		],
+		cvfs, [
+			storage_mech="cvfs"
+		],
+		yes, [
 			# If they just want to enable kit storage, but nothing specifically, do nothing
-			AC_MSG_RESULT([auto])
-			;;
-		auto)
+			storage_mech="auto"
+		],
+		auto, [
 			# Auto is how it works by default
-			AC_MSG_RESULT([auto])
-			;;
-		no)
+			storage_mech="auto"
+		],
+		no, [
 			# You can't disable kit storage
 			AC_MSG_RESULT([fail])
 			AC_MSG_ERROR([Kit Storage cannot be disabled])
-			;;
-		*)
+		],
+		[
 			AC_MSG_RESULT([fail])
 			AC_MSG_ERROR([Unknown kit storage type: $enableval])
-			;;
-	esac
-], [
-	AC_MSG_RESULT([auto])
+		]
+	)
 ])
 
+dnl Explicitly define the storage mechanism
+AS_IF([test "$storage_mech" = "auto"], [
+	AS_IF([test "$TARGET" = 'tclkit'], [
+		AS_IF([test "x$kc_cv_feature_kit_includes_mk4tcl" = 'x1'], [
+			storage_mech="mk4"
+		], [
+			storage_mech="zip"
+		])
+	], [
+		storage_mech="cvfs"
+	])
+])
+
+dnl Note result
+AC_MSG_RESULT([$storage_mech])
+
+dnl Define appropriate macros for the storage mechanism
+AS_CASE([$storage_mech],
+	mk4, [
+		AC_DEFINE([KIT_STORAGE_MK4], [1], [Define if you are going to use Metakit4 for kit storage])
+	],
+	zip, [
+		AC_DEFINE([KIT_STORAGE_ZIP], [1], [Define if you are going to use ZIP for kit storage])
+
+		dnl Add appropriate dependencies
+		EXTRA_KIT_DEPS="zipvfs.tcl.h"
+	],
+	cvfs, [
+		AC_DEFINE([KIT_STORAGE_CVFS], [1], [Define if you are going to use C-VFS for kit storage])
+
+		dnl Define that C-VFS should be make [load]-able
+		AC_DEFINE([CVFS_MAKE_LOADABLE], [1], [Specify that the C-VFS should be able to be loaded])
+
+		dnl Add appropriate dependencies
+		EXTRA_KIT_DEPS="cvfs.tcl.h"
+		EXTRA_VFS_OBJS="${EXTRA_VFS_OBJS} cvfs_data_tcl.o"
+	]
+)
+
+AC_SUBST(EXTRA_KIT_DEPS)
+
+dnl Put correct Makefile template in place
+rm -f Makefile.in
+cp Makefile.${TARGET}.in Makefile.in
+
 dnl Produce output
-AC_OUTPUT(Makefile)
+AC_OUTPUT(Makefile Makefile.common)

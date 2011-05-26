@@ -263,7 +263,7 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 					echo " *** Building KitDLL test driver (tclsh)"
 					echo ""
 
-					cd kitdll/build/kitdll-*/ || exit 1
+					cd kitsh/build/kitsh-*/ || exit 1
 					make tclsh
 					cp tclsh ../../../
 				) >> "${buildlog}" 2>&1

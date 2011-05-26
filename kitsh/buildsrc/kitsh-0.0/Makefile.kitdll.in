@@ -1,0 +1,21 @@
+OBJS = kitInit.o rechan.o pwb.o zlib.o
+
+# Default target
+all: libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
+
+-include Makefile.common
+
+## DLL Build
+libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_KIT_DEPS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) @WHOLEARCHIVE@ $(ARCHS) @NOWHOLEARCHIVE@ $(LIBS)
+	-for striplib in $(STRIPLIBS); do $(OBJCOPY) --weaken "$${striplib}"; done
+	-$(CC) $(CPPFLAGS) $(CFLAGS) -o libtclkit-good@KITDLL_LIB_VERSION@.@SHOBJEXT@ $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS) $(LDFLAGS) $(SHOBJLDFLAGS) @WHOLEARCHIVE@ $(ARCHS) @NOWHOLEARCHIVE@ $(LIBS) && mv libtclkit-good@KITDLL_LIB_VERSION@.@SHOBJEXT@ libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
+
+# Test driver
+tclsh.o: tclsh.c
+tclsh: tclsh.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ $(LDRUNPATH)
+
+wish.o: wish.c
+wish: wish.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(WISH_CFLAGS) -o wish wish.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ $(LDRUNPATH)
