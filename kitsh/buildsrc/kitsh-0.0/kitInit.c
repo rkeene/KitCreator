@@ -137,6 +137,7 @@ static char *preInitCmd =
 #endif /* _WIN32_WCE && !TCLKIT_DLL */
 "proc tclKitInit {} {\n"
 	"rename tclKitInit {}\n"
+	"catch { load {} vfs }\n"
 #ifdef KIT_INCLUDES_ZLIB
 	"catch { load {} zlib }\n"
 #endif
@@ -155,6 +156,8 @@ static char *preInitCmd =
 			"set s [read $f]\n"
 			"close $f\n"
 		"}\n"
+	"} else {\n"
+		"set ::TCLKIT_INITVFS 1\n"
 	"}\n"
 #ifdef KIT_STORAGE_MK4
 	"set ::tclKitStorage \"mk4\"\n"
@@ -173,7 +176,6 @@ static char *preInitCmd =
 #endif /* KIT_STORAGE_MK4 */
 #ifdef KIT_STORAGE_ZIP
 	"set ::tclKitStorage \"zip\"\n"
-	"catch { load {} vfs }\n"
 	"if {![info exists s]} {\n"
 #  include "zipvfs.tcl.h"
 		"catch {\n"
@@ -187,7 +189,6 @@ static char *preInitCmd =
 #ifdef KIT_STORAGE_CVFS
 	"set ::tclKitStorage \"cvfs\"\n"
 	"load {} rechan\n"
-	"load {} vfs\n"
 	"load {} cvfs_data_tcl\n"
 #include "cvfs.tcl.h"
 	"if {![info exists s]} {\n"
@@ -386,7 +387,6 @@ static void _Tclkit_Interp_Init(Tcl_Interp *interp) {
 	Tcl_SetVar(interp, "tcl_rcFileName", "~/.tclkitrc", TCL_GLOBAL_ONLY);
 #  endif /* _WIN32 */
 #endif /* !TCLKIT_DLL */
-	Tcl_SetVar(interp, "TCLKIT_INITVFS", "1", TCL_GLOBAL_ONLY);
 
 #ifdef TCLKIT_CAN_SET_ENCODING
 	/* Set the encoding from the Environment */

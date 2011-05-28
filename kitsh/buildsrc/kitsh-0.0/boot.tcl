@@ -14,10 +14,6 @@ proc tclInit {} {
 
 	# the following code only gets executed once on startup
 	if {[info exists ::TCLKIT_INITVFS]} {
-		catch {
-			load {} vfs
-		}
-
 		# lookup and emulate "source" of lib/vfs/{vfs*.tcl,mk4vfs.tcl}
 		switch -- $::tclKitStorage {
 			"mk4" {
@@ -137,6 +133,11 @@ proc tclInit {} {
 		set tcl_libPath [list $tcl_library [file join $mountpoint lib]]
 
 		vfs::filesystem mount $mountpoint $vfsHandler
+
+		# This loads everything needed for "clock scan" to work
+		# "clock scan" is used within "vfs::zip", which may be
+		# loaded before this is run causing the root VFS to break
+		catch { clock scan }
 	}
   
 	# load config settings file if present
@@ -148,11 +149,6 @@ proc tclInit {} {
   
 	# reset auto_path, so that init.tcl's search outside of tclkit is cancelled
 	set auto_path $tcl_libPath
-
-	# This loads everything needed for "clock scan" to work
-	# "clock scan" is used within "vfs::zip", which may be
-	# loaded before this is run causing the root VFS to break
-	catch { clock scan }
 
 	if {$::TCLKIT_TYPE == "kitdll"} {
 		# Set a maximum seek to avoid reading the entire file looking for a
@@ -168,7 +164,7 @@ proc tclInit {} {
 			catch {
 				vfs::zip::Mount $::tclKitFilename "/.KITDLL_USER"
 
-				lappend auto_path [file normalize "/.KITDLL_USER/lib"]
+				lappend auto_path "/.KITDLL_USER/lib"
 			}
 		}
 
@@ -177,10 +173,9 @@ proc tclInit {} {
 			catch {
 				vfs::zip::Mount [info nameofexecutable] "/.KITDLL_APP"
 
-				lappend auto_path [file normalize "/.KITDLL_APP/lib"]
+				lappend auto_path "/.KITDLL_APP/lib"
 			}
 		}
-
 	}
 
 	# Clean up
