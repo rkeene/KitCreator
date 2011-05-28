@@ -26,13 +26,22 @@ mkdir 'build' 'out' 'inst' || exit 1
 if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
+	use_fossil='0'
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
+		use_fossil='1'
+
 		CVSTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
 		if [ "${CVSTAG}" = "HEAD" ]; then
 			CVSTAG="trunk"
 		fi
-		export CVSTAG
+	elif echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
+		use_fossil='1'
 
+		CVSTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
+	fi
+	export CVSTAG
+
+	if [ "${use_fossil}" = "1" ]; then
 		(
 			cd src || exit 1
 
