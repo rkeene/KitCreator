@@ -30,16 +30,16 @@ if [ ! -f "${SRC}" ]; then
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
 		use_fossil='1'
 
-		CVSTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
-		if [ "${CVSTAG}" = "HEAD" ]; then
-			CVSTAG="trunk"
+		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
+		if [ "${FOSSILTAG}" = "HEAD" ]; then
+			FOSSILTAG="trunk"
 		fi
 	elif echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
 		use_fossil='1'
 
-		CVSTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
+		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
 	fi
-	export CVSTAG
+	export FOSSILTAG
 
 	if [ "${use_fossil}" = "1" ]; then
 		(
@@ -51,10 +51,10 @@ if [ ! -f "${SRC}" ]; then
 			mkdir "${workdir}" || exit 1
 			cd "${workdir}" || exit 1
 
-			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tcl.tar.gz'
-			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-itcl.tar.gz'
-			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-thread.tar.gz"
-			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${CVSTAG}" || rm -f "tmp-tclconfig.tar.gz"
+			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-tcl.tar.gz'
+			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-itcl.tar.gz'
+			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f "tmp-thread.tar.gz"
+			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f "tmp-tclconfig.tar.gz"
 
 			gzip -dc 'tmp-tcl.tar.gz' | tar -xf -
 			gzip -dc "tmp-itcl.tar.gz" | tar -xf -

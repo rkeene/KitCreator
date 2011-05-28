@@ -38,16 +38,16 @@ if [ ! -f "${SRC}" ]; then
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
 		use_fossil='1'
 
-		CVSTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
-		if [ "${CVSTAG}" = "HEAD" ]; then
-			CVSTAG="trunk"
+		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
+		if [ "${FOSSILTAG}" = "HEAD" ]; then
+			FOSSILTAG="trunk"
 		fi
 	elif echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
 		use_fossil='1'
 
-		CVSTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
+		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
 	fi
-	export CVSTAG
+	export FOSSILTAG
 
 	if [ "${use_fossil}" = "1" ]; then
 		(       
@@ -59,10 +59,10 @@ if [ ! -f "${SRC}" ]; then
 			mkdir "${workdir}" || exit 1
 			cd "${workdir}" || exit 1
 
-			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-${CVSTAG}.tar.gz?uuid=${CVSTAG}" || rm -f 'tmp-tk.tar.gz'
+			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-tk.tar.gz'
 			gzip -dc "tmp-tk.tar.gz" | tar -xf -
 
-			mv "tk-${CVSTAG}" "tk${TCLVERS}"
+			mv "tk-fossil" "tk${TCLVERS}"
                         
 			tar -cf - "tk${TCLVERS}" | gzip -c > "../../${SRC}"
 
