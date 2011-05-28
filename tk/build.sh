@@ -20,6 +20,10 @@ INSTDIR="$(pwd)/inst"
 PATCHSCRIPTDIR="$(pwd)/patchscripts"
 export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR PATCHSCRIPTDIR
 
+# Must be kept in-sync with "../tcl/build.sh"
+TCLFOSSILDATE="../tcl/src/tcl${TCLVERS}.tar.gz.date"
+export TCLFOSSILDATE
+
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
 
@@ -37,20 +41,14 @@ if [ ! -f "${SRC}" ]; then
 	use_fossil='0'
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
 		use_fossil='1'
-
-		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
-		if [ "${FOSSILTAG}" = "HEAD" ]; then
-			FOSSILTAG="trunk"
-		fi
 	elif echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
 		use_fossil='1'
-
-		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
 	fi
-	export FOSSILTAG
 
 	if [ "${use_fossil}" = "1" ]; then
 		(       
+			FOSSILDATE="$(cat "${TCLFOSSILDATE}" 2>/dev/null)"
+
 			cd src || exit 1
 
 			workdir="tmp-$$${RANDOM}${RANDOM}${RANDOM}"
@@ -59,7 +57,7 @@ if [ ! -f "${SRC}" ]; then
 			mkdir "${workdir}" || exit 1
 			cd "${workdir}" || exit 1
 
-			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-tk.tar.gz'
+			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f 'tmp-tk.tar.gz'
 			gzip -dc "tmp-tk.tar.gz" | tar -xf -
 
 			mv "tk-fossil" "tk${TCLVERS}"

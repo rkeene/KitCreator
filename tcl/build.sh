@@ -51,17 +51,34 @@ if [ ! -f "${SRC}" ]; then
 			mkdir "${workdir}" || exit 1
 			cd "${workdir}" || exit 1
 
+			# Handle Tcl first, since it will be used to base other packages on
 			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-tcl.tar.gz'
-			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-itcl.tar.gz'
-			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f "tmp-thread.tar.gz"
-			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f "tmp-tclconfig.tar.gz"
-
 			gzip -dc 'tmp-tcl.tar.gz' | tar -xf -
+			mv "tcl-fossil" "tcl${TCLVERS}"
+
+			# Determine date of this Tcl release and use that date for all other dependent packages
+			## Unless the release we are talking about is "trunk", in which case we use that everywhere
+			if [ "${FOSSILTAG}" = "trunk" ]; then
+				FOSSILDATE="${FOSSILTAG}"
+			else
+				FOSSILDATE="$(echo 'cd "tcl'"${TCLVERS}"'"; set file [lindex [glob *] 0]; file stat $file finfo; set date $finfo(mtime); set date [expr {$date + 1}]; puts [clock format $date -format {%Y-%m-%dT%H:%M:%S}]' | TZ='UTC' "${TCLSH_NATIVE}")"
+			fi
+
+			## If we are unable to determine the modification date, fall-back to the tag and hope for the best
+			if [ -z "${FOSSILDATE}" ]; then
+				FOSSILDATE="${FOSSILTAG}"
+			fi
+
+			# Handle other packages
+			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f 'tmp-itcl.tar.gz'
+			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-thread.tar.gz"
+			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-tclconfig.tar.gz"
+
 			gzip -dc "tmp-itcl.tar.gz" | tar -xf -
 			gzip -dc "tmp-thread.tar.gz" | tar -xf -
 			gzip -dc "tmp-tclconfig.tar.gz" | tar -xf -
 
-			mv "tcl-fossil" "tcl${TCLVERS}"
+			mkdir -p "tcl${TCLVERS}/pkgs/" >/dev/null 2>/dev/null
 			mv "itcl-fossil" "tcl${TCLVERS}/pkgs/itcl"
 			mv "thread-fossil" "tcl${TCLVERS}/pkgs/thread"
 			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/itcl/tclconfig"
@@ -69,6 +86,7 @@ if [ ! -f "${SRC}" ]; then
 			mv "tclconfig-fossil" "tcl${TCLVERS}/tclconfig"
 
 			tar -cf - "tcl${TCLVERS}" | gzip -c > "../../${SRC}"
+			echo "${FOSSILDATE}" > "../../${SRC}.date"
 
 			cd ..
 
@@ -137,8 +155,8 @@ fi
 			# Work with Tcl 8.6.x's TCLSH_NATIVE solution for
 			# cross-compile installs
 
-			echo "Running: ${MAKE:-make} install TCLSH_NATIVE=\"${TCLKIT:-tclkit}\""
-			${MAKE:-make} install TCLSH_NATIVE="${TCLKIT:-tclkit}"
+			echo "Running: ${MAKE:-make} install TCLSH_NATIVE=\"${TCLSH_NATIVE}\""
+			${MAKE:-make} install TCLSH_NATIVE="${TCLSH_NATIVE}"
 		) || (
 			# Make install can fail if cross-compiling using Tcl 8.5.x
 			# because the Makefile calls "$(TCLSH)".  We can't simply
@@ -147,8 +165,8 @@ fi
 			cat Makefile.new > Makefile
 			rm -f Makefile.new
 
-			echo "Running: ${MAKE:-make} install TCLSH=\"../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")\""
-			${MAKE:-make} install TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
+			echo "Running: ${MAKE:-make} install TCLSH=\"../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")\""
+			${MAKE:-make} install TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")"
 		) || (
 			# Make install can fail if cross-compiling using Tcl 8.5.9
 			# because the Makefile calls "${TCL_EXE}".  We can't simply
@@ -157,8 +175,8 @@ fi
 			cat Makefile.new > Makefile
 			rm -f Makefile.new
 
-			echo "Running: ${MAKE:-make} install TCL_EXE=\"../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")\""
-			${MAKE:-make} install TCL_EXE="../../../../../../../../../../../../../../../../../$(which "${TCLKIT:-tclkit}")"
+			echo "Running: ${MAKE:-make} install TCL_EXE=\"../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")\""
+			${MAKE:-make} install TCL_EXE="../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")"
 		) || exit 1
 
 		mkdir "${OUTDIR}/lib" || exit 1
