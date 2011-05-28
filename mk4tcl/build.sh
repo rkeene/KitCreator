@@ -88,6 +88,7 @@ fi
 		tryopts="--disable-shared"
 	fi
 
+	SAVE_CXXFLAGS="${CXXFLAGS}"
 	for tryopt in $tryopts __fail__; do
 		# Clean up, if needed
 		make distclean >/dev/null 2>/dev/null
@@ -102,6 +103,13 @@ fi
 			isshared="1"
 		else
 			isshared="0"
+		fi
+
+		# If build a static Mk4tcl for KitDLL, ensure that we use PIC
+		# so that it can be linked into the shared object
+		if [ "${isshared}" = "0" -a "${KITTARGET}" = "kitdll" ]; then
+			CXXFLAGS="${SAVE_CXXFLAGS} -fPIC"
+			export CXXFLAGS
 		fi
 
 		(

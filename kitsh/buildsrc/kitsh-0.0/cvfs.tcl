@@ -2,45 +2,45 @@
 
 package require vfs
 
-namespace eval ::vfs::kitdll {}
+namespace eval ::vfs::cvfs {}
 
 # Convience functions
-proc ::vfs::kitdll::Mount {hashkey local} {
-	vfs::filesystem mount $local [list ::vfs::kitdll::vfshandler $hashkey]
+proc ::vfs::cvfs::Mount {hashkey local} {
+	vfs::filesystem mount $local [list ::vfs::cvfs::vfshandler $hashkey]
 	catch {
-		vfs::RegisterMount $local [list ::vfs::kitdll::Unmount]
+		vfs::RegisterMount $local [list ::vfs::cvfs::Unmount]
 	}
 }
 
-proc ::vfs::kitdll::Unmount {local} {
+proc ::vfs::cvfs::Unmount {local} {
 	vfs::filesystem unmount $local
 }
 
 # Implementation
 ## I/O Handlers (pass to appropriate hashkey)
-namespace eval ::vfs::kitdll::data {}
-proc ::vfs::kitdll::data::getChildren args {
+namespace eval ::vfs::cvfs::data {}
+proc ::vfs::cvfs::data::getChildren args {
 	set hashkey [lindex $args 0]
 
-	set cmd "::vfs::kitdll::data::${hashkey}::getChildren"
+	set cmd "::vfs::cvfs::data::${hashkey}::getChildren"
 	set cmd [linsert $args 0 $cmd]
 
 	eval $cmd
 }
 
-proc ::vfs::kitdll::data::getMetadata args {
+proc ::vfs::cvfs::data::getMetadata args {
 	set hashkey [lindex $args 0]
 
-	set cmd "::vfs::kitdll::data::${hashkey}::getMetadata"
+	set cmd "::vfs::cvfs::data::${hashkey}::getMetadata"
 	set cmd [linsert $args 0 $cmd]
 
 	eval $cmd
 }
 
-proc ::vfs::kitdll::data::getData args {
+proc ::vfs::cvfs::data::getData args {
 	set hashkey [lindex $args 0]
 
-	set cmd "::vfs::kitdll::data::${hashkey}::getData"
+	set cmd "::vfs::cvfs::data::${hashkey}::getData"
 	set cmd [linsert $args 0 $cmd]
 
 	eval $cmd
@@ -48,38 +48,38 @@ proc ::vfs::kitdll::data::getData args {
 
 ## VFS and Chan I/O
 ### Dispatchers
-proc ::vfs::kitdll::vfshandler {hashkey subcmd args} {
+proc ::vfs::cvfs::vfshandler {hashkey subcmd args} {
 	set cmd $args
-	set cmd [linsert $cmd 0 "::vfs::kitdll::vfsop_${subcmd}" $hashkey]
+	set cmd [linsert $cmd 0 "::vfs::cvfs::vfsop_${subcmd}" $hashkey]
 
 	return [eval $cmd]
 }
 
-proc ::vfs::kitdll::chanhandler {hashkey subcmd args} {
+proc ::vfs::cvfs::chanhandler {hashkey subcmd args} {
 	set cmd $args
-	set cmd [linsert $cmd 0 "::vfs::kitdll::chanop_${subcmd}" $hashkey]
+	set cmd [linsert $cmd 0 "::vfs::cvfs::chanop_${subcmd}" $hashkey]
 
 	return [eval $cmd]
 }
 
 ### Actual handlers
 #### Channel operation handlers
-proc ::vfs::kitdll::chanop_initialize {hashkey chanId mode} {
+proc ::vfs::cvfs::chanop_initialize {hashkey chanId mode} {
 	return [list initialize finalize watch read seek]
 }
 
-proc ::vfs::kitdll::chanop_finalize {hashkey chanId} {
-	unset -nocomplain ::vfs::kitdll::chandata([list $hashkey $chanId])
+proc ::vfs::cvfs::chanop_finalize {hashkey chanId} {
+	unset -nocomplain ::vfs::cvfs::chandata([list $hashkey $chanId])
 
 	return
 }
 
-proc ::vfs::kitdll::chanop_watch {hashkey chanId eventSpec} {
-	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
+proc ::vfs::cvfs::chanop_watch {hashkey chanId eventSpec} {
+	array set chaninfo $::vfs::cvfs::chandata([list $hashkey $chanId])
 
 	set chaninfo(watching) $eventSpec
 
-	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
+	set ::vfs::cvfs::chandata([list $hashkey $chanId]) [array get chaninfo]
 
 	if {[lsearch -exact $chaninfo(watching) "read"] != -1} {
 		after 0 [list catch "chan postevent $chanId [list {read}]"]
@@ -88,8 +88,8 @@ proc ::vfs::kitdll::chanop_watch {hashkey chanId eventSpec} {
 	return
 }
 
-proc ::vfs::kitdll::chanop_read {hashkey chanId bytes} {
-	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
+proc ::vfs::cvfs::chanop_read {hashkey chanId bytes} {
+	array set chaninfo $::vfs::cvfs::chandata([list $hashkey $chanId])
 
 	set pos $chaninfo(pos)
 	set len $chaninfo(len)
@@ -107,20 +107,20 @@ proc ::vfs::kitdll::chanop_read {hashkey chanId bytes} {
 		set end $len
 	}
 
-	set data [::vfs::kitdll::data::getData $hashkey $chaninfo(file) $pos $end]
+	set data [::vfs::cvfs::data::getData $hashkey $chaninfo(file) $pos $end]
 
 	set dataLen [string length $data]
 	incr pos $dataLen
 
 	set chaninfo(pos) $pos
 
-	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
+	set ::vfs::cvfs::chandata([list $hashkey $chanId]) [array get chaninfo]
 
 	return $data
 }
 
-proc ::vfs::kitdll::chanop_seek {hashkey chanId offset origin} {
-	array set chaninfo $::vfs::kitdll::chandata([list $hashkey $chanId])
+proc ::vfs::cvfs::chanop_seek {hashkey chanId offset origin} {
+	array set chaninfo $::vfs::cvfs::chandata([list $hashkey $chanId])
 
 	set pos $chaninfo(pos)
 	set len $chaninfo(len)
@@ -146,15 +146,15 @@ proc ::vfs::kitdll::chanop_seek {hashkey chanId offset origin} {
 	}
 
 	set chaninfo(pos) $pos
-	set ::vfs::kitdll::chandata([list $hashkey $chanId]) [array get chaninfo]
+	set ::vfs::cvfs::chandata([list $hashkey $chanId]) [array get chaninfo]
 
 	return $pos
 }
 
 #### VFS operation handlers
-proc ::vfs::kitdll::vfsop_stat {hashkey root relative actualpath} {
+proc ::vfs::cvfs::vfsop_stat {hashkey root relative actualpath} {
 	catch {
-		set ret [::vfs::kitdll::data::getMetadata $hashkey $relative]
+		set ret [::vfs::cvfs::data::getMetadata $hashkey $relative]
 	}
 
 	if {![info exists ret]} {
@@ -164,8 +164,8 @@ proc ::vfs::kitdll::vfsop_stat {hashkey root relative actualpath} {
 	return $ret
 }
 
-proc ::vfs::kitdll::vfsop_access {hashkey root relative actualpath mode} {
-	set ret [::vfs::kitdll::data::getMetadata $hashkey $relative]
+proc ::vfs::cvfs::vfsop_access {hashkey root relative actualpath mode} {
+	set ret [::vfs::cvfs::data::getMetadata $hashkey $relative]
 
 	if {$mode & 0x2} {
 		vfs::filesystem posixerror $::vfs::posix(EROFS)
@@ -174,11 +174,11 @@ proc ::vfs::kitdll::vfsop_access {hashkey root relative actualpath mode} {
 	return 1
 }
 
-proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pattern types} {
+proc ::vfs::cvfs::vfsop_matchindirectory {hashkey root relative actualpath pattern types} {
 	set ret [list]
 
 	catch {
-		array set metadata [::vfs::kitdll::data::getMetadata $hashkey $relative]
+		array set metadata [::vfs::cvfs::data::getMetadata $hashkey $relative]
 	}
 
 	if {![info exists metadata]} {
@@ -188,7 +188,7 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 	if {$pattern == ""} {
 		set children [list $relative]
 	} else {
-		set children [::vfs::kitdll::data::getChildren $hashkey $relative]
+		set children [::vfs::cvfs::data::getChildren $hashkey $relative]
 	}
 
 	foreach child $children {
@@ -200,7 +200,7 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 
 		unset -nocomplain metadata
 		catch {
-			array set metadata [::vfs::kitdll::data::getMetadata $hashkey $child]
+			array set metadata [::vfs::cvfs::data::getMetadata $hashkey $child]
 		}
 
 		if {[string index $root end] == "/"} {
@@ -242,7 +242,7 @@ proc ::vfs::kitdll::vfsop_matchindirectory {hashkey root relative actualpath pat
 	return $ret
 }
 
-proc ::vfs::kitdll::vfsop_fileattributes {hashkey root relative actualpath {index -1} {value ""}} {
+proc ::vfs::cvfs::vfsop_fileattributes {hashkey root relative actualpath {index -1} {value ""}} {
 	set attrs [list -owner -group -permissions]
 
 	if {$value != ""} {
@@ -253,7 +253,7 @@ proc ::vfs::kitdll::vfsop_fileattributes {hashkey root relative actualpath {inde
 		return $attrs
 	}
 
-	array set metadata [::vfs::kitdll::data::getMetadata $hashkey $relative]
+	array set metadata [::vfs::cvfs::data::getMetadata $hashkey $relative]
 
 	set attr [lindex $attrs $index]
 
@@ -276,13 +276,13 @@ proc ::vfs::kitdll::vfsop_fileattributes {hashkey root relative actualpath {inde
 	return -code error "Invalid index"
 }
 
-proc ::vfs::kitdll::vfsop_open {hashkey root relative actualpath mode permissions} {
+proc ::vfs::cvfs::vfsop_open {hashkey root relative actualpath mode permissions} {
 	if {$mode != "" && $mode != "r"} {
 		vfs::filesystem posixerror $::vfs::posix(EROFS)
 	}
 
 	catch {
-		array set metadata [::vfs::kitdll::data::getMetadata $hashkey $relative]
+		array set metadata [::vfs::cvfs::data::getMetadata $hashkey $relative]
 	}
 
 	if {![info exists metadata]} {
@@ -294,9 +294,9 @@ proc ::vfs::kitdll::vfsop_open {hashkey root relative actualpath mode permission
 	}
 
 	if {[info command chan] != ""} {
-		set chan [chan create [list "read"] [list ::vfs::kitdll::chanhandler $hashkey]]
+		set chan [chan create [list "read"] [list ::vfs::cvfs::chanhandler $hashkey]]
 
-		set ::vfs::kitdll::chandata([list $hashkey $chan]) [list file $relative pos 0 len $metadata(size) watching ""]
+		set ::vfs::cvfs::chandata([list $hashkey $chan]) [list file $relative pos 0 len $metadata(size) watching ""]
 
 		return [list $chan]
 	}
@@ -308,9 +308,9 @@ proc ::vfs::kitdll::vfsop_open {hashkey root relative actualpath mode permission
 	}
 
 	if {[info command rechan] != ""} {
-		set chan [rechan [list ::vfs::kitdll::chanhandler $hashkey] 2]
+		set chan [rechan [list ::vfs::cvfs::chanhandler $hashkey] 2]
 
-		set ::vfs::kitdll::chandata([list $hashkey $chan]) [list file $relative pos 0 len $metadata(size) watching ""]
+		set ::vfs::cvfs::chandata([list $hashkey $chan]) [list file $relative pos 0 len $metadata(size) watching ""]
 
 		return [list $chan]
 	}
@@ -319,17 +319,17 @@ proc ::vfs::kitdll::vfsop_open {hashkey root relative actualpath mode permission
 }
 
 ##### No-Ops since we are a readonly filesystem
-proc ::vfs::kitdll::vfsop_createdirectory {args} {
+proc ::vfs::cvfs::vfsop_createdirectory {args} {
 	vfs::filesystem posixerror $::vfs::posix(EROFS)
 }
-proc ::vfs::kitdll::vfsop_deletefile {args} {
+proc ::vfs::cvfs::vfsop_deletefile {args} {
 	vfs::filesystem posixerror $::vfs::posix(EROFS)
 }
-proc ::vfs::kitdll::vfsop_removedirectory {args} {
+proc ::vfs::cvfs::vfsop_removedirectory {args} {
 	vfs::filesystem posixerror $::vfs::posix(EROFS)
 }
-proc ::vfs::kitdll::vfsop_utime {} {
+proc ::vfs::cvfs::vfsop_utime {} {
 	vfs::filesystem posixerror $::vfs::posix(EROFS)
 }
 
-package provide vfs::kitdll 1.0
+package provide vfs::cvfs 1.0

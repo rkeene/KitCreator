@@ -5,46 +5,83 @@ PATH="${PATH}:/home/rkeene/bin:/usr/local/bin"
 export PATH
 
 # Define build and web paths
-KITCREATORDIR="/home/rkeene/devel/kitcreator"
+KITCREATORFOSSIL="/web/customers/kitcreator.rkeene.org/repo/kitcreator.repo"
 WEBROOTDIR="/web/rkeene/devel/kitcreator/kitbuild"
-export KITCREATORDIR WEBROOTDIR
+MARKERFILE="/web/customers/kitcreator.rkeene.org/repo/__AUTO_TESTS_RUNNING__"
+TMPWORKDIR="${TMPDIR:-/var/tmp}/kitcreator-test-$$${RANDOM}${RANDOM}${RANDOM}"
+export KITCREATORFOSSIL WEBROOTDIR MARKERFILE TMPWORKDIR
 
-cd "${KITCREATORDIR}" || exit 1
-
-FOSSIL_CHANGE="$(fossil timeline -n 1 -t ci | grep '^[0-9:]* \[' | sed 's@^[0-9:]* \[\([0-9a-f]*\)\].*$@\1@')"
+# Determine change of fossil revision on trunk
+FOSSIL_CHANGE="$(fossil timeline --repository "${KITCREATORFOSSIL}" children trunk -n 1 -t ci | grep '^[0-9:]* \[' | sed 's@^[0-9:]* \[\([0-9a-f]*\)\].*$@\1@')"
 TESTNAME="fossil_${FOSSIL_CHANGE}"
 export FOSSIL_CHANGE TESTNAME
 
-# On Wednesday, do a distclean to force redownloading everything (mainly
-# for CVS Head) and force a rebuild to ensure up-to-date build status
-if [ "$(date '+%u')" = "3" ]; then
-	./kitcreator distclean || exit 1
+# Verify sanity
+issane=1
+if [ -z "${FOSSIL_CHANGE}" ]; then
+	echo "Unable to determine name of latest revision, likely missing Kitcreator Fossil Repo: ${KITCREATORFOSSIL}" >&2
 
-	touch "${KITCREATORDIR}/build/test/force_nightly"
+	issane=0
 fi
 
-if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
-	# Don't re-run the tests if nothing has changed
-	if [ -f "${KITCREATORDIR}/build/test/force_nightly" ]; then
-		rm -f "${KITCREATORDIR}/build/test/force_nightly"
-	else
+if [ ! -d "${WEBROOTDIR}" ]; then
+	echo "Missing Web Root Directory: ${WEBROOTDIR}" >&2
+
+	issane=0
+fi
+
+if [ "${issane}" = '0' ]; then
+	exit 1
+fi
+
+# On Wednesday, do a distclean to force redownloading everything (mainly
+# for CVS Head) and force a rebuild to ensure up-to-date build status
+if [ "$(date '+%u')" != "3" ]; then
+	if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
+		# Don't re-run the tests if nothing has changed
 		exit 0
 	fi
 fi
 
-cd build/test || exit 1
+# Only run one at a time
+if [ -f "${MARKERFILE}" ]; then
+	exit 1
+fi
+touch "${MARKERFILE}"
+
+# Change to temporary directory to build
+mkdir -p "${TMPWORKDIR}"
+chmod 700 "${TMPWORKDIR}"
+
+cd "${TMPWORKDIR}" || exit 1
+
+# Define clean-up handler
+function die () {
+	echo "$1" >&2
+
+	cd /
+
+	rm -rf "${TMPWORKDIR}"
+
+	exit 1
+}
+
+# Download latest tarball
+wget -O 'kitcreator-trunk-tip.tar.gz' -o /dev/null "http://kitcreator.rkeene.org/fossil/tarball/kitcreator-trunk-tip.tar.gz?uuid=${FOSSIL_CHANGE}"
+
+tar -xf kitcreator-trunk-tip.tar.gz || die 'Tarball Extraction Failed'
+
+cd kitcreator-trunk-tip || die 'Tarball Sanity Failed'
+
+# Prepare source
+./build/pre.sh >/dev/null 2>/dev/null
+
+# Start the tests
+cd build/test || die 'Missing test suite'
 
 if [ ! -x test -o ! -x publish-tests ]; then
-	echo 'Missing scripts, aborting.' >&2
-
-	exit 1
+	die 'Missing scripts, aborting.'
 fi
-
-# Only run one at a time
-if [ -f '__AUTO_TESTS_RUNNING__' ]; then
-	exit 1
-fi
-touch '__AUTO_TESTS_RUNNING__'
 
 # Clean builds
 rm -rf kits
@@ -58,7 +95,13 @@ rm -rf "${WEBROOTDIR}"/svn_r*/ "${WEBROOTDIR}"/fossil_*/
 # Publish New Results
 ./publish-tests "${TESTNAME}"
 
+# Create nightly symlink
+rm -f "${WEBROOTDIR}/nightly"
+ln -s "${TESTNAME}" "${WEBROOTDIR}/nightly"
+
 # Clean
-rm -f '__AUTO_TESTS_RUNNING__'
+rm -f "${MARKERFILE}"
+cd /
+rm -rf "${TMPWORKDIR}"
 
 exit 0

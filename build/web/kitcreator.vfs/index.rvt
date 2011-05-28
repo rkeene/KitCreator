@@ -1,0 +1,123 @@
+<?
+	set sourcedir "/web/rkeene/devel/kitcreator/all"
+	foreach file [glob -tails -nocomplain -directory $sourcedir "kitcreator-*.tar.gz"] {
+		regexp {^kitcreator-(.*).tar.gz$} $file -> vers
+		set kitcreator_versions($vers) $vers
+	}
+	set kitcreator_version_selected [lindex [lsort -dictionary [array names kitcreator_versions]] end]
+
+	set kitcreator_versions(trunk) "Fossil Trunk Tip"
+
+	set tcl_versions(8.4.19) 8.4.19
+	set tcl_versions(8.5.9) 8.5.9
+	set tcl_versions(cvs_HEAD) "Fossil Trunk Tip"
+
+	set platforms(linux-x86) "Linux on x86"
+	set platforms(linux-amd64) "Linux on amd64"
+	set platforms(linux-mipsel) "Linux on MIPSEL"
+	set platforms(windows-x86) "Windows on x86"
+
+	set disable {
+		platform linux-amd64 tk
+		platform linux-mipsel tk
+	}
+
+	set specific {
+		platform windows-x86 file icon {Kit Icon}
+		platform windows-x86 text description {Description}
+	}
+?><html>
+  <head>
+    <title>KitCreator, Web Interface</title>
+    <script>
+<!--
+	function verifyOptions() {
+		var kitcreator_version;
+		var tcl_version;
+		var platform;
+
+		kitcreator_version = document.getElementsByName('kitcreator_version')[0].value;
+		tcl_version = document.getElementsByName('tcl_version')[0].value;
+		platform = document.getElementsByName('platform')[0].value;
+
+	}
+-->
+    </script>
+  </head>
+  <body>
+    <h1>KitCreator Web Interface</h1>
+    <form method="post" enctype="multipart/form-data">
+      <table>
+        <tr>
+          <td>KitCreator Version:</td>
+          <td>
+            <select name="kitcreator_version" onChange="verifyOptions();">
+<?
+	foreach kitcreator_version [lsort -dictionary [array names kitcreator_versions]] {
+		set kitcreator_version_name $kitcreator_versions($kitcreator_version)
+
+		if {$kitcreator_version == $kitcreator_version_selected} {
+			set selected " selected"
+		} else {
+			set selected ""
+		}
+
+		puts "              <option value=\"${kitcreator_version}\"${selected}>${kitcreator_version_name}</option>"
+	}
+?>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Tcl Version:</td>
+          <td>
+            <select name="tcl_version" onChange="verifyOptions();">
+<?
+	foreach tcl_version [lsort -dictionary [array names tcl_versions]] {
+		set tcl_version_name $tcl_versions($tcl_version)
+		puts "              <option value=\"${tcl_version}\">${tcl_version_name}</option>"
+	}
+?>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Platform:</td>
+          <td>
+            <select name="platform" onChange="verifyOptions();">
+<?
+	foreach platform [lsort -dictionary [array names platforms]] {
+		set platform_name $platforms($platform)
+		puts "              <option value=\"${platform}\">${platform_name}</option>"
+	}
+?>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>Kit Options:</td>
+          <td>
+            <input type="checkbox" name="option_package_tk">Tk<br>
+            <input type="checkbox" name="option_package_itcl">[incr Tcl]<br>
+            <input type="checkbox" name="option_package_mk4tcl">Metakit<br>
+            <input type="checkbox" name="option_threaded">Threaded<br>
+            <input type="checkbox" name="option_kitdll">Build Library (KitDLL)<br>
+          </td>
+        </tr>
+        <tr>
+          <td>Kit Icon:</td>
+          <td>
+            <input type="file" name="platform-windows-x86-icon">
+          </td>
+        </tr>
+        <tr>
+          <td>Description:</td>
+          <td>
+            <input type="text" name="platform-windows-x86-desc">
+          </td>
+        </tr>
+      </table>
+      <input type="submit" name="submit" value="Create">
+    </form>
+  </body>
+</html>

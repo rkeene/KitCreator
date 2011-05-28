@@ -1,7 +1,7 @@
 #! /usr/bin/env tclsh
 
 if {[llength $argv] != 2} {
-	puts stderr "Usage: kitdll <hashkey> <startdir>"
+	puts stderr "Usage: dir2c.tcl <hashkey> <startdir>"
 
 	exit 1
 }
@@ -76,7 +76,7 @@ proc stringify {data} {
 }
 
 # This function must be kept in-sync with the generated C function below
-proc kitdll_hash {path} {
+proc cvfs_hash {path} {
 	set h 0
 	set g 0
 
@@ -103,8 +103,8 @@ set files [recursive_glob $startdir]
 set files [linsert $files 0 "__DUMMY__"]
 
 # Produce C89 compatible header
-set cpp_tag "KITDLL_[string toupper $hashkey]"
-set code_tag "kitdll_[string tolower $hashkey]"
+set cpp_tag "CVFS_[string toupper $hashkey]"
+set code_tag "cvfs_[string tolower $hashkey]"
 set hashkey [string tolower $hashkey]
 
 puts "#ifndef $cpp_tag"
@@ -125,23 +125,23 @@ puts {
 #    include <string.h>
 #  endif
 
-#  ifndef LOADED_KITDLL_COMMON
-#    define LOADED_KITDLL_COMMON 1
+#  ifndef LOADED_CVFS_COMMON
+#    define LOADED_CVFS_COMMON 1
 
 typedef enum {
-	KITDLL_FILETYPE_FILE,
-	KITDLL_FILETYPE_DIR
-} kitdll_filetype_t;
+	CVFS_FILETYPE_FILE,
+	CVFS_FILETYPE_DIR
+} cvfs_filetype_t;
 
-struct kitdll_data {
+struct cvfs_data {
 	const char *             name;
 	unsigned long            index;
 	unsigned long            size;
-	kitdll_filetype_t        type;
+	cvfs_filetype_t          type;
 	const unsigned char *    data;
 };
 
-static unsigned long kitdll_hash(const unsigned char *path) {
+static unsigned long cvfs_hash(const unsigned char *path) {
 	unsigned long i, h = 0, g = 0;
 
 	for (i = 0; path[i]; i++) {
@@ -156,10 +156,10 @@ static unsigned long kitdll_hash(const unsigned char *path) {
         return(h);
 }
 
-#  endif /* !LOADED_KITDLL_COMMON */}
+#  endif /* !LOADED_CVFS_COMMON */}
 puts ""
 
-puts "static struct kitdll_data ${code_tag}_data\[\] = {"
+puts "static struct cvfs_data ${code_tag}_data\[\] = {"
 puts "\t{"
 puts "\t\t.name  = NULL,"
 puts "\t\t.index = 0,"
@@ -176,7 +176,7 @@ for {set idx 1} {$idx < [llength $files]} {incr idx} {
 
 	switch -- $finfo(type) {
 		"file" {
-			set type "KITDLL_FILETYPE_FILE"
+			set type "CVFS_FILETYPE_FILE"
 			set size $finfo(size)
 
 			set fd [open $file]
@@ -187,7 +187,7 @@ for {set idx 1} {$idx < [llength $files]} {incr idx} {
 			set data "(unsigned char *) [stringify $data]"
 		}
 		"directory" {
-			set type "KITDLL_FILETYPE_DIR"
+			set type "CVFS_FILETYPE_DIR"
 			set data "NULL"
 			set size 0
 		}
@@ -205,12 +205,12 @@ puts "};"
 puts ""
 
 puts "static unsigned long ${code_tag}_lookup_index(const char *path) {"
-puts "\tswitch (kitdll_hash((unsigned char *) path)) {"
+puts "\tswitch (cvfs_hash((unsigned char *) path)) {"
 
 for {set idx 1} {$idx < [llength $files]} {incr idx} {
 	set file [lindex $files $idx]
 	set shortfile [shorten_file $startdir $file]
-	set hash [kitdll_hash $shortfile]
+	set hash [cvfs_hash $shortfile]
 
 	lappend indexes_per_hash($hash) [list $shortfile $idx]
 }
@@ -238,7 +238,7 @@ puts "\treturn(0);"
 puts "}"
 puts ""
 
-puts "static struct kitdll_data *${code_tag}_getData(const char *path, unsigned long index) {"
+puts "static struct cvfs_data *${code_tag}_getData(const char *path, unsigned long index) {"
 puts "\tif (path != NULL) {"
 puts "\t\tindex = ${code_tag}_lookup_index(path);"
 puts "\t}"
@@ -266,7 +266,7 @@ puts "\tif (index == 0) {"
 puts "\t\treturn(0);"
 puts "\t}"
 puts ""
-puts "\tif (${code_tag}_data\[index\].type != KITDLL_FILETYPE_DIR) {"
+puts "\tif (${code_tag}_data\[index\].type != CVFS_FILETYPE_DIR) {"
 puts "\t\treturn(0);"
 puts "\t}"
 puts ""
@@ -351,9 +351,9 @@ puts "\treturn(num_children);"
 puts "}"
 puts ""
 
-puts "#  ifdef KITDLL_MAKE_LOADABLE"
+puts "#  ifdef CVFS_MAKE_LOADABLE"
 
-set fd [open "vfs_kitdll_data.c"]
+set fd [open "cvfs_data.c"]
 puts [read $fd]
 close $fd
 
@@ -367,29 +367,29 @@ puts "\treturn(${code_tag}_getChildren);"
 puts "}"
 puts ""
 
-puts "int Vfs_kitdll_data_${hashkey}_Init(Tcl_Interp *interp) {"
+puts "int Cvfs_data_${hashkey}_Init(Tcl_Interp *interp) {"
 puts "\tTcl_Command tclCreatComm_ret;"
 puts "\tint tclPkgProv_ret;"
 puts ""
-puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::kitdll::data::${hashkey}::getMetadata\", getMetadata, NULL, NULL);"
+puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::cvfs::data::${hashkey}::getMetadata\", getMetadata, NULL, NULL);"
 puts "\tif (!tclCreatComm_ret) {"
 puts "\t\treturn(TCL_ERROR);"
 puts "\t}"
 puts ""
-puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::kitdll::data::${hashkey}::getData\", getData, NULL, NULL);"
+puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::cvfs::data::${hashkey}::getData\", getData, NULL, NULL);"
 puts "\tif (!tclCreatComm_ret) {"
 puts "\t\treturn(TCL_ERROR);"
 puts "\t}"
 puts ""
-puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::kitdll::data::${hashkey}::getChildren\", getChildren, NULL, NULL);"
+puts "\ttclCreatComm_ret = Tcl_CreateObjCommand(interp, \"::vfs::cvfs::data::${hashkey}::getChildren\", getChildren, NULL, NULL);"
 puts "\tif (!tclCreatComm_ret) {"
 puts "\t\treturn(TCL_ERROR);"
 puts "\t}"
 puts ""
-puts "\ttclPkgProv_ret = Tcl_PkgProvide(interp, \"vfs::kitdll::data::${hashkey}\", \"1.0\");"
+puts "\ttclPkgProv_ret = Tcl_PkgProvide(interp, \"vfs::cvfs::data::${hashkey}\", \"1.0\");"
 puts ""
 puts "\treturn(tclPkgProv_ret);"
 puts "\t}"
-puts "#  endif /* KITDLL_MAKE_LOADABLE */"
+puts "#  endif /* CVFS_MAKE_LOADABLE */"
 
 puts "#endif /* !$cpp_tag */"

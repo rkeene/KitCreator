@@ -4,24 +4,19 @@ proc tclInit {} {
 	global auto_path tcl_library tcl_libPath
 	global tcl_version tcl_rcFileName
   
-	set noe [info nameofexecutable]
+	set mountpoint [subst "$::TCLKIT_MOUNTPOINT_VAR"]
 
 	# Resolve symlinks
-	set noe [file dirname [file normalize [file join $noe __dummy__]]]
+	set mountpoint [file dirname [file normalize [file join $mountpoint __dummy__]]]
 
-	set tcl_library [file join $noe lib tcl$tcl_version]
-	set tcl_libPath [list $tcl_library [file join $noe lib]]
-
-	# get rid of a build residue
-	unset -nocomplain ::tclDefaultLibrary
+	set tcl_library [file join $mountpoint lib tcl$tcl_version]
+	set tcl_libPath [list $tcl_library [file join $mountpoint lib]]
 
 	# the following code only gets executed once on startup
-	if {[info exists tcl_rcFileName]} {
+	if {[info exists ::TCLKIT_INITVFS]} {
 		# lookup and emulate "source" of lib/vfs/{vfs*.tcl,mk4vfs.tcl}
 		switch -- $::tclKitStorage {
 			"mk4" {
-				load {} vfs
-
 				# must use raw MetaKit calls because VFS is not yet in place
 				set d [mk::select exe.dirs parent 0 name lib]
 				set d [mk::select exe.dirs parent $d name vfs]
@@ -74,10 +69,28 @@ proc tclInit {} {
 				set vfsHandler [list ::vfs::zip::handler $::tclKitStorage_fd]
 				unset ::tclKitStorage_fd
 			}
+			"cvfs" {
+				set vfsHandler [list ::vfs::cvfs::vfshandler tcl]
+
+				# Load these, the original Tclkit does so it should be safe.
+				foreach vfsfile [list vfsUtils vfslib] {
+					unset -nocomplain s
+
+					catch {
+						set s [::vfs::cvfs::data::getData tcl "lib/vfs/${vfsfile}.tcl"]
+					}
+
+					if {![info exists s]} {
+						continue
+					}
+
+					uplevel #0 $s
+				}
+			}
 		}
 
 		# mount the executable, i.e. make all runtime files available
-		vfs::filesystem mount $noe $vfsHandler
+		vfs::filesystem mount $mountpoint $vfsHandler
 
 		# alter path to find encodings
 		if {[info tclversion] eq "8.4"} {
@@ -94,7 +107,6 @@ proc tclInit {} {
 					encoding system $::tclkit_system_encoding
 				}
 			}
-			unset -nocomplain ::tclkit_system_encoding
 		}
 
 		# If we've still not been able to set the encoding, revert to Tclkit defaults
@@ -108,35 +120,68 @@ proc tclInit {} {
 			}
 		}
 
+		# Re-evaluate mountpoint with correct encoding set
+		set mountpoint [subst "$::TCLKIT_MOUNTPOINT_VAR"]
+
 		# now remount the executable with the correct encoding
 		vfs::filesystem unmount [lindex [::vfs::filesystem info] 0]
 
-		set noe [info nameofexecutable]
-
 		# Resolve symlinks
-		set noe [file dirname [file normalize [file join $noe __dummy__]]]
+		set mountpoint [file dirname [file normalize [file join $mountpoint __dummy__]]]
 
-		set tcl_library [file join $noe lib tcl$tcl_version]
-		set tcl_libPath [list $tcl_library [file join $noe lib]]
+		set tcl_library [file join $mountpoint lib tcl$tcl_version]
+		set tcl_libPath [list $tcl_library [file join $mountpoint lib]]
 
-		vfs::filesystem mount $noe $vfsHandler
+		vfs::filesystem mount $mountpoint $vfsHandler
+
+		# This loads everything needed for "clock scan" to work
+		# "clock scan" is used within "vfs::zip", which may be
+		# loaded before this is run causing the root VFS to break
+		catch { clock scan }
 	}
   
 	# load config settings file if present
 	namespace eval ::vfs { variable tclkit_version 1 }
-	catch { uplevel #0 [list source [file join $noe config.tcl]] }
+	catch { uplevel #0 [list source [file join $mountpoint config.tcl]] }
 
+	# Perform expected initialization
 	uplevel #0 [list source [file join $tcl_library init.tcl]]
   
 	# reset auto_path, so that init.tcl's search outside of tclkit is cancelled
 	set auto_path $tcl_libPath
 
-	# This loads everything needed for "clock scan" to work
-	# "clock scan" is used within "vfs::zip", which may be
-	# loaded before this is run causing the root VFS to break
-	catch { clock scan }
+	if {$::TCLKIT_TYPE == "kitdll"} {
+		# Set a maximum seek to avoid reading the entire file looking for a
+		# zip header
+		catch { 
+			package require vfs::zip
+			set ::zip::max_header_seek 8192
+		}
 
-	# Cleanup
-	unset ::tclKitStorage
-	unset -nocomplain ::tclKitStorage_fd
+		# Now that the initialization is complete, mount the user VFS if needed
+		## Mount the VFS from the Shared Object
+		if {[info exists ::TCLKIT_INITVFS] && [info exists ::tclKitFilename]} {
+			catch {
+				vfs::zip::Mount $::tclKitFilename "/.KITDLL_USER"
+
+				lappend auto_path "/.KITDLL_USER/lib"
+			}
+		}
+
+		## Mount the VFS from executable
+		if {[info exists ::TCLKIT_INITVFS]} {
+			catch {
+				vfs::zip::Mount [info nameofexecutable] "/.KITDLL_APP"
+
+				lappend auto_path "/.KITDLL_APP/lib"
+			}
+		}
+	}
+
+	# Clean up
+	unset -nocomplain ::zip::max_header_seek
+	unset -nocomplain ::TCLKIT_TYPE ::TCLKIT_INITVFS
+	unset -nocomplain ::TCLKIT_MOUNTPOINT ::TCLKIT_VFSSOURCE ::TCLKIT_MOUNTPOINT_VAR ::TCLKIT_VFSSOURCE_VAR
+	unset -nocomplain ::tclKitStorage ::tclKitStorage_fd ::tclKitFilename
+	unset -nocomplain ::tclkit_system_encoding
 }

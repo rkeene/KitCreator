@@ -4,7 +4,7 @@
 #  include <stdlib.h>
 #endif
 
-typedef struct kitdll_data *(cmd_getData_t)(const char *, unsigned long);
+typedef struct cvfs_data *(cmd_getData_t)(const char *, unsigned long);
 typedef unsigned long (cmd_getChildren_t)(const char *, unsigned long *, unsigned long);
 
 /* Your implementation must provide these */
@@ -15,7 +15,7 @@ static cmd_getChildren_t *getCmdChildren(const char *hashkey);
 static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
 	cmd_getData_t *cmd_getData;
 	cmd_getChildren_t *cmd_getChildren;
-	struct kitdll_data *finfo = NULL;
+	struct cvfs_data *finfo = NULL;
 	Tcl_Obj *ret_list, *ret_list_items[20];
 	unsigned long num_children;
 	const char *hashkey;
@@ -52,7 +52,7 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	ret_list_items[2] = Tcl_NewStringObj("mode", 4);
 	ret_list_items[4] = Tcl_NewStringObj("nlink", 5);
 
-	if (finfo->type == KITDLL_FILETYPE_DIR) {
+	if (finfo->type == CVFS_FILETYPE_DIR) {
 		num_children = cmd_getChildren(file, NULL, 0);
 
 		ret_list_items[1] = Tcl_NewStringObj("directory", 9);
@@ -94,7 +94,7 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 }
 
 static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-	struct kitdll_data *finfo = NULL;
+	struct cvfs_data *finfo = NULL;
 	cmd_getData_t *cmd_getData;
 	const char *hashkey;
 	const char *file;
@@ -150,7 +150,7 @@ static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST o
 		return(TCL_ERROR);
 	}
 
-	if (finfo->type != KITDLL_FILETYPE_FILE) {
+	if (finfo->type != CVFS_FILETYPE_FILE) {
 		Tcl_SetResult(interp, "Not a file", TCL_STATIC);
 
 		return(TCL_ERROR);
@@ -186,7 +186,7 @@ static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST o
 }
 
 static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
-	struct kitdll_data *finfo = NULL;
+	struct cvfs_data *finfo = NULL;
 	cmd_getChildren_t *cmd_getChildren;
 	cmd_getData_t *cmd_getData;
 	unsigned long num_children, idx;
@@ -222,7 +222,7 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 		return(TCL_ERROR);
 	}
 
-	if (finfo->type != KITDLL_FILETYPE_DIR) {
+	if (finfo->type != CVFS_FILETYPE_DIR) {
 		Tcl_SetResult(interp, "Not a directory", TCL_STATIC);
 
 		return(TCL_ERROR);
