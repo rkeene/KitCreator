@@ -61,9 +61,8 @@
 #  define KIT_INCLUDES_ZLIB 1
 #endif
 
-#ifdef KIT_INCLUDES_ITCL
-Tcl_AppInitProc	Itcl_Init;
-#endif
+#include "kitInit-libs.h"
+
 #ifdef KIT_INCLUDES_MK4TCL
 Tcl_AppInitProc	Mk4tcl_Init;
 #endif
@@ -341,9 +340,6 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 }
 
 static void _Tclkit_Generic_Init(void) {
-#ifdef KIT_INCLUDES_ITCL
-	Tcl_StaticPackage(0, "Itcl", Itcl_Init, NULL);
-#endif 
 #ifdef KIT_INCLUDES_MK4TCL
 	Tcl_StaticPackage(0, "Mk4tcl", Mk4tcl_Init, NULL);
 #endif
@@ -368,6 +364,8 @@ static void _Tclkit_Generic_Init(void) {
 #ifdef KIT_INCLUDES_TK
 	Tcl_StaticPackage(0, "Tk", Tk_Init, Tk_SafeInit);
 #endif
+
+	_Tclkit_GenericLib_Init();
 
 	TclSetPreInitScript(preInitCmd);
 

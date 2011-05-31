@@ -52,6 +52,7 @@ clean:
 	rm -f wish.o wish wish.exe
 
 distclean: clean
+	rm -f kitInit-libs.h
 	rm -f Makefile Makefile.in Makefile.common
 	rm -f config.status config.log
 	rm -f *~
