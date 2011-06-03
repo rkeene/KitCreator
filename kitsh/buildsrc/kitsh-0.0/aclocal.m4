@@ -160,16 +160,37 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	dnl We will need this for the Tcl project, which we will always have
 	DC_CHECK_FOR_WHOLE_ARCHIVE
 
-	for proj in mk4tcl tcl tclvfs tk zlib; do
-		AC_MSG_CHECKING([for libraries required for ${proj}])
+	echo '/* Dynamically generated. */' > kitInit-libs.h
+	libs_init_funcs=""
+
+	for projdir in ../../../*/; do
+		proj="`basename "${projdir}"`"
+
+		if test "${proj}" = "build"; then
+			continue
+		fi
+
+		if test "${proj}" = "kitsh"; then
+			continue
+		fi
 
 		projlibdir="../../../${proj}/inst"
+
+		if test -d "${projlibdir}"; then
+			true
+		else
+			continue
+		fi
+
+		AC_MSG_CHECKING([for libraries required for ${proj}])
+
 		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
 		projlibfilesnostub="`find "${projlibdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
 		AC_MSG_RESULT([${projlibfilesnostub}])
 
 		hide_symbols="1"
+		initialize="1"
 
 		if test "${proj}" = "tcl"; then
 			DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfilesnostub], [
@@ -181,6 +202,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			])
 
 			hide_symbols="0"
+			initialize="0"
 		fi
 
 		if test "${proj}" = "mk4tcl"; then
@@ -191,6 +213,8 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 				DC_DO_STATIC_LINK_LIBCXX
 			fi
+
+			initialize="0"
 		fi
 
 		if test "${proj}" = "tk"; then
@@ -216,6 +240,16 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 				hide_symbols="0"
 			fi
+
+			initialize="0"
+		fi
+
+		if test "${proj}" = "thread"; then
+			initialize="0"
+		fi
+
+		if test "${proj}" = "tclvfs"; then
+			initialize="0"
 		fi
 
 		if test "${hide_symbols}" = "1"; then
@@ -227,8 +261,30 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			continue
 		fi
 
+		if test "${initialize}" = "1"; then
+			if test -n "${projlibfilesnostub}"; then
+				projucase="`echo ${proj} | dd conv=ucase 2>/dev/null`"
+				projtcase="`echo ${projucase} | cut -c 1``echo ${proj} | cut -c 2-`"
+				lib_init_func="${projtcase}_Init"
+
+				echo "#define KIT_INCLUDES_${projucase}" >> kitInit-libs.h
+				echo "Tcl_AppInitProc ${lib_init_func};" >> kitInit-libs.h
+
+				libs_init_funcs="${libs_init_funcs} ${lib_init_func}"
+			fi
+		fi
+
 		ARCHS="${ARCHS} ${projlibfiles}"
 	done
+
+	echo '' >> kitInit-libs.h
+	echo 'static void _Tclkit_GenericLib_Init(void) {' >> kitInit-libs.h
+	for lib_init_func in ${libs_init_funcs}; do
+		proj="`echo ${lib_init_func} | sed 's@_Init$$@@@' | dd conv=lcase 2>/dev/null`"
+		echo "	Tcl_StaticPackage(0, \"${proj}\", ${lib_init_func}, NULL);" >> kitInit-libs.h
+	done
+	echo '	return;' >> kitInit-libs.h
+	echo '}' >> kitInit-libs.h
 
 	AC_SUBST(ARCHS)
 	AC_SUBST(STRIPLIBS)
