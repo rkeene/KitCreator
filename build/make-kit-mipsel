@@ -1,5 +1,8 @@
 #! /bin/sh
 
+# Caution: Fossil likes to remove the executable bit from files.  This is a
+# bug that makes it useless.
+
 PATH="${PATH}:/home/rkeene/root/cross-compilers/mipsel-unknown-linux-uclibc/bin"
 AR=mipsel-unknown-linux-uclibc-ar
 CC=mipsel-unknown-linux-uclibc-gcc
