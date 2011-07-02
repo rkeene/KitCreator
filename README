@@ -201,14 +201,23 @@ from the "tclConfig.sh" script), compiling it, installing a functional copy
 into the per-project "inst" directory, and installing anything that needs to
 be in the Tclkit's VFS root into the per-project "out" directory.
 
-The exception to this is the "kitsh" and "kitdll" projects.  They are the glue
-that binds all the individual projects together into a single executable.  Its
-build script does not create an "inst" or an "out" directory because it is not
-a library.  Instead, it collects all the other project's "out" directories
-into a single directory (starpack.vfs), as well a static file (boot.tcl).
-It then compiles the source code, and then installs the VFS onto the resulting
-executable.  The VFS is created by the "installvfs.tcl" script for Kitsh.  For
-KitDLL the VFS is created by "dir2c.tcl".
+Any additional projects can be included simply by creating the appropriate
+directory in the same directory as the "kitcreator" script, creating a
+"build.sh" script in that directory that follows the above procedure, and then
+referencing that directory in "KITCREATOR_PKGS" for the "kitcreator" invocation.
+In this way KitCreator is "pluggable".  Included packages may be either
+statically or dynamically linked.  If it is statically linked then the module
+name must be the name of the directory -- that is, if the directory were "foo",
+KitCreator will expect to initialize the module statically using Foo_Init().
+
+The exception to this is the "kitsh" project.  It is the glue that binds all
+the individual projects together into a single executable.  Its build script
+does not create an "inst" or an "out" directory because it is not a library.
+Instead, it collects all the other project's "out" directories into a single
+directory (starpack.vfs), as well a static file (boot.tcl). It then compiles
+the source code, and then installs the VFS onto the resulting executable.
+The VFS is created by the "installvfs.tcl" script for Kitsh.  For KitDLL the
+VFS is created by "dir2c.tcl".
 
 If the "mk4tcl" project fails to build (or is not requested to be built),
 the rest of the project will be built using zip files instead of Metakit
