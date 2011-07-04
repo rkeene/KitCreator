@@ -38,8 +38,10 @@ fi
 # for CVS Head) and force a rebuild to ensure up-to-date build status
 if [ "$(date '+%u')" != "3" ]; then
 	if [ -d "${WEBROOTDIR}/${TESTNAME}" ]; then
-		# Don't re-run the tests if nothing has changed
-		exit 0
+		if [ "$1" != "force" ]; then
+			# Don't re-run the tests if nothing has changed
+			exit 0
+		fi
 	fi
 fi
 
