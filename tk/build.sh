@@ -45,6 +45,12 @@ if [ ! -f "${SRC}" ]; then
 		use_fossil='1'
 	fi
 
+	if [ -d 'buildsrc' ]; then
+		# Override here to avoid downloading tarball from Fossil if we
+		# have a particular tree already available.
+		use_fossil='0'
+	fi
+
 	if [ "${use_fossil}" = "1" ]; then
 		(       
 			FOSSILDATE="$(cat "${TCLFOSSILDATE}" 2>/dev/null)"
@@ -68,9 +74,11 @@ if [ ! -f "${SRC}" ]; then
 			rm -rf "${workdir}"
 		)
 	else
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		if [ ! -d 'buildsrc' ]; then
+			rm -f "${SRC}.tmp"
+			wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
+			mv "${SRC}.tmp" "${SRC}"
+		fi
 	fi
 fi
 

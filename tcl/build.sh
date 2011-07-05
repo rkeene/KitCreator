@@ -41,6 +41,12 @@ if [ ! -f "${SRC}" ]; then
 	fi
 	export FOSSILTAG
 
+	if [ -d 'buildsrc' ]; then
+		# Override here to avoid downloading tarball from Fossil if we
+		# have a particular tree already available.
+		use_fossil='0'
+	fi
+
 	if [ "${use_fossil}" = "1" ]; then
 		(
 			cd src || exit 1
@@ -93,9 +99,11 @@ if [ ! -f "${SRC}" ]; then
 			rm -rf "${workdir}"
 		) || exit 1
 	else
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		if [ ! -d 'buildsrc' ]; then
+			rm -f "${SRC}.tmp"
+			wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
+			mv "${SRC}.tmp" "${SRC}"
+		fi
 	fi
 fi
 
