@@ -25,9 +25,11 @@ mkdir 'build' 'out' 'inst' || exit 1
 if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
-	rm -f "${SRC}.tmp"
-	wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-	mv "${SRC}.tmp" "${SRC}"
+	if [ ! -d 'buildsrc' ]; then
+		rm -f "${SRC}.tmp"
+		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
+		mv "${SRC}.tmp" "${SRC}"
+	fi
 fi
 
 (
