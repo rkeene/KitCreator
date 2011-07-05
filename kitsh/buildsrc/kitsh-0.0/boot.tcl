@@ -163,19 +163,17 @@ proc tclInit {} {
 		if {[info exists ::TCLKIT_INITVFS] && [info exists ::tclKitFilename]} {
 			catch {
 				vfs::zip::Mount $::tclKitFilename "/.KITDLL_USER"
-
-				lappend auto_path "/.KITDLL_USER/lib"
 			}
 		}
+		lappend auto_path "/.KITDLL_USER/lib"
 
 		## Mount the VFS from executable
 		if {[info exists ::TCLKIT_INITVFS]} {
 			catch {
 				vfs::zip::Mount [info nameofexecutable] "/.KITDLL_APP"
-
-				lappend auto_path "/.KITDLL_APP/lib"
 			}
 		}
+		lappend auto_path "/.KITDLL_APP/lib"
 	}
 
 	# Clean up
