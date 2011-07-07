@@ -119,6 +119,12 @@ AC_DEFUN(DC_DO_STATIC_LINK_LIB, [
 	dnl HP/UX uses -Wl,-a,archive -lstdc++ -Wl,-a,shared_archive
 	dnl Linux and Solaris us -Wl,-Bstatic ... -Wl,-Bdynamic
 	for trylink in "-Wl,-a,archive $2 -Wl,-a,shared_archive" "-Wl,-Bstatic $2 -Wl,-Bdynamic" "$2"; do
+		if echo " ${LDFLAGS} " | grep ' -static ' >/dev/null; then
+			if test "${trylink}" != "$2"; then
+				continue
+			fi
+		fi
+
 		LIBS="${SAVELIBS} ${trylink}"
 
 		AC_LINK_IFELSE(AC_LANG_PROGRAM([], []), [
