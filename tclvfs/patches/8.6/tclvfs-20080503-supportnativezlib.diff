@@ -1,6 +1,6 @@
-diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-2rsk/library/vfslib.tcl
---- tclvfs-20080503.orig/library/vfslib.tcl	2006-09-14 16:39:57.000000000 -0500
-+++ tclvfs-20080503-2rsk/library/vfslib.tcl	2010-09-17 16:03:49.000000000 -0500
+diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-3rsk/library/vfslib.tcl
+--- tclvfs-20080503.orig/library/vfslib.tcl	2011-07-16 15:31:29.000000000 +0200
++++ tclvfs-20080503-3rsk/library/vfslib.tcl	2011-07-16 15:32:28.000000000 +0200
 @@ -5,6 +5,14 @@
  
  namespace eval ::vfs {
@@ -16,7 +16,22 @@ diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-2rsk/library/v
  }
  
  # for backwards compatibility
-@@ -110,19 +118,26 @@
+@@ -94,8 +102,12 @@
+ 		}
+ 		# to seek back, rewind, i.e. start from scratch
+ 		if {$a1 < $pos} {
+-		    rename $zcmd ""
+-		    zlib $imode $zcmd
++		    if {$::vfs::zlibPkg} {
++    			rename $zcmd ""
++    			zlib $imode $zcmd
++		    } else {
++			$zcmd reset
++		    }
+ 		    seek $ifd 0
+ 		    set pos 0
+ 		}
+@@ -110,19 +122,26 @@
  		return $pos
  	    }
  	    read {
@@ -47,7 +62,7 @@ diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-2rsk/library/v
  		    #puts stderr " read [string length $data]"
  		    if {$data eq ""} break
  		    append r $data
-@@ -141,8 +156,12 @@
+@@ -141,8 +160,12 @@
      }
  
      proc vfs::zstream {mode ifd clen ilen} {
