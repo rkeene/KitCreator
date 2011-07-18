@@ -1,7 +1,10 @@
 #!/usr/bin/env tclsh
 
+package require starkit
+starkit::startup
+
 # Open some file inside the tclkit that will be stored in compressed form
-set fd [open [file join [info nameofexecutable] boot.tcl]]
+set fd [open [file join $::starkit::topdir boot.tcl]]
 
 gets $fd line1
 
