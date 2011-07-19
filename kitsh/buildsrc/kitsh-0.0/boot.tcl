@@ -144,9 +144,9 @@ proc tclInit {} {
 	namespace eval ::vfs { variable tclkit_version 1 }
 	catch { uplevel #0 [list source [file join $mountpoint config.tcl]] }
 
-	# Set-up starkit::topdir correctly
-	namespace eval ::starkit { variable topdir }
-	set ::starkit::topdir $mountpoint
+	# Set-up starkit::tclkitroot
+	namespace eval ::starkit { variable tclkitroot }
+	set ::starkit::tclkitroot $mountpoint
 
 	# Perform expected initialization
 	uplevel #0 [list source [file join $tcl_library init.tcl]]
