@@ -1,0 +1,17 @@
+#! /bin/sh
+
+if [ -z "${CROSS}" ]; then
+	echo 'Error: Environment variable CROSS is empty/unset.  Aborting.' >&2
+
+	exit 1
+fi
+
+PATH="${PATH}:${HOME}/root/cross-compilers/${CROSS}/bin"
+AR="${CROSS}-ar"
+CC="${CROSS}-gcc ${CC_ADD}"
+CXX="${CROSS}-g++ ${CC_ADD}"
+RANLIB="${CROSS}-ranlib"
+STRIP="${CROSS}-strip"
+export PATH AR CC CXX RANLIB STRIP
+
+./kitcreator "$@" --host="${CROSS}"

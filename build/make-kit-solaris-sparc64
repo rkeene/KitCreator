@@ -1,6 +1,6 @@
 #! /bin/sh
 
-CROSS="x86_64-unknown-linux-gnu"
+CROSS="sparc-sun-solaris2.10"
 CC_ADD="-m64"
 export CROSS CC_ADD
 

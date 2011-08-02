@@ -44,6 +44,20 @@ for file in "${TESTDIR}"/kits/*.log; do
 	rm -f "${file}"
 done
 
+# Disable WINE debugging
+WINEPREFIX="${TESTDIR}/.wine"
+export WINEPREFIX
+rm -rf "${WINEPREFIX}"
+mkdir "${WINEPREFIX}"
+
+cat << \_EOF_ > "${WINEPREFIX}/update-reg"
+[HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\AeDebug]
+"Auto"=dword:00000001
+"Debugger"="false"
+_EOF_
+
+regedit "${WINEPREFIX}/update-reg" >/dev/null 2>/dev/null
+
 # Start Xvfb for X11-based tests
 XVFB_PID="$(
 	Xvfb :31 -screen 0 800x600x24 -nolisten tcp >/dev/null 2>/dev/null &
@@ -53,7 +67,7 @@ DISPLAY=:31
 export DISPLAY
 
 failed=""
-for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-kitdll normal-nomk4-notk-kitdll normal-threaded-nomk4-kitdll normal-threaded-notk-nomk4-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-kitdll win32-i586-nomk4-notk-kitdll win32-i586-threaded-nomk4-kitdll win32-i586-threaded-notk-nomk4-kitdll linux-mipsel-min linux-mipsel-min-kitdll linux-amd64-notk linux-amd64-notk-kitdll; do
+for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-kitdll normal-nomk4-notk-kitdll normal-threaded-nomk4-kitdll normal-threaded-notk-nomk4-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-kitdll win32-i586-nomk4-notk-kitdll win32-i586-threaded-nomk4-kitdll win32-i586-threaded-notk-nomk4-kitdll linux-mipsel-min linux-mipsel-min-kitdll linux-amd64-notk linux-amd64-notk-kitdll solaris-i386 solaris-i386-kitdll solaris-amd64 solaris-amd64-kitdll solaris-sparc solaris-sparc-kitdll solaris-sparc64 solaris-sparc64-kitdll hpux-hppa64-notk hpux-hppa64-notk-kitdll; do
 	kitcreator="./kitcreator"
 	args=""
 	runnable="1"
@@ -96,8 +110,14 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 			notk="1"
 			iszip="1"
 			;;
-		linux-amd64|linux-amd64-*)
-			kitcreator="./build/make-kit-linux-amd64"
+		linux-amd64|linux-amd64-*|\
+		solaris-i386|solaris-i386-*|\
+		solaris-amd64|solaris-amd64-*|\
+		solaris-sparc|solaris-sparc-*|\
+		solaris-sparc64|solaris-sparc64-*|\
+		hpux-hppa64|hpux-hppa64-*)
+			platform="$(echo "${kit}" | cut -f 1-2 -d '-')"
+			kitcreator="./build/make-kit-${platform}"
 			runnable="0"
 			xcompile="1"
 			iszip="0"
@@ -238,6 +258,15 @@ for kit in normal normal-zip normal-threaded normal-threaded-zip normal-statictk
 					echo "  __EOF__" >> "${buildlog}"
 					echo '' >> "${buildlog}"
 				fi
+
+				# Several build scripts rely on make-kit-crosscompile to work
+				if grep './build/make-kit-crosscompile' "${kitcreator}" >/dev/null 2>/dev/null; then
+					echo "  cat << \__EOF__ > ./build/make-kit-crosscompile" >> "${buildlog}"
+					sed 's@^@  @'  './build/make-kit-crosscompile' >> "${buildlog}"
+					echo "  __EOF__" >> "${buildlog}"
+					echo '' >> "${buildlog}"
+				fi
+
 				echo "  cat << \__EOF__ > ${kitcreator}" >> "${buildlog}"
 				sed 's@^@  @'  "${kitcreator}" >> "${buildlog}"
 				echo "  __EOF__" >> "${buildlog}"
