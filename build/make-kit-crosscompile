@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 if [ -z "${CROSS}" ]; then
 	echo 'Error: Environment variable CROSS is empty/unset.  Aborting.' >&2
@@ -6,7 +6,7 @@ if [ -z "${CROSS}" ]; then
 	exit 1
 fi
 
-PATH="${PATH}:${HOME}/root/cross-compilers/${CROSS}/bin"
+PATH="$(pwd)/build/fake-bin:${HOME}/root/cross-compilers/${CROSS}/${CROSS}/bin:${PATH}:${HOME}/root/cross-compilers/${CROSS}/bin"
 AR="${CROSS}-ar"
 CC="${CROSS}-gcc ${CC_ADD}"
 CXX="${CROSS}-g++ ${CC_ADD}"
