@@ -6,12 +6,15 @@ if [ -z "${CROSS}" ]; then
 	exit 1
 fi
 
-PATH="$(pwd)/build/fake-bin:${HOME}/root/cross-compilers/${CROSS}/${CROSS}/bin:${PATH}:${HOME}/root/cross-compilers/${CROSS}/bin"
-AR="${CROSS}-ar"
-CC="${CROSS}-gcc ${CC_ADD}"
-CXX="${CROSS}-g++ ${CC_ADD}"
-RANLIB="${CROSS}-ranlib"
-STRIP="${CROSS}-strip"
+CCROOT="${HOME}/root/cross-compilers/${CROSS}"
+CCROOTBIN="${CCROOT}/bin"
+
+PATH="$(pwd)/build/fake-bin:${CCROOT}/${CROSS}/bin:${PATH}:${CCROOTBIN}"
+AR="${CCROOTBIN}/${CROSS}-ar"
+CC="${CCROOTBIN}/${CROSS}-gcc ${CC_ADD}"
+CXX="${CCROOTBIN}/${CROSS}-g++ ${CC_ADD}"
+RANLIB="${CCROOTBIN}/${CROSS}-ranlib"
+STRIP="${CCROOTBIN}/${CROSS}-strip"
 export PATH AR CC CXX RANLIB STRIP
 
 ./kitcreator "$@" --host="${CROSS}"
