@@ -101,7 +101,16 @@ if [ ! -f "${SRC}" ]; then
 	else
 		if [ ! -d 'buildsrc' ]; then
 			rm -f "${SRC}.tmp"
-			wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
+			wget -O "${SRC}.tmp" "${SRCURL}" || (
+				echo '  Unable to download source code for Tcl.' >&4
+				echo "  Attempted to run:  wget -O \"${SRC}.tmp\" \"${SRCURL}\"" >&4
+				echo "  Got:"
+				wget -O "${SRC}.tmp" "${SRCURL}" 2>&1 | sed 's@^@    @' >&4
+
+				echo '  Aborting Tcl -- further packages will likely also fail.' >&4
+
+				exit 1
+			) || exit 1
 			mv "${SRC}.tmp" "${SRC}"
 		fi
 	fi
