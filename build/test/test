@@ -67,9 +67,9 @@ DISPLAY=:31
 export DISPLAY
 
 if [ "${BIGBUILD}" = "1" ]; then
-	kits="$(echo normal{,-zip,-nomk4}{,-threaded}{,-statictk,-notk} normal{,-threaded}{,-notk}{,-nomk4}-kitdll win32-i586{,-zip,-nomk4}{,-threaded}{,-notk} win32-i586{,-threaded}{,-notk}{,-nomk4}-kitdll min{,-static} {linux-mipsel-min,linux-amd64-notk}{,-kitdll} {solaris-i386,solaris-amd64,solaris-sparc,solaris-sparc64,freebsd-amd64,netbsd-amd64}{,-zip,-nomk4}{,-threaded}{,-statictk,-notk} {solaris-i386,solaris-amd64,solaris-sparc,solaris-sparc64,freebsd-amd64,netbsd-amd64}{,-threaded}{,-notk}{,-nomk4}-kitdll netbsd-i386{,-zip,-nomk4}{,-threaded}-notk netbsd-i386{,-threaded}{,-nomk4}-notk-kitdll)"
+	kits="$(echo normal{,-zip,-nomk4}{,-threaded}{,-statictk,-notk} normal{,-threaded}{,-notk}{,-nomk4}{,-debug}-kitdll win32-i586{,-zip,-nomk4}{,-threaded}{,-notk} win32-i586{,-threaded}{,-notk}{,-nomk4}-kitdll min{,-static} {linux-mipsel-min,linux-amd64-notk}{,-debug}{,-kitdll} {solaris-i386,solaris-amd64,solaris-sparc,solaris-sparc64,freebsd-amd64,netbsd-amd64}{,-zip,-nomk4}{,-threaded}{,-statictk,-notk}{,debug} {solaris-i386,solaris-amd64,solaris-sparc,solaris-sparc64,freebsd-amd64,netbsd-amd64}{,-threaded}{,-notk}{,-nomk4}{,debug}-kitdll netbsd-i386{,-zip,-nomk4}{,-threaded}{,debug}-notk netbsd-i386{,-threaded}{,-nomk4}{,debug}-notk-kitdll)"
 else
-	kits="normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-kitdll normal-nomk4-notk-kitdll normal-threaded-nomk4-kitdll normal-threaded-notk-nomk4-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-kitdll win32-i586-nomk4-notk-kitdll win32-i586-threaded-nomk4-kitdll win32-i586-threaded-notk-nomk4-kitdll linux-mipsel-min linux-mipsel-min-kitdll linux-amd64-notk linux-amd64-notk-kitdll solaris-i386 solaris-i386-kitdll solaris-amd64 solaris-amd64-kitdll solaris-sparc solaris-sparc-kitdll solaris-sparc64 solaris-sparc64-kitdll freebsd-amd64 freebsd-amd64-kitdll netbsd-i386-notk netbsd-i386-notk-kitdll netbsd-amd64 netbsd-amd64-kitdll"
+	kits="normal normal-zip normal-threaded normal-threaded-zip normal-statictk normal-notk normal-threaded-notk normal-threaded-zip-notk normal-nomk4 normal-debug min min-static normal-kitdll normal-threaded-kitdll normal-notk-kitdll normal-nomk4-kitdll normal-nomk4-notk-kitdll normal-threaded-nomk4-kitdll normal-threaded-notk-nomk4-kitdll normal-debug-kitdll min-kitdll win32-i586 win32-i586-zip win32-i586-threaded win32-i586-threaded-zip win32-i586-notk win32-i586-threaded-notk win32-i586-nomk4 win32-i586-kitdll win32-i586-threaded-kitdll win32-i586-notk-kitdll win32-i586-nomk4-kitdll win32-i586-nomk4-notk-kitdll win32-i586-threaded-nomk4-kitdll win32-i586-threaded-notk-nomk4-kitdll linux-mipsel-min linux-mipsel-min-kitdll linux-amd64-notk linux-amd64-notk-debug linux-amd64-notk-kitdll linux-amd64-notk-debug-kitdll solaris-i386 solaris-i386-debug solaris-i386-kitdll solaris-i386-debug-kitdll solaris-amd64 solaris-amd64-debug solaris-amd64-kitdll solaris-amd64-debug-kitdll solaris-sparc solaris-sparc-debug solaris-sparc-kitdll solaris-sparc-debug-kitdll solaris-sparc64 solaris-sparc64-debug solaris-sparc64-kitdll solaris-sparc64-debug-kitdll freebsd-amd64 freebsd-amd64-debug freebsd-amd64-kitdlli freebsd-amd64-debug-kitdll netbsd-i386-notk netbsd-i386-notk-debug netbsd-i386-notk-kitdll netbsd-i386-notk-debug-kitdll netbsd-amd64 netbsd-amd64-debug netbsd-amd64-kitdll netbsd-amd64-debug-kitdll"
 fi
 
 failed=""
@@ -130,6 +130,10 @@ for kit in $kits; do
 			runnable="0"
 			xcompile="1"
 			iszip="0"
+
+			if echo "${kit}" | egrep -- '-(hppa64|amd64|sparc64)-' >/dev/null; then
+				args="${args} --enable-64bit"
+			fi
 			;;
 	esac
 
@@ -174,6 +178,9 @@ for kit in $kits; do
 			*-kitdll-*)
 				kitdll="1"
 				;;
+			*-debug-*)
+				args="${args} --enable-symbols"
+				;;
 		esac
 	done
 
@@ -204,7 +211,7 @@ for kit in $kits; do
 		testresultslog="${outputname}-tests.log"
 
 		if [ ! -f "${outputname}" ]; then
-			unset KITCREATOR_PKGS STATICTK
+			unset KITCREATOR_PKGS STATICTK STRIP
 
 			if [ -f "${failoutputname}" ]; then
 				echo "Skipping rebuilding failed kit ${version}/${kit} ..."
@@ -255,6 +262,14 @@ for kit in $kits; do
 
 				echo "  STATICTK=\"${STATICTK}\"" >> "${buildlog}"
 				echo "  export STATICTK" >> "${buildlog}"
+			fi
+
+			if echo "${args}" | grep -- '--enable-symbols' >/dev/null; then
+				STRIP='true'
+				export STRIP
+
+				echo "  STRIP='true'" >> "${buildlog}"
+				echo "  export STRIP" >> "${buildlog}"
 			fi
 
 			if [ "${kitcreator}" != "./kitcreator" ]; then

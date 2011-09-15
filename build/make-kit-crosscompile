@@ -14,7 +14,9 @@ AR="${CCROOTBIN}/${CROSS}-ar"
 CC="${CCROOTBIN}/${CROSS}-gcc ${CC_ADD}"
 CXX="${CCROOTBIN}/${CROSS}-g++ ${CC_ADD}"
 RANLIB="${CCROOTBIN}/${CROSS}-ranlib"
-STRIP="${CCROOTBIN}/${CROSS}-strip"
+if [ -z "${STRIP}" ]; then
+	STRIP="${CCROOTBIN}/${CROSS}-strip"
+fi
 export PATH AR CC CXX RANLIB STRIP
 
 ./kitcreator "$@" --host="${CROSS}"

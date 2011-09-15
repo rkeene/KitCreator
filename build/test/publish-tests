@@ -61,7 +61,7 @@ proc pretty_print_key {key} {
 
 proc pretty_print_buildinfo {buildinfo} {
 	set desc [list]
-	foreach tag [list kitdll min static notk nomk4 statictk unthreaded threaded zip] {
+	foreach tag [list kitdll debug min static notk nomk4 statictk unthreaded threaded zip] {
 		if {[lsearch -exact $buildinfo $tag] != -1} {
 			switch -- $tag {
 				"kitdll" {
@@ -90,6 +90,9 @@ proc pretty_print_buildinfo {buildinfo} {
 				}
 				"zip" {
 					lappend desc "Kit Filesystem in Zip"
+				}
+				"debug" {
+					lappend desc "With Symbols"
 				}
 			}
 		}
