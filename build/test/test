@@ -176,9 +176,11 @@ for kit in $kits; do
 				iszip="1"
 				;;
 			*-kitdll-*)
+				tempkit="$(echo "${tempkit}" | sed 's@-kitdll-@-@')"
 				kitdll="1"
 				;;
 			*-debug-*)
+				tempkit="$(echo "${tempkit}" | sed 's@-debug-@-@')"
 				args="${args} --enable-symbols"
 				;;
 		esac
