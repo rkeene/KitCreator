@@ -330,7 +330,7 @@ foreach status [list ok untested non-critical failed] {
 	puts $fd "      </tr>"
 }
 puts $fd "    </table>"
-puts $fd "    <p>Generated on [clock format [clock seconds]]</p>"
+puts $fd "    <p>Generated on [clock format [clock seconds] -format {%Y%m%dT%H%M%SZ} -timezone :UTC]</p>"
 puts $fd "  </body>"
 puts $fd "</html>"
 
