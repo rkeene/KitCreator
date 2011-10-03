@@ -127,7 +127,11 @@ fi
 		fi
 	done
 
-	for dir in unix win macosx win64 __fail__; do
+	for dir in "${TCLCONFIGDIRTAIL}" unix win macosx win64 __fail__; do
+		if [ -z "${dir}" ]; then
+			continue
+		fi
+
 		if [ "${dir}" = "__fail__" ]; then
 			exit 1
 		fi

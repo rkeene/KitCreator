@@ -141,7 +141,8 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 	case "${pkg}" in
 		tcl)
 			TCLCONFIGDIR=$(find "$(pwd)/tcl/build" -name tclConfig.sh | head -1 | sed 's@/[^/]*$@@')
-			export TCLCONFIGDIR
+			TCLCONFIGDIRTAIL="$(basename "${TCLCONFIGDIR}")"
+			export TCLCONFIGDIR TCLCONFIGDIRTAIL
 			;;
 	esac
 

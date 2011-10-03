@@ -149,7 +149,16 @@ fi
 		fi
 	done
 
-	for dir in unix win macosx __fail__; do
+	tryfirstdir=''
+	if [ "$(uname -s)" = "Darwin" ]; then
+		tryfirstdir='macosx'
+	fi
+
+	for dir in "${tryfirstdir}" unix win macosx __fail__; do
+		if [ -z "${dir}" ]; then
+			continue
+		fi
+
 		if [ "${dir}" = "__fail__" ]; then
 			# If we haven't figured out how to build it, reject.
 
