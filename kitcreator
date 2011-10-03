@@ -21,6 +21,14 @@ if [ "$1" = "distclean" ]; then
 	mode="distclean"
 fi
 
+# Verify that "pre.sh" has been run if this is a development snapshot of
+# KitCreator
+if [ -f 'build/pre.sh' ]; then
+	if ! find 'kitsh/buildsrc/' -name configure -type f >/dev/null 2>/dev/null; then
+		echo "Please remember to run 'build/pre.sh' if you expect this build to work." >&2
+	fi
+fi
+
 # Define the list of all packages, for cleaning purposes
 KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread"
 for pkg in ${KITCREATOR_ALLPKGS}; do
