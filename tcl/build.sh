@@ -170,6 +170,9 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
+		# Remove broken pre-generated Makfiles
+		rm -f GNUmakefile Makefile makefile
+
 		echo "Running: ./configure --disable-shared --with-encoding=utf-8 --prefix=\"${INSTDIR}\" ${CONFIGUREEXTRA}"
 		./configure --disable-shared --with-encoding=utf-8 --prefix="${INSTDIR}" ${CONFIGUREEXTRA}
 
