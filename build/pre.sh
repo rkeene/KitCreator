@@ -1,6 +1,6 @@
 #! /bin/bash
 
-./kitcreator distclean
+./kitcreator distclean >/dev/null 2>/dev/null
 
 KITSHROOTDIR="$(ls -1d kitsh/buildsrc/kitsh-*/)"
 export KITSHROOTDIR
