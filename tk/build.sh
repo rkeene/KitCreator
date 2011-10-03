@@ -148,6 +148,9 @@ fi
 
 		cd "${BUILDDIR}/${dir}" || exit 1
 
+		# Remove broken pre-generated Makfiles
+		rm -f GNUmakefile Makefile makefile
+
 		if [ "${dir}" = "win" ]; then
 			# Statically link Tk to Tclkit if we are compiling for
 			# Windows
