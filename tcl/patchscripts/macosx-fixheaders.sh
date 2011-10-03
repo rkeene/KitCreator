@@ -1,5 +1,5 @@
 #! /bin/bash
 
-cp unix/*.h macosx/
+cp unix/*.h unix/install-sh macosx/
 
 exit 0
