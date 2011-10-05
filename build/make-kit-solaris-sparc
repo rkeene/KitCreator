@@ -1,6 +1,6 @@
 #! /bin/sh
 
-CROSS="sparc-sun-solaris2.10"
+CROSS="sparc-sun-solaris2.8"
 export CROSS
 
 ./build/make-kit-crosscompile "$@"

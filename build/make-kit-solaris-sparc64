@@ -1,6 +1,6 @@
 #! /bin/sh
 
-CROSS="sparc-sun-solaris2.10"
+CROSS="sparc-sun-solaris2.8"
 CC_ADD="-m64"
 export CROSS CC_ADD
 
