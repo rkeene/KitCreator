@@ -41,8 +41,15 @@ if [ ! -f "${SRC}" ]; then
 	use_fossil='0'
 	if echo "${TCLVERS}" | grep '^cvs_' >/dev/null; then
 		use_fossil='1'
+
+		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^cvs_//g')
+		if [ "${FOSSILTAG}" = "HEAD" ]; then
+			FOSSILTAG="trunk"
+		fi
 	elif echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
 		use_fossil='1'
+
+		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
 	fi
 
 	if [ -d 'buildsrc' ]; then
@@ -63,8 +70,13 @@ if [ ! -f "${SRC}" ]; then
 			mkdir "${workdir}" || exit 1
 			cd "${workdir}" || exit 1
 
-			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f 'tmp-tk.tar.gz'
-			gzip -dc "tmp-tk.tar.gz" | tar -xf -
+			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-tk.tar.gz'
+			gzip -dc "tmp-tk.tar.gz" | tar -xf - || rm -f 'tmp-tk.tar.gz'
+
+			if [ ! -s 'tmp-tk.tar.gz' ]; then
+				wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f 'tmp-tk.tar.gz'
+				gzip -dc "tmp-tk.tar.gz" | tar -xf -
+			fi
 
 			mv "tk-fossil" "tk${TCLVERS}"
                         
