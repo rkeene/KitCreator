@@ -145,7 +145,7 @@ Kitsh Configure Options:
 --------------------
 Using the KitDLL SDK
 --------------------
-When you build a KitDLL, a "kitdll-sdk-<tclvers>.tar.gz" tarball is also
+When you build a KitDLL, a "libtclkit-sdk-<tclvers>.tar.gz" tarball is also
 produced.  This tarball contains the Tcl (and Tk, if compiled) stubs libraries,
 and Tcl (and Tk, if compiled) header files needed to compile and link things
 against Tcl (and Tk).  It also includes "tclConfig.sh" (and "tkConfig.sh", if
