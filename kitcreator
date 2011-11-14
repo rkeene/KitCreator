@@ -170,4 +170,12 @@ fi
 cp 'kitsh/build'/kitsh-*/libtclkit* . >/dev/null 2>/dev/null
 cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}" >/dev/null 2>/dev/null
 
+for postscript in common/post/*; do
+	if [ ! -f "${postscript}" ]; then
+		continue
+	fi
+
+	"${postscript}"
+done
+
 exit "${buildfailed}"
