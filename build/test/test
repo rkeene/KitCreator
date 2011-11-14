@@ -203,10 +203,12 @@ for kit in $kits; do
 			createdkit="libtclkit*.dll libtclkit*.*"
 			outputname="${TESTDIR}/kits/libtclkit-${version}-${kit}"
 			failoutputname="${TESTDIR}/kits/failed/libtclkit-${version}-${kit}"
+			sdk="$(echo libtclkit-sdk-*.tar.gz)"
 		else
 			createdkit="tclkit-${version}"
 			outputname="${TESTDIR}/kits/tclkit-${version}-${kit}"
 			failoutputname="${TESTDIR}/kits/failed/tclkit-${version}-${kit}"
+			sdk=''
 		fi
 		buildlog="${outputname}-build.log"
 		failbuildlog="${failoutputname}-build.log"
@@ -325,7 +327,7 @@ for kit in $kits; do
 			fi
 
 			# Perform wildcard expansion
-			createdkit="$(ls -f1 ${createdkit} 2>/dev/null | head -n 1)"
+			createdkit="$(ls -f1 ${createdkit} 2>/dev/null | grep -v '\.tar\.gz$' | head -n 1)"
 
 			if [ ! -f "${createdkit}" ]; then
 				echo "Failed to create kit ${version}/${kit}" >&2
