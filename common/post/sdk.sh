@@ -16,31 +16,25 @@ mkdir '__tmp__/include'
 mkdir '__tmp__/lib'
 
 cp 'tcl/inst/lib/tclConfig.sh' '__tmp__/lib/'
-cp 'tcl/inst/include'/* '__tmp__/include/'
+cp -rp 'tcl/inst/include'/* '__tmp__/include/'
 cp 'tcl/inst/lib'/libtclstub* '__tmp__/lib/'
 
 if [ -f 'tk/inst/lib/tkConfig.sh' ]; then
 	cp 'tk/inst/lib/tkConfig.sh' '__tmp__/lib/'
-	cp 'tk/inst/include'/* '__tmp__/include/'
+	cp -rp 'tk/inst/include'/* '__tmp__/include/'
 	cp 'tk/inst/lib'/libtkstub* '__tmp__/lib/'
 fi
 
-cp libtclkit* '__tmp__/lib/'
+cp 'kitsh/build'/kitsh-*/libtclkit* '__tmp__/lib/'
 
 (
 	cd '__tmp__/lib' || exit 1
 
-	for libfile in *.dll.a; do
-		if [ ! -f "${libfile}" ]; then
+	for kitlibfile in libtclkit*.dll libtclkit*; do
+		if [ ! -f "${kitlibfile}" ]; then
 			continue
 		fi
 
-		newlibfile="$(basename "${libfile}" .dll.a).lib"
-
-		mv "${libfile}" "${newlibfile}"
-	done
-
-	for kitlibfile in libtclkit*; do
 		if echo "${kitlibfile}" | grep '\.tar\.gz' >/dev/null; then
 			continue
 		fi
@@ -49,7 +43,7 @@ cp libtclkit* '__tmp__/lib/'
 	done
 	kitlinker="$(echo "${kitlibfile}" | sed 's@^lib@-l@;s@\.[^\.]*$@@')"
 
-	sed 's|'"$(dirname "$(dirname "$(pwd)")")"'/tcl/inst|${TCLKIT_SDK_DIR}|g;s|^TCL_SHARED_BUILD=.*$|TCL_SHARED_BUILD=1|;s|^TCL_LIB_FILE=.*$|TCL_LIB_FILE='"${kitlibfile}"'|;s|-ltcl[^s][a-fA-F0-9\.]*|'"${kitlinker}"'|' 'tclConfig.sh' > 'tclConfig.sh.new'
+	sed 's|'"$(dirname "$(dirname "$(pwd)")")"'/tcl/inst|${TCLKIT_SDK_DIR}|g;s|^TCL_SHARED_BUILD=.*$|TCL_SHARED_BUILD=1|;s|^TCL_LIB_FILE=.*$|TCL_LIB_FILE='"${kitlibfile}"'|;s|-ltcl[^s][a-zA-Z0-9\.]*|'"${kitlinker}"'|' 'tclConfig.sh' > 'tclConfig.sh.new'
 	(
 		cat << _EOF_
 if [ -z "\${TCLKIT_SDK_DIR}" ]; then
@@ -62,7 +56,7 @@ _EOF_
 	rm -f 'tclConfig.sh.new'
 
 	if [ -f 'tkConfig.sh' ]; then
-		sed 's|'"$(dirname "$(dirname "$(pwd)")")"'/tk/inst|${TCLKIT_SDK_DIR}|g;s|^TK_SHARED_BUILD=.*$|TK_SHARED_BUILD=1|;s|^TK_LIB_FILE=.*$|TK_LIB_FILE='"${kitlibfile}"'|;s|-ltk[^s][a-fA-F0-9\.]*|'"${kitlinker}"'|' 'tkConfig.sh' > 'tkConfig.sh.new'
+		sed 's|'"$(dirname "$(dirname "$(pwd)")")"'/tk/inst|${TCLKIT_SDK_DIR}|g;s|^TK_SHARED_BUILD=.*$|TK_SHARED_BUILD=1|;s|^TK_LIB_FILE=.*$|TK_LIB_FILE='"${kitlibfile}"'|;s|-ltk[^s][a-zA-Z0-9\.]*|'"${kitlinker}"'|' 'tkConfig.sh' > 'tkConfig.sh.new'
 		(
 			cat << _EOF_
 if [ -z "\${TCLKIT_SDK_DIR}" ]; then
