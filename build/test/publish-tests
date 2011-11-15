@@ -142,13 +142,15 @@ foreach file [lsort -dictionary [glob -tails -directory $WEBDIR * failed/*]] {
 	}
 
 	switch -glob -- $file {
-		"*.log" - "*.ttml" - "*.html" - "*.desc" - "*-origname" - "*-tclsh" {
+		"*.log" - "*.ttml" - "*.html" - "*.desc" - "*-origname" - "*-tclsh" - "*-sdk.tar.gz" {
 			continue
 		}
 	}
 
 	# Derive what we can from the filename
 	set buildfile "${shortfile}-build.log"
+	set sdkshortfile "${shortfile}-sdk.tar.gz"
+	set sdkfile "${file}-sdk.tar.gz"
 
 	# Determine which tests passed/failed
 	set failedtests [list]
@@ -203,6 +205,10 @@ foreach file [lsort -dictionary [glob -tails -directory $WEBDIR * failed/*]] {
 	set kitinfo(os) $kitos
 	set kitinfo(cpu) $kitcpu
 	set kitinfo(built) $kitbuilt
+
+	if {[file exists $sdkfile]} {
+		set kitinfo(sdk) $sdkshortfile
+	}
 
 	# Store kit information with all kits
 	set key [list $tclversion $kitos $kitcpu]
@@ -301,7 +307,13 @@ foreach key [lsort -dictionary [array names allkitinfo]] {
 
 		set kitdesc [pretty_print_buildinfo $kitinfo(buildflags)]
 		if {$kitinfo(built)} {
-			puts $fd "        <td><a href=\"$kitinfo(file)\">$kitdesc</a></td>"
+			puts $fd "        <td>"
+			puts $fd "          <a href=\"$kitinfo(file)\">$kitdesc</a>"
+
+			if {[info exists kitinfo(sdk)]} {
+				puts $fd "          <small><a href=\"$kitinfo(sdk)\">(sdk)</a></small>"
+			}
+			puts $fd "        </td>"
 		} else {
 			puts $fd "        <td>$kitdesc</td>"
 		}

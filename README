@@ -142,6 +142,36 @@ Kitsh Configure Options:
 		default is to auto-detect.  Auto-detection uses Mk4 if
 		available and built statically, otherwise it falls back to Zip.
 
+--------------------
+Using the KitDLL SDK
+--------------------
+When you build a KitDLL, a "libtclkit-sdk-<tclvers>.tar.gz" tarball is also
+produced.  This tarball contains the Tcl (and Tk, if compiled) stubs libraries,
+and Tcl (and Tk, if compiled) header files needed to compile and link things
+against Tcl (and Tk).  It also includes "tclConfig.sh" (and "tkConfig.sh", if
+Tk was compiled).
+
+The purpose for this tarball is to be used to build Tcl extensions or
+applications that rely on Tcl/Tk using the KitDLL.
+
+To use it, one first must extract the tarball.  After that the environment
+variable "TCLKIT_SDK_DIR" must be set to the directory that was created in
+order to make most of the variables contain useful values.
+
+For example, to build an extension using the KitDLL SDK one would typically do
+something like:
+	1. Compile KitDLL (may be omitted if the KitDLL SDK is already
+	   available)
+		a. $ KITCREATOR_PKGS='tk itcl kitdll'
+		b. $ export KITCREATOR_PKGS
+		c. $ ./kitcreator
+	2. Compile the Extension
+		a. $ tar -xf /path/to/libtclkit-sdk-8.4.19.tar.gz
+		b. $ TCLKIT_SDK_DIR="$(pwd)/libtclkit-sdk-8.4.19"
+		c. $ export TCLKIT_SDK_DIR
+		d. $ ./configure --with-tcl="${TCLKIT_SDK_DIR}/lib"
+		e. $ make
+
 -------------------
 Method of Operation
 -------------------
