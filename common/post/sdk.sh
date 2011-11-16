@@ -14,6 +14,7 @@ rm -rf '__tmp__'
 mkdir '__tmp__'
 mkdir '__tmp__/include'
 mkdir '__tmp__/lib'
+mkdir '__tmp__/doc'
 
 cp 'tcl/inst/lib/tclConfig.sh' '__tmp__/lib/'
 cp -rp 'tcl/inst/include'/* '__tmp__/include/'
@@ -26,6 +27,37 @@ if [ -f 'tk/inst/lib/tkConfig.sh' ]; then
 fi
 
 cp 'kitsh/build'/kitsh-*/libtclkit* '__tmp__/lib/'
+
+for dir in */; do
+	if [ ! -d "${dir}/build" ]; then
+		continue
+	fi
+
+	project="$(basename "${dir}")"
+	projdir="$(cd "${dir}/build"/* >/dev/null || exit; /bin/pwd)"
+	docdir="__tmp__/doc/${project}"
+
+	if [ ! -d "${projdir}" ]; then
+		continue
+	fi
+
+	mkdir -p "${docdir}"
+
+	case "${project}" in
+		itcl|tcl|tk)
+			cp "${projdir}/doc/license.terms" "${docdir}/"
+			;;
+		tclvfs|kitsh|metakit|thread)
+			cp "${projdir}/license.terms" "${docdir}/"
+			;;
+		zlib)
+			cp "${projdir}/README" "${docdir}/"
+			;;
+		*)
+			cp "${projdir}/README" "${projdir}/LICENSE" "${projdir}/doc/README" "${projdir}/doc/LICENSE" "${projdir}/license.terms" "${projdir}/doc/license.terms" "${docdir}/" >/dev/null 2>/dev/null
+			;;
+	esac
+done
 
 (
 	cd '__tmp__/lib' || exit 1
@@ -75,7 +107,7 @@ _EOF_
 
 	mkdir "libtclkit-sdk-${TCLVERS}"
 
-	mv 'lib' 'include' "libtclkit-sdk-${TCLVERS}/"
+	mv 'lib' 'include' 'doc' "libtclkit-sdk-${TCLVERS}/"
 
 	tar -cf - "libtclkit-sdk-${TCLVERS}" | gzip -9c > "../libtclkit-sdk-${TCLVERS}.tar.gz"
 )
