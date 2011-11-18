@@ -47,7 +47,7 @@ for dir in */; do
 		itcl|tcl|tk)
 			cp "${projdir}/doc/license.terms" "${docdir}/"
 			;;
-		tclvfs|kitsh|metakit|thread)
+		tclvfs|kitsh|mk4tcl|thread)
 			cp "${projdir}/license.terms" "${docdir}/"
 			;;
 		zlib)
