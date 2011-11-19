@@ -111,7 +111,6 @@ for kit in $kits; do
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
 			kitcreator="./build/make-kit-mipsel"
-			runnable="0"
 			xcompile="1"
 			notk="1"
 			iszip="1"
@@ -138,6 +137,7 @@ for kit in $kits; do
 
 			if echo "-${kit}-" | grep -- '-linux-amd64-' >/dev/null; then
 				kitruncmd="qemu-x86_64 -L /home/rkeene/root/cross-compilers/x86_64-slackware-linux/x86_64-slackware-linux"
+				runnable="1"
 			fi
 			;;
 	esac
