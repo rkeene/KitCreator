@@ -34,10 +34,10 @@ for dir in */; do
 	fi
 
 	project="$(basename "${dir}")"
-	projdir="$(cd "${dir}/build"/* >/dev/null || exit; /bin/pwd)"
+	projdir="$(cd "${dir}/build"/* >/dev/null 2>/dev/null || exit; /bin/pwd)"
 	docdir="__tmp__/doc/${project}"
 
-	if [ ! -d "${projdir}" ]; then
+	if [ -z "${projdir}" -o ! -d "${projdir}" ]; then
 		continue
 	fi
 
@@ -45,7 +45,11 @@ for dir in */; do
 
 	case "${project}" in
 		itcl|tcl|tk)
-			cp "${projdir}/doc/license.terms" "${docdir}/"
+			if [ -f "${projdir}/doc/license.terms" ]; then
+				cp "${projdir}/doc/license.terms" "${docdir}/"
+			elif [ -f "${projdir}/license.terms" ]; then
+				cp "${projdir}/license.terms" "${docdir}/"
+			fi
 			;;
 		tclvfs|kitsh|mk4tcl|thread)
 			cp "${projdir}/license.terms" "${docdir}/"
