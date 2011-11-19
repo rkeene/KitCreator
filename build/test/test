@@ -111,10 +111,10 @@ for kit in $kits; do
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
 			kitcreator="./build/make-kit-mipsel"
+			runnable="0"
 			xcompile="1"
 			notk="1"
 			iszip="1"
-			kitruncmd="qemu-mipsel -L /home/rkeene/root/cross-compilers/mipsel-unknown-linux-uclibc/mipsel-unknown-linux-uclibc/sysroot/"
 			;;
 		linux-amd64|linux-amd64-*|\
 		solaris-i386|solaris-i386-*|\
@@ -133,11 +133,6 @@ for kit in $kits; do
 
 			if echo "${kit}" | egrep -- '-(hppa64|amd64|sparc64)-' >/dev/null; then
 				args="${args} --enable-64bit"
-			fi
-
-			if echo "-${kit}-" | grep -- '-linux-amd64-' >/dev/null; then
-				kitruncmd="qemu-x86_64 -L /home/rkeene/root/cross-compilers/x86_64-slackware-linux/x86_64-slackware-linux"
-				runnable="1"
 			fi
 			;;
 	esac
