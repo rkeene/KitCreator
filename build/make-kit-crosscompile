@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 if [ -z "${CROSS}" ]; then
 	echo 'Error: Environment variable CROSS is empty/unset.  Aborting.' >&2

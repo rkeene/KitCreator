@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 if [ ! -f 'build.sh' ]; then
 	echo 'ERROR: This script must be run from the directory it is in' >&2

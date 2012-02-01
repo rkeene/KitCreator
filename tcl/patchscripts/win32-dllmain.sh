@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 if [ "${KITTARGET}" != "kitdll" ]; then
 	exit 0

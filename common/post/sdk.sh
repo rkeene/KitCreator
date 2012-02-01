@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 if [ -z "${TCLVERS}" ]; then
 	echo 'This script is not meant to be run directly.' >&2

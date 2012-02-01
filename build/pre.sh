@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /usr/bin/env bash
 
 ./kitcreator distclean >/dev/null 2>/dev/null
 
