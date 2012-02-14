@@ -128,7 +128,7 @@ fi
 	cd "${BUILDDIR}" || exit 1
 
 	# Apply patches if needed
-	for patch in "${PATCHDIR}/all"/tcl-${TCLVERS}-*.diff "${PATCHDIR}/${TCLVERS}"/tcl-${TCLVERS}-*.diff; do
+	for patch in "${PATCHDIR}/all"/tcl-${TCLVERS}-*.diff "${PATCHDIR}/all"/tcl-all-*.diff "${PATCHDIR}/${TCLVERS}"/tcl-${TCLVERS}-*.diff; do
 		if [ ! -f "${patch}" ]; then
 			continue
 		fi
