@@ -1,0 +1,6 @@
+#! /bin/sh
+
+CROSS="arm-android9-linux-androideabi"
+export CROSS
+
+./build/make-kit-crosscompile "$@"

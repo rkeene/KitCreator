@@ -67,6 +67,9 @@ case "${CROSS}" in
 	ia64-*)
 		sysmachine="ia64"
 		;;
+	arm-*)
+		sysmachine="armv7l"
+		;;
 esac
 
 for arg in $(echo "$@" | sed 's@.@ & @g'); do
