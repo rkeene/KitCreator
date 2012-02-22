@@ -44,8 +44,8 @@ proc pretty_print_key {key} {
 	set cpu [lindex $key 2]
 
 	switch -glob -- $version {
-		"cvs_HEAD" {
-			set version "from CVS HEAD"
+		"cvs_HEAD" - "fossil_trunk" {
+			set version "from Fossil trunk tip"
 		}
 		"cvs_*" {
 			set tag [join [lrange [split $version _] 1 end] _]
@@ -59,10 +59,14 @@ proc pretty_print_key {key} {
 	return "Tcl $version for [string totitle $os] on $cpu"
 }
 
-proc pretty_print_buildinfo {buildinfo} {
+proc pretty_print_buildinfo {buildinfo {rettype "desc"}} {
 	set desc [list]
+	set tags [list]
+
 	foreach tag [list kitdll debug min static notk nomk4 statictk unthreaded threaded zip] {
 		if {[lsearch -exact $buildinfo $tag] != -1} {
+			set pre_desc $desc
+
 			switch -- $tag {
 				"kitdll" {
 					lappend desc "Built as a Library"
@@ -95,6 +99,10 @@ proc pretty_print_buildinfo {buildinfo} {
 					lappend desc "With Symbols"
 				}
 			}
+
+			if {$desc != $pre_desc} {
+				lappend tags $tag
+			}
 		}
 	}
 
@@ -102,7 +110,14 @@ proc pretty_print_buildinfo {buildinfo} {
 		return "Default Build"
 	}
 
-	return [join $desc {, }]
+	switch -- $rettype {
+		"desc" {
+			return [join $desc {, }]
+		}
+		"tag" {
+			return $tags
+		}
+	}
 }
 
 proc pretty_print_size {size} {
@@ -128,7 +143,10 @@ proc pretty_print_size {size} {
 file delete -force -- $WEBDIR
 file mkdir $WEBDIR
 
-set fd [open [file join $WEBDIR index.html] w]
+set index_html_filename [file join $WEBDIR index.html]
+set index_tcl_filename [file join $WEBDIR index.tcl]
+
+set fd [open "${index_html_filename}.new" w]
 
 file copy -force -- {*}[glob kits/*] $WEBDIR
 
@@ -347,3 +365,10 @@ puts $fd "  </body>"
 puts $fd "</html>"
 
 close $fd
+
+set tfd [open "${index_tcl_filename}.new" w]
+puts $tfd [array get allkitinfo]
+close $tfd
+
+file rename -force -- "${index_html_filename}.new" $index_html_filename
+file rename -force -- "${index_tcl_filename}.new" $index_tcl_filename
