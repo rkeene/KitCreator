@@ -37,7 +37,7 @@ if [ ! -f "${SRC}" ]; then
 	elif echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
 		use_fossil='1'
 
-		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
+		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g;s/_tk=.*$//g')
 	fi
 	export FOSSILTAG
 

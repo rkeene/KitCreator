@@ -49,7 +49,11 @@ if [ ! -f "${SRC}" ]; then
 	elif echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
 		use_fossil='1'
 
-		FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
+		if echo "${TCLVERS}" | grep '^fossil_.*_tk=' >/dev/null; then
+			FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_.*_tk=//g')
+		else
+			FOSSILTAG=$(echo "${TCLVERS}" | sed 's/^fossil_//g')
+		fi
 	fi
 
 	if [ -d 'buildsrc' ]; then
