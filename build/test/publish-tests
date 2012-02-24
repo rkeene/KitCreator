@@ -160,7 +160,7 @@ foreach file [lsort -dictionary [glob -tails -directory $WEBDIR * failed/*]] {
 	}
 
 	switch -glob -- $file {
-		"*.log" - "*.ttml" - "*.html" - "*.desc" - "*-origname" - "*-tclsh" - "*-sdk.tar.gz" {
+		"*.log" - "*.ttml" - "*.html" - "*.desc" - "*-origname" - "*-tclsh" - "*-sdk.tar.gz" - "*.new" {
 			continue
 		}
 	}
