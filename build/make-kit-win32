@@ -6,6 +6,8 @@ CXX=i586-mingw32msvc-g++
 RANLIB=i586-mingw32msvc-ranlib
 RC=i586-mingw32msvc-windres
 STRIP="${STRIP:-i586-mingw32msvc-strip}"
-export AR CC CXX RANLIB RC STRIP
+CFLAGS="${CFLAGS} -D_USE_32BIT_TIME_T=1"
+CPPFLAGS="${CPPFLAGS} -D_USE_32BIT_TIME_T=1"
+export AR CC CXX RANLIB RC STRIP CFLAGS CPPFLAGS
 
 ./kitcreator "$@" --host=i586-mingw32msvc
