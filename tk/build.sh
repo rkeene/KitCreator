@@ -181,11 +181,11 @@ fi
 		fi
 
 		if [ "${STATICTK}" = "1" ]; then
-			echo "Running: ./configure --disable-shared --disable-symbols --prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
-			./configure --disable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+			echo "Running: ./configure --disable-shared --disable-symbols --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
+			./configure --disable-shared --disable-symbols --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 		else
-			echo "Running: ./configure --enable-shared --disable-symbols --prefix=\"${INSTDIR}\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
-			./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+			echo "Running: ./configure --enable-shared --disable-symbols --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
+			./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 		fi
 
 		echo "Running: ${MAKE:-make}"

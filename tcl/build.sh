@@ -173,8 +173,8 @@ fi
 		# Remove broken pre-generated Makfiles
 		rm -f GNUmakefile Makefile makefile
 
-		echo "Running: ./configure --disable-shared --with-encoding=utf-8 --prefix=\"${INSTDIR}\" ${CONFIGUREEXTRA}"
-		./configure --disable-shared --with-encoding=utf-8 --prefix="${INSTDIR}" ${CONFIGUREEXTRA}
+		echo "Running: ./configure --disable-shared --with-encoding=utf-8 --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" ${CONFIGUREEXTRA}"
+		./configure --disable-shared --with-encoding=utf-8 --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" ${CONFIGUREEXTRA}
 
 		echo "Running: ${MAKE:-make}"
 		${MAKE:-make} || continue

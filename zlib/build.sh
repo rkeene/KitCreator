@@ -54,8 +54,8 @@ fi
 
 	# We don't pass CONFIGUREEXTRA here, since this isn't a GNU autoconf
 	# script and will puke
-	echo "Running: ./configure --prefix=\"${INSTDIR}\""
-	./configure --prefix="${INSTDIR}"
+	echo "Running: ./configure --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\""
+	./configure --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib"
 
 	echo "Running: ${MAKE:-make} AR=\"${AR}\""
 	${MAKE:-make} AR="${AR}" || exit 1
