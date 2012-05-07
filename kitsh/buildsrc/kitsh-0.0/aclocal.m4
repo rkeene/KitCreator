@@ -305,7 +305,7 @@ AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
   
 	case $host_os in
 		mingw32*)
-			CFLAGS="${CFLAGS} -mno-cygwin -mms-bitfields"
+			CFLAGS="${CFLAGS} -mms-bitfields"
 			WISH_CFLAGS="-mwindows"
 
 			dnl If we are building for Win32, we need to define "BUILD_tcl" so that
