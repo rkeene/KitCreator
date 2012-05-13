@@ -110,7 +110,7 @@ for kit in $kits; do
 			kitruncmd="wine"
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
-			kitcreator="./build/make-kit-mipsel"
+			kitcreator="./build/make-kit-linux-mipsel"
 			runnable="0"
 			xcompile="1"
 			notk="1"
