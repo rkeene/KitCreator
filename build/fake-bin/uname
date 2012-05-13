@@ -6,6 +6,14 @@ if [ "$1" == "--fake" ]; then
 	exit 0
 fi
 
+# Some systems do not compile well with this fake uname in place
+# provide the real uname for them.
+case "${CROSS}" in
+	mipsel-unknown-linux-uclibc)
+		unset CROSS
+		;;
+esac
+
 if [ -z "${CROSS}" ]; then
 	# If not cross compiling, revert to system uname
 	while [ "$(uname --fake 2>/dev/null)" == "true" -a -n "${PATH}" ]; do
@@ -67,8 +75,11 @@ case "${CROSS}" in
 	ia64-*)
 		sysmachine="ia64"
 		;;
-	arm-*)
+	arm-*|armel-*|armeb-*)
 		sysmachine="armv7l"
+		;;
+	mipsel-*|mipseb-*)
+		sysmachine="mips"
 		;;
 esac
 

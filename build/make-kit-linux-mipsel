@@ -1,11 +1,6 @@
 #! /bin/sh
 
-PATH="${PATH}:/home/rkeene/root/cross-compilers/mipsel-unknown-linux-uclibc/bin"
-AR=mipsel-unknown-linux-uclibc-ar
-CC=mipsel-unknown-linux-uclibc-gcc
-CXX=mipsel-unknown-linux-uclibc-g++
-RANLIB=mipsel-unknown-linux-uclibc-ranlib
-STRIP="${STRIP:-mipsel-unknown-linux-uclibc-strip}"
-export PATH AR CC CXX RANLIB STRIP
+CROSS="mipsel-unknown-linux-uclibc"
+export CROSS
 
-./build/make-minkit "$@" --host=mipsel-unknown-linux-uclibc
+./build/make-kit-crosscompile "$@"
