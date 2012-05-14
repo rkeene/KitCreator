@@ -9,7 +9,7 @@ fi
 CCROOT="${HOME}/root/cross-compilers/${CROSS}"
 CCROOTBIN="${CCROOT}/bin"
 
-PATH="$(pwd)/build/fake-bin:${PATH}:${CCROOTBIN}"
+PATH="${PATH}:${CCROOTBIN}"
 AR="${CCROOTBIN}/${CROSS}-ar"
 CC="${CCROOTBIN}/${CROSS}-gcc ${CC_ADD}"
 CXX="${CCROOTBIN}/${CROSS}-g++ ${CC_ADD}"
