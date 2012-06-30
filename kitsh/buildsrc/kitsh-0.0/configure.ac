@@ -35,9 +35,6 @@ AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl
 AS_IF([test "$TARGET" = "tclkit"], [
 	dnl We have Tclkit
 
-	dnl Figure out how to statically link to libgcc, if needed
-	DC_STATIC_LIBGCC
-
 	dnl Specify local Appinit function
 	AC_DEFINE(TK_LOCAL_APPINIT, [TclKit_AppInit], [Tclkit appinit function])
 ], [
@@ -55,6 +52,9 @@ AS_IF([test "$TARGET" = "tclkit"], [
 	dnl Define KitDLL usage
 	AC_DEFINE([TCLKIT_DLL], [1], [Define if you are using a KitDLL rather than a Tclkit])
 ])
+
+dnl Figure out how to statically link to libgcc, if needed
+DC_STATIC_LIBGCC
 
 dnl Set linker rpath for tclsh/wish
 DC_SETLDRUNPATH([.])
