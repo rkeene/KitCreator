@@ -192,6 +192,7 @@ AS_CASE([$storage_mech],
 )
 
 AC_SUBST(EXTRA_KIT_DEPS)
+AC_SUBST(LDFLAGS_ADD)
 
 dnl Put correct Makefile template in place
 rm -f Makefile.in
