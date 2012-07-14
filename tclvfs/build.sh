@@ -20,6 +20,13 @@ INSTDIR="$(pwd)/inst"
 PATCHDIR="$(pwd)/patches"
 export TCLVFSVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHDIR
 
+# Set configure options for this sub-project
+LDFLAGS="${KC_TCLVFS_LDFLAGS}"
+CFLAGS="${KC_TCLVFS_CFLAGS}"
+CPPFLAGS="${KC_TCLVFS_CPPFLAGS}"
+LIBS="${KC_TCLVFS_LIBS}"
+export LDFLAGS CFLAGS CPPFLAGS LIBS
+
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
 

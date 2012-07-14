@@ -19,6 +19,13 @@ OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
 export ITCLVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
 
+# Set configure options for this sub-project
+LDFLAGS="${KC_THREAD_LDFLAGS}"
+CFLAGS="${KC_THREAD_CFLAGS}"
+CPPFLAGS="${KC_THREAD_CPPFLAGS}"
+LIBS="${KC_THREAD_LIBS}"
+export LDFLAGS CFLAGS CPPFLAGS LIBS
+
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
 

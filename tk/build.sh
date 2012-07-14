@@ -20,6 +20,13 @@ INSTDIR="$(pwd)/inst"
 PATCHSCRIPTDIR="$(pwd)/patchscripts"
 export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR PATCHSCRIPTDIR
 
+# Set configure options for this sub-project
+LDFLAGS="${KC_TK_LDFLAGS}"
+CFLAGS="${KC_TK_CFLAGS}"
+CPPFLAGS="${KC_TK_CPPFLAGS}"
+LIBS="${KC_TK_LIBS}"
+export LDFLAGS CFLAGS CPPFLAGS LIBS
+
 # Must be kept in-sync with "../tcl/build.sh"
 TCLFOSSILDATE="../tcl/src/tcl${TCLVERS}.tar.gz.date"
 export TCLFOSSILDATE

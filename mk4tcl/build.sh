@@ -20,6 +20,13 @@ INSTDIR="$(pwd)/inst"
 PATCHDIR="$(pwd)/patches"
 export MK4VERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHDIR
 
+# Set configure options for this sub-project
+LDFLAGS="${KC_MK4TCL_LDFLAGS}"
+CFLAGS="${KC_MK4TCL_CFLAGS}"
+CPPFLAGS="${KC_MK4TCL_CPPFLAGS}"
+LIBS="${KC_MK4TCL_LIBS}"
+export LDFLAGS CFLAGS CPPFLAGS LIBS
+
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
 

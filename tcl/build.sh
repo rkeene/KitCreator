@@ -20,6 +20,13 @@ PATCHSCRIPTDIR="$(pwd)/patchscripts"
 PATCHDIR="$(pwd)/patches"
 export SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
 
+# Set configure options for this sub-project
+LDFLAGS="${KC_TCL_LDFLAGS}"
+CFLAGS="${KC_TCL_CFLAGS}"
+CPPFLAGS="${KC_TCL_CPPFLAGS}"
+LIBS="${KC_TCL_LIBS}"
+export LDFLAGS CFLAGS CPPFLAGS LIBS
+
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
 

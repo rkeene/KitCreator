@@ -19,6 +19,13 @@ OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
 export ZLIBVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
 
+# Set configure options for this sub-project
+LDFLAGS="${KC_ZLIB_LDFLAGS}"
+CFLAGS="${KC_ZLIB_CFLAGS}"
+CPPFLAGS="${KC_ZLIB_CPPFLAGS}"
+LIBS="${KC_ZLIB_LIBS}"
+export LDFLAGS CFLAGS CPPFLAGS LIBS
+
 rm -rf 'build' 'out' 'inst'
 mkdir 'build' 'out' 'inst' || exit 1
 
