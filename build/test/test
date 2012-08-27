@@ -108,6 +108,7 @@ for kit in $kits; do
 			kitcreator="./build/make-kit-win32"
 			xcompile="1"
 			# XXX: Disabled for now, since I don't have WINE installed
+			runnable="0"
 			#kitruncmd="wine"
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
