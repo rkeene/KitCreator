@@ -107,7 +107,8 @@ for kit in $kits; do
 		win32|win32-*)
 			kitcreator="./build/make-kit-win32"
 			xcompile="1"
-			kitruncmd="wine"
+			# XXX: Disabled for now, since I don't have WINE installed
+			#kitruncmd="wine"
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
 			kitcreator="./build/make-kit-linux-mipsel"
@@ -352,7 +353,7 @@ for kit in $kits; do
 			## Verify that DLL builds are of correct type
 			case "-${version}-${kit}-" in
 				*-win32-kitdll-*|*-win32-*-kitdll-*)
-					if ! file "${createdkit}" | grep 'MS Windows (DLL)' >/dev/null; then
+					if ! file "${createdkit}" | grep 'MS Windows' | grep '(DLL)' >/dev/null; then
 						issane=0
 					fi
 					;;
@@ -362,13 +363,13 @@ for kit in $kits; do
 					fi
 					;;
 				*-win32-notk-*|*-win32-*-notk-*)
-					if ! file "${createdkit}" | grep 'MS Windows (console)' >/dev/null; then
+					if ! file "${createdkit}" | grep 'MS Windows' | grep '(console)' >/dev/null; then
 						echo "Kit failed sanity check for being a console application" >&2
 						issane=0
 					fi
 					;;
 				*-win32-*)
-					if ! file "${createdkit}" | grep 'MS Windows (GUI)' >/dev/null; then
+					if ! file "${createdkit}" | grep 'MS Windows' | grep '(GUI)' >/dev/null; then
 						echo "Kit failed sanity check for being a GUI application" >&2
 						issane=0
 					fi
