@@ -136,6 +136,8 @@ Environment variables:
 		are excluded.  This typically includes (as of Tcl 8.6):
 			itcl thread
 
+		Also, TclOO is removed from Tcl 8.6 forcefully.
+
 Kitsh Configure Options:
 	1. --enable-kit-storage={zip|mk4|auto}
 		Specify which type of storage to use with the Tclkit.  The
