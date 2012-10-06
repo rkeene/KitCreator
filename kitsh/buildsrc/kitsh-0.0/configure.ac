@@ -75,8 +75,10 @@ AC_CHECK_TOOL([RC], [windres], [false])
 dnl If we found the resource compiler, add "kit.res.o" to our list of objects to build
 dnl (as long as the source for such an object exists)
 AS_IF([test "$RC" != "false"], [
-	AS_IF([test -f kit.rc], [
-		EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
+	AS_IF([test "$host_os" = "mingw32msvc" -o "$host_os" = "mingw32"], [
+		AS_IF([test -f kit.rc], [
+			EXTRA_OBJS="$EXTRA_OBJS kit.res.o"
+		])
 	])
 ])
 
