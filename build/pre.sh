@@ -13,7 +13,9 @@ export KITSHROOTDIR
 
 	make -f Makefile.common.in boot.tcl.h zipvfs.tcl.h cvfs.tcl.h
 
-	make distclean
+	make distclean >/dev/null 2>/dev/null
+
+	exit 0
 ) || exit 1
 
 rm -f tcl/patchscripts/dietlibc.sh
