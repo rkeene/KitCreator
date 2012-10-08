@@ -1,7 +1,7 @@
-diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-3rsk/library/vfslib.tcl
---- tclvfs-20080503.orig/library/vfslib.tcl	2011-07-16 15:31:29.000000000 +0200
-+++ tclvfs-20080503-3rsk/library/vfslib.tcl	2011-07-16 15:32:28.000000000 +0200
-@@ -5,6 +5,14 @@
+diff -uNr tclvfs-20080503/library/vfslib.tcl tclvfs-20080503-supportnativezlib/library/vfslib.tcl
+--- tclvfs-20080503/library/vfslib.tcl	2006-09-14 16:39:57.000000000 -0500
++++ tclvfs-20080503-supportnativezlib/library/vfslib.tcl	2012-10-08 14:30:50.930779011 -0500
+@@ -5,6 +5,16 @@
  
  namespace eval ::vfs {
      variable zseq 0	;# used to generate temp zstream cmd names
@@ -11,12 +11,14 @@ diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-3rsk/library/v
 +
 +# Work with the Tcl 8.6+ built-in zlib command or the zlib package, if available
 +catch {
-+	package present zlib
-+	set ::vfs::zlibPkg 1
++	set ::vfs::zlibVers [package present zlib]
++	if {$::vfs::zlibVers == "1.1"} {
++		set ::vfs::zlibPkg 1
++	}
  }
  
  # for backwards compatibility
-@@ -94,8 +102,12 @@
+@@ -94,8 +104,12 @@
  		}
  		# to seek back, rewind, i.e. start from scratch
  		if {$a1 < $pos} {
@@ -31,7 +33,7 @@ diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-3rsk/library/v
  		    seek $ifd 0
  		    set pos 0
  		}
-@@ -110,19 +122,26 @@
+@@ -110,19 +124,26 @@
  		return $pos
  	    }
  	    read {
@@ -62,7 +64,7 @@ diff -uNr tclvfs-20080503.orig/library/vfslib.tcl tclvfs-20080503-3rsk/library/v
  		    #puts stderr " read [string length $data]"
  		    if {$data eq ""} break
  		    append r $data
-@@ -141,8 +160,12 @@
+@@ -141,8 +162,12 @@
      }
  
      proc vfs::zstream {mode ifd clen ilen} {
