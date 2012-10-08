@@ -86,6 +86,19 @@ if [ ! -f "${SRC}" ]; then
 			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f 'tmp-itcl.tar.gz'
 			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-thread.tar.gz"
 			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-tclconfig.tar.gz"
+			if [ "${FOSSILDATE}" = "trunk" ] || [ "$(echo "${FOSSILDATE}" | cut -f 1 -d '-')" -ge '2012' ]; then
+				_USE_TDBC='1'
+				_USE_SQLITE='1'
+				SQLITEVERS='3071401'
+			fi
+
+			if [ "${_USE_TDBC}" = '1' ]; then
+				wget -O "tmp-tdbc.tar.gz" "http://core.tcl.tk/tdbc/tarball/tdbc-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-tdbc.tar.gz"
+			fi
+
+			if [ "${_USE_SQLITE}" = '1' ]; then
+				wget -O "tmp-sqlite3.tar.gz" "http://www.sqlite.org/sqlite-autoconf-${SQLITEVERS}.tar.gz" || rm -f "tmp-sqlite3.tar.gz"
+			fi
 
 			gzip -dc "tmp-itcl.tar.gz" | tar -xf -
 			gzip -dc "tmp-thread.tar.gz" | tar -xf -
@@ -97,6 +110,37 @@ if [ ! -f "${SRC}" ]; then
 			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/itcl/tclconfig"
 			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/thread/tclconfig"
 			mv "tclconfig-fossil" "tcl${TCLVERS}/tclconfig"
+
+			if [ "${_USE_TDBC}" = '1' ]; then
+				gzip -dc "tmp-tdbc.tar.gz" | tar -xf -
+				mv "tdbc-fossil/tdbc" "tcl${TCLVERS}/pkgs/tdbc"
+				mv "tdbc-fossil/tdbcsqlite3" "tcl${TCLVERS}/pkgs/tdbcsqlite3"
+			fi
+
+			if [ "${_USE_SQLITE}" = '1' ]; then
+				gzip -dc "tmp-sqlite3.tar.gz" | tar -xf -
+
+				mv "sqlite-autoconf-${SQLITEVERS}" sqlite-fossil
+				(
+					cd sqlite-fossil || exit
+
+					mv sqlite3.c tea/generic/
+					for file in *; do
+						if [ "${file}" = "tea" ]; then
+							continue
+						fi
+
+						rm -f "${file}"
+					done
+					mv tea/* .
+					rmdir tea
+
+					sed 's@\.\./\.\./sqlite3\.c@./sqlite3.c@' generic/tclsqlite3.c > generic/tclsqlite3.c.new
+					cat generic/tclsqlite3.c.new > generic/tclsqlite3.c
+					rm -f generic/tclsqlite3.c.new
+				)
+				mv sqlite-fossil "tcl${TCLVERS}/pkgs/sqlite3" >/dev/null 2>/dev/null
+			fi
 
 			tar -cf - "tcl${TCLVERS}" | gzip -c > "../../${SRC}"
 			echo "${FOSSILDATE}" > "../../${SRC}.date"
