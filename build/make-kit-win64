@@ -1,11 +1,11 @@
 #! /bin/sh
 
-AR=amd64-mingw32msvc-ar
-CC=amd64-mingw32msvc-gcc
-CXX=false
-RANLIB=amd64-mingw32msvc-ranlib
-RC=amd64-mingw32msvc-windres
-STRIP="${STRIP:-amd64-mingw32msvc-strip}"
+AR=i686-w64-mingw32-ar
+CC=i686-w64-mingw32-gcc
+CXX=i686-w64-mingw32-g++
+RANLIB=i686-w64-mingw32-ranlib
+RC=i686-w64-mingw32-windres
+STRIP="${STRIP:-i686-w64-mingw32-strip}"
 export AR CC CXX RANLIB RC STRIP
 
-./kitcreator "$@" --host=amd64-mingw32msvc --enable-64bit
+./kitcreator "$@" --host=i686-w64-mingw32
