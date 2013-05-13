@@ -91,16 +91,18 @@ Tcl_AppInitProc	Dde_Init, Registry_Init;
 #  define TCLKIT_VFSSOURCE "[info nameofexecutable]"
 #endif /* TCLKIT_DLL */
 
-#ifdef HAVE_ACCEPTABLE_DLADDR
-#  ifdef KITSH_NEED_WINMAIN
-#    ifdef _WIN32_WCE
+#ifndef TCLKIT_DLL
+#  ifdef HAVE_ACCEPTABLE_DLADDR
+#    ifdef KITSH_NEED_WINMAIN
+#      ifdef _WIN32_WCE
 int wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow);
-#    else
+#      else
 int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdLine, int nCmdShow);
-#    endif /* _WIN32_WCE */
-#  endif /* KITSH_NEED_WINMAIN */
+#      endif /* _WIN32_WCE */
+#    endif /* KITSH_NEED_WINMAIN */
 int main(int argc, char **argv);
-#endif /* HAVE_ACCEPTABLE_DLADDR */
+#  endif /* HAVE_ACCEPTABLE_DLADDR */
+#endif /* !TCLKIT_DLL */
 
 #ifdef TCLKIT_REQUIRE_TCLEXECUTABLENAME
 char *tclExecutableName;
@@ -299,15 +301,13 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 			return;
 		}
 	}
-#  endif /* !TCLKIT_DLL */
-
-#  ifdef KITSH_NEED_WINMAIN
+#    ifdef KITSH_NEED_WINMAIN
 	if (Tcl_GetNameOfExecutable() == NULL) {
-#    ifdef _WIN32_WCE
+#      ifdef _WIN32_WCE
 		dladdr_ret = dladdr(&WinMain, &syminfo);
-#    else
+#      else
 		dladdr_ret = dladdr(&wWinMain, &syminfo);
-#    endif /* _WIN32_WCE */
+#      endif /* _WIN32_WCE */
 
 		if (dladdr_ret != 0) {
 			SetExecName(interp, syminfo.dli_fname);
@@ -315,7 +315,7 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 			return;
 		}
 	}
-#  endif /* KITSH_NEED_WINMAIN */
+#    endif /* KITSH_NEED_WINMAIN */
 
 	if (Tcl_GetNameOfExecutable() == NULL) {
 		dladdr_ret = dladdr(&main, &syminfo);
@@ -325,6 +325,7 @@ static void FindAndSetExecName(Tcl_Interp *interp) {
 			return;
 		}
 	}
+#  endif /* !TCLKIT_DLL */
 #endif /* HAVE_ACCEPTABLE_DLADDR */
 
 	if (Tcl_GetNameOfExecutable() == NULL) {
