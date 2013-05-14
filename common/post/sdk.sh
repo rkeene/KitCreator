@@ -106,12 +106,45 @@ _EOF_
 	fi
 )
 
+# Create android makefile snippet, used by "ndk-build"
+(
+	is_android='0'
+	if echo "${CC}" | grep -i 'android' >/dev/null; then
+		is_android='1'
+	fi
+
+	if [ "${KITCREATOR_ANDROID}" = '1' ]; then
+		is_android='1'
+	fi
+
+	if [ "${is_android}" != '1' ]; then
+		exit 0
+	fi
+
+	cd __tmp__ || exit 1
+
+	tclkitlibfile="$(cd lib/ && ls -1 libtclkit* | head -n 1 | sed 's@^.*/@@')"
+	tclkitlibname="$(echo "${tclkitlibfile}" | sed 's@^lib@@;s@\..*$@@')"
+
+	cat << _EOF_ > Android.mk
+LOCAL_PATH := \$(call my-dir)
+include \$(CLEAR_VARS)
+LOCAL_MODULE := ${tclkitlibname}
+LOCAL_SRC_FILES := \$(LOCAL_PATH)/lib/${tclkitlibfile}
+include \$(PREBUILT_SHARED_LIBRARY)
+_EOF_
+)
+
 (
 	cd '__tmp__' || exit 1
 
 	mkdir "libtclkit-sdk-${TCLVERS}"
 
 	mv 'lib' 'include' 'doc' "libtclkit-sdk-${TCLVERS}/"
+
+	if [ -e 'Android.mk' ]; then
+		mv 'Android.mk' "libtclkit-sdk-${TCLVERS}/"
+	fi
 
 	tar -cf - "libtclkit-sdk-${TCLVERS}" | gzip -9c > "../libtclkit-sdk-${TCLVERS}.tar.gz"
 )
