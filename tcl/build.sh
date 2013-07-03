@@ -265,6 +265,9 @@ fi
 		rm -f "${OUTDIR}"/lib/* >/dev/null 2>/dev/null
 		find "${OUTDIR}" -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
 
+		# Remove archive files that are just stubs for other files
+		find "${INSTDIR}" -name '*.a' ! -name '*stub*' | grep -v '/libtcl[0-9\.][0-9\.]*\.a$' | xargs rm -f >/dev/null 2>/dev/null
+
 		# Clean up packages that are not needed
 		if [ -n "${KITCREATOR_MINBUILD}" ]; then
 			find "${OUTDIR}" -name "tcltest*" -type d | xargs rm -rf
