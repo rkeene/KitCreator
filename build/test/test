@@ -107,9 +107,8 @@ for kit in $kits; do
 		win32|win32-*)
 			kitcreator="./build/make-kit-win32"
 			xcompile="1"
-			# XXX: Disabled for now, since I don't have WINE installed
-			runnable="0"
-			#kitruncmd="wine"
+			runnable="1"
+			kitruncmd="wine"
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
 			kitcreator="./build/make-kit-linux-mipsel"
@@ -118,9 +117,12 @@ for kit in $kits; do
 			notk="1"
 			iszip="1"
 			;;
+		linux-i386|linux-i386-*)
+			kitcreator="./build/make-kit-linux-i386"
+			xcompile="1"
+			;;
 		android-arm|android-arm-*|\
 		linux-mipsel|linux-mipsel-*|\
-		linux-i386|linux-i386-*|\
 		linux-amd64|linux-amd64-*|\
 		solaris-i386|solaris-i386-*|\
 		solaris-amd64|solaris-amd64-*|\
