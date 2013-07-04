@@ -266,7 +266,25 @@ fi
 		find "${OUTDIR}" -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
 
 		# Remove archive files that are just stubs for other files
-		find "${INSTDIR}" -name '*.a' ! -name '*stub*' | grep -v '/libtcl[0-9\.][0-9\.]*\.a$' | xargs rm -f >/dev/null 2>/dev/null
+		echo "Deleting these files from install directory:"
+		find "${INSTDIR}" -name '*.a' ! -name '*stub*' | while IFS='' read -r filename; do
+			dirname="$(dirname "${filename}")"
+
+			delete='0'
+			for dll in "${dirname}"/*.dll; do
+				if [ -f "${dll}" ]; then
+					delete='1'
+
+					break
+				fi
+			done
+
+			if [ "${delete}" = '1' ]; then
+				echo "        ${filename}"
+
+				rm -f "${filename}"
+			fi
+		done
 
 		# Clean up packages that are not needed
 		if [ -n "${KITCREATOR_MINBUILD}" ]; then
