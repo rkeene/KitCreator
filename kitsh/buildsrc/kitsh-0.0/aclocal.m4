@@ -190,7 +190,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
-		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | tr "\n" ' '`"
+		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | sort | tr "\n" ' '`"
 		projlibfilesnostub="`find "${projlibdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
 
 		AC_MSG_RESULT([${projlibfilesnostub}])
