@@ -110,8 +110,6 @@ char *tclExecutableName;
 
 /*
  *  Attempt to load a "boot.tcl" entry from the embedded MetaKit file.
- *  If there isn't one, try to open a regular "setup.tcl" file instead.
- *  If that fails, this code will throw an error, using a message box.
  */
 /*
  * This Tcl code is invoked whenever Tcl_Init() is called on an
@@ -200,9 +198,7 @@ static char *preInitCmd =
 #endif /* KIT_STORAGE_CVFS */
 #ifndef TCLKIT_DLL
 	"if {![info exists s]} {\n"
-		"set f [open setup.tcl]\n"
-		"set s [read $f]\n"
-		"close $f\n"
+		"set s \"\"\n"
 	"}\n"
 #endif /* !TCLKIT_DLL */
 #ifdef TCLKIT_DLL
