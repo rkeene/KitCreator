@@ -192,8 +192,15 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | sort | tr "\n" ' '`"
 		projlibfilesnostub="`find "${projlibdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
+		projlibextra=""
 
-		AC_MSG_RESULT([${projlibfilesnostub}])
+		for libfile in ${projlibfilesnostub}; do
+			if test -f "${libfile}.linkadd"; then
+				projlibextra="`cat "${libfile}.linkadd"`"
+			fi
+		done
+
+		AC_MSG_RESULT([${projlibfilesnostub} ${projlibextra}])
 
 		hide_symbols="1"
 		initialize="1"
@@ -281,6 +288,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		fi
 
 		ARCHS="${ARCHS} ${projlibfiles}"
+		LIBS="${LIBS} ${projlibextra}"
 	done
 
 	echo '' >> kitInit-libs.h
@@ -294,6 +302,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 	AC_SUBST(ARCHS)
 	AC_SUBST(STRIPLIBS)
+	AC_SUBST(LIBS)
 ])
 
 AC_DEFUN(DC_SETUP_TCL_PLAT_DEFS, [
