@@ -130,7 +130,7 @@ _EOF_
 LOCAL_PATH := \$(call my-dir)
 include \$(CLEAR_VARS)
 LOCAL_MODULE := ${tclkitlibname}
-LOCAL_SRC_FILES := \$(LOCAL_PATH)/lib/${tclkitlibfile}
+LOCAL_SRC_FILES := lib/${tclkitlibfile}
 include \$(PREBUILT_SHARED_LIBRARY)
 _EOF_
 )
