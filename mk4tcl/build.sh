@@ -118,8 +118,10 @@ fi
 		# so that it can be linked into the shared object
 		if [ "${isshared}" = "0" -a "${KITTARGET}" = "kitdll" ]; then
 			CXXFLAGS="${SAVE_CXXFLAGS} -fPIC"
-			export CXXFLAGS
+		else
+			CXXFLAGS="${SAVE_CXXFLAGS}"
 		fi
+		export CXXFLAGS
 
 		(
 			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}/../generic\" ${CONFIGUREEXTRA}"
