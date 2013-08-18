@@ -17,7 +17,7 @@ SRCURL="http://sourceforge.net/projects/tcl/files/Thread%20Extension/${THREADVER
 BUILDDIR="$(pwd)/build/thread${THREADVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export ITCLVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
+export THREADVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
 
 # Set configure options for this sub-project
 LDFLAGS="${KC_THREAD_LDFLAGS}"
