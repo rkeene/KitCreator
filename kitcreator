@@ -1,5 +1,15 @@
 #! /usr/bin/env bash
 
+# Determine appropriate mode
+mode="build"
+case "$1" in
+	clean|distclean|build|retry)
+		mode="$1"
+		shift
+		;;
+esac
+
+# Determine which Tcl version to build
 TCLVERS="8.5.14"
 if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | egrep '^(cvs|fossil)_' >/dev/null; then
 	TCLVERS="$1"
@@ -7,19 +17,6 @@ if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | egrep '^(cvs|foss
 	shift
 fi
 export TCLVERS
-
-# Determine appropriate mode
-mode="build"
-if [ "$1" = "clean" ]; then
-	shift
-
-	mode="clean"
-fi
-if [ "$1" = "distclean" ]; then
-	shift
-
-	mode="distclean"
-fi
 
 # Verify that "pre.sh" has been run if this is a development snapshot of
 # KitCreator
@@ -31,11 +28,15 @@ fi
 
 # Define the list of all packages, for cleaning purposes
 KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread dbus"
+# Always rebuild kitsh
+rm -f "kitsh/.success"
 for pkg in ${KITCREATOR_ALLPKGS}; do
-	rm -f "${pkg}/build.log"
-	rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
+	if [ "${mode}" != "retry" -o ! -f "${pkg}/.success" ]; then
+		rm -f "${pkg}/build.log" "${pkg}/.success"
+		rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
 
-	rm -rf "${pkg}/src"/tmp-*
+		rm -rf "${pkg}/src"/tmp-*
+	fi
 
 	if [ "${mode}" = "distclean" ]; then
 		rm -rf "${pkg}/src"
@@ -130,14 +131,18 @@ export TCLSH_NATIVE
 failedpkgs=""
 buildfailed="0"
 for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
-	echo -n "Building ${pkg} ..."
-
 	failed="0"
-	(
-		cd "${pkg}" >/dev/null 2>/dev/null || exit 1
+	if [ -f "${pkg}/.success" ]; then
+		echo -n "Skipping ${pkg} ..."
+	else
+		echo -n "Building ${pkg} ..."
 
-		./build.sh 3>&1 4>&2 > build.log 2>&1 || exit 1
-	) || failed="1"
+		(
+			cd "${pkg}" >/dev/null 2>/dev/null || exit 1
+
+			./build.sh 3>&1 4>&2 > build.log 2>&1 || exit 1
+		) || failed="1"
+	fi
 
 	if [ "${failed}" = "1" ]; then
 		echo " failed."
@@ -156,6 +161,8 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 
 	if [ "${failed}" = "1" ]; then
 		buildfailed="1"
+	else
+		touch "${pkg}/.success"
 	fi
 done
 
