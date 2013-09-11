@@ -5,16 +5,17 @@ This will build a Tclkit named "tclkit-<version>" or a KitDLL named
 Using This Tool
 ---------------
 Usage:
-	kitcreator [{<version> | cvs_<cvsTag> | clean | distclean}]
-	           [<configure_options...>]
+	kitcreator [{build | retry | clean | distclean}]
+	           [{<version> | cvs_<tag> | fossil_<tag>}]
+	           [<configure_option> ...]
 
 	Where:
-		version            is a Tcl version number (e.g., 8.4.19)
-		cvsTag             is a CVS release tag (e.g., HEAD)
-		configure_options  are options to pass to subordinate configure
+		version            is a Tcl version number (e.g., 8.5.14)
+		tag                is a CVS or fossil release tag (e.g., HEAD)
+		configure_option   option to pass to subordinate configure
 		                   scripts (e.g., --enable-64bit)
 
-	Default is to create a Tclkit from Tcl version 8.4.19
+	Default is to create a Tclkit from Tcl version 8.5.14
 
 Examples:
 	1. Create a Tclkit:
@@ -41,7 +42,11 @@ Examples:
 			iii. $ AR=mipsel-linux-uclibc-ar
 			iv.  $ RANLIB=mipsel-linux-uclibc-ranlib
 			v.   $ export CC CXX AR RANLIB
-		v.   $ ./kitcreator --host=mipsel-linux-uclibc
+			vi.  $ ./kitcreator --host=mipsel-linux-uclibc
+	   Note: When cross-compiling, the Tcl configure script may be unable
+	   to determine which serial support method to use. If you want serial
+	   support in a cross-compiled tclkit, specify it manually, e.g.:
+		$ ./kitcreator CFLAGS=-DUSE_TERMIOS=1 -host=mipsel-linux-uclibc
 
 	6. Compile a 64-bit Tclkit 8.5.8 using SunStudio 12.1 on Solaris/x86:
 		a. $ CC='/opt/sunstudio12.1/bin/cc -m64'
