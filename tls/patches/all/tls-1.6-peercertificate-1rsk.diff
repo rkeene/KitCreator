@@ -1,0 +1,43 @@
+diff -uNr tls1.6/tlsX509.c tls1.6-patched/tlsX509.c
+--- tls1.6/tlsX509.c	2005-02-07 14:51:03.000000000 -0500
++++ tls1.6-patched/tlsX509.c	2013-01-07 00:47:59.000000000 -0500
+@@ -100,12 +100,14 @@
+     char serial[BUFSIZ];
+     char notBefore[BUFSIZ];
+     char notAfter[BUFSIZ];
++    char certStr[BUFSIZ];
+ #ifndef NO_SSL_SHA
+     int shai;
+     char sha_hash[SHA_DIGEST_LENGTH*2];
+     const char *shachars="0123456789ABCDEF";
+ #endif
+ 
++    certStr[0] = 0;
+     if ((bio = BIO_new(BIO_s_mem())) == NULL) {
+ 	subject[0] = 0;
+ 	issuer[0]  = 0;
+@@ -132,6 +134,13 @@
+ 	serial[n] = 0;
+ 	BIO_flush(bio);
+ 
++        if (PEM_write_bio_X509(bio, cert)) {
++            n = BIO_read(bio, certStr, min(BIO_pending(bio), BUFSIZ - 1));
++            n = max(n, 0);
++            certStr[n] = 0;
++            BIO_flush(bio);
++        }
++
+ 	BIO_free(bio);
+     }
+ 
+@@ -175,5 +184,10 @@
+     Tcl_ListObjAppendElement( interp, certPtr,
+ 	    Tcl_NewStringObj( serial, -1) );
+ 
++    Tcl_ListObjAppendElement( interp, certPtr,
++	    Tcl_NewStringObj( "certificate", -1) );
++    Tcl_ListObjAppendElement( interp, certPtr,
++	    Tcl_NewStringObj( certStr, -1) );
++
+     return certPtr;
+ }
