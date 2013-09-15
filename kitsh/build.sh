@@ -127,8 +127,10 @@ mkdir 'out' 'inst' || exit 1
 	${MAKE:-make} TCLSH_NATIVE="${TCLSH_NATIVE}" || exit 1
 
 	# Strip the kit of all symbols, if possible
-	"${STRIP:-strip}" kit >/dev/null 2>/dev/null
-	"${STRIP:-strip}" -g libtclkit* >/dev/null 2>/dev/null
+	if ! echo " ${CONFIGUREEXTRA} " | grep ' --enable-symbols ' >/dev/null; then
+		"${STRIP:-strip}" kit >/dev/null 2>/dev/null
+		"${STRIP:-strip}" -g libtclkit* >/dev/null 2>/dev/null
+	fi
 
 	# Fix up Win32 DLL names
 	## .DLL.A -> .LIB
