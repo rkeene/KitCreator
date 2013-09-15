@@ -257,10 +257,6 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			initialize="0"
 		fi
 
-		if test "${proj}" = "thread"; then
-			initialize="0"
-		fi
-
 		if test "${proj}" = "tclvfs"; then
 			initialize="0"
 		fi
