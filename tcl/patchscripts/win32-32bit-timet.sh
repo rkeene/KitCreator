@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # Do not run on Win32
-if echo '_WIN64' | x86_64-w64-mingw32-gcc -E - | grep '^_WIN64$'; then
+if echo '_WIN64' | ${CC:-cc} -E - | grep '^_WIN64$'; then
 	(
 		echo '#ifndef _USE_32BIT_TIME_T'
 		echo '#define _USE_32BIT_TIME_T 1'
