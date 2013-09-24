@@ -1,0 +1,12 @@
+diff -uNr /c/dev/Tcl/core/trunk/tcl/generic/tcl.h~0 /c/dev/Tcl/core/trunk/tcl/generic/tcl.h
+--- /c/dev/Tcl/core/trunk/tcl/generic/tcl.h~0	2013-09-24 13:50:16 -0700
++++ /c/dev/Tcl/core/trunk/tcl/generic/tcl.h	2013-09-24 13:47:11 -0700
+@@ -454,6 +454,8 @@
+ 	typedef struct __stat64 Tcl_StatBuf;
+ #   elif (defined(_MSC_VER) && (_MSC_VER < 1400)) || defined(_USE_32BIT_TIME_T)
+ 	typedef struct _stati64	Tcl_StatBuf;
++#   elif defined(__MINGW32_VERSION)
++	typedef struct _stati64	Tcl_StatBuf;
+ #   else
+ 	typedef struct _stat32i64 Tcl_StatBuf;
+ #   endif /* _MSC_VER < 1400 */
