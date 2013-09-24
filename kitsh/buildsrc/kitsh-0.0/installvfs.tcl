@@ -98,7 +98,12 @@ switch -- $tclKitStorage {
 		fconfigure $kitfd -translation binary
 
 		cd $vfsdir
-		set zipfd [open "|zip -r - [glob *] 2> /dev/null"]
+		if {$tcl_platform(platform) eq "windows"} {
+			set null NUL
+		} else {
+			set null /dev/null
+		}
+		set zipfd [open "|zip -r - [glob *] 2> $null"]
 		fconfigure $zipfd -translation binary
 
 		fcopy $zipfd $kitfd
