@@ -10,7 +10,7 @@ case "$1" in
 esac
 
 # Determine which Tcl version to build
-TCLVERS="8.5.14"
+TCLVERS="8.6.1"
 if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | egrep '^(cvs|fossil)_' >/dev/null; then
 	TCLVERS="$1"
 

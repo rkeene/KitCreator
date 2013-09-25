@@ -10,19 +10,19 @@ Usage:
 	           [<configure_option> ...]
 
 	Where:
-		version            is a Tcl version number (e.g., 8.5.14)
+		version            is a Tcl version number (e.g., 8.6.1)
 		tag                is a CVS or fossil release tag (e.g., HEAD)
 		configure_option   option to pass to subordinate configure
 		                   scripts (e.g., --enable-64bit)
 
-	Default is to create a Tclkit from Tcl version 8.5.14
+	Default is to create a Tclkit from Tcl version 8.6.1
 
 Examples:
 	1. Create a Tclkit:
 		a. $ ./kitcreator
 
-	2. Create a Tclkit for Tcl 8.5.8:
-		a. $ ./kitcreator 8.5.8
+	2. Create a Tclkit for Tcl 8.5.15:
+		a. $ ./kitcreator 8.5.15
 
 	3. Create a Tclkit for Tcl from CVS HEAD:
 		a. $ ./kitcreator cvs_HEAD
@@ -48,12 +48,12 @@ Examples:
 	   support in a cross-compiled tclkit, specify it manually, e.g.:
 		$ ./kitcreator CFLAGS=-DUSE_TERMIOS=1 -host=mipsel-linux-uclibc
 
-	6. Compile a 64-bit Tclkit 8.5.8 using SunStudio 12.1 on Solaris/x86:
+	6. Compile a 64-bit Tclkit 8.5.15 using SunStudio 12.1 on Solaris/x86:
 		a. $ CC='/opt/sunstudio12.1/bin/cc -m64'
 		b. $ CXX='/opt/sunstudio12.1/bin/CC -m64'
 		c. $ PATCH='gpatch'
 		c. $ export CC CXX PATCH
-		d. $ ./kitcreator 8.5.8 --enable-64bit
+		d. $ ./kitcreator 8.5.15 --enable-64bit
 
 	7. To clean up post-build:
 		a. $ ./kitcreator clean
