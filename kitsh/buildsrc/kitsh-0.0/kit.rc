@@ -63,4 +63,4 @@ END
 // Icon
 //
 
-tclsh                      ICON    DISCARDABLE     "kit.ico"
+tclsh                      ICON    DISCARDABLE     "tclkit.ico"

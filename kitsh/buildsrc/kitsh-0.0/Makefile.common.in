@@ -39,7 +39,7 @@ pwb.o: pwb.c
 zlib.o: zlib.c
 
 ### Windows resources
-kit.res.o: kit.rc kit.ico
+kit.res.o: kit.rc tclkit.ico
 	$(RC) -o kit.res.o $(CPPFLAGS) kit.rc
 
 # Cleanup routines

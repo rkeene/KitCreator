@@ -79,6 +79,9 @@ mkdir 'out' 'inst' || exit 1
 	## Install "boot.tcl"
 	cp 'boot.tcl' 'starpack.vfs/'
 
+	## Install "tclkit.ico"
+	cp 'tclkit.ico' 'starpack.vfs/'
+
 	# Figure out if zlib compiled (if not, the system zlib will be used and we
 	# will need to have that present)
 	ZLIBDIR="$(cd "${OTHERPKGSDIR}/zlib/inst" 2>/dev/null && pwd)"
@@ -87,8 +90,8 @@ mkdir 'out' 'inst' || exit 1
 		unset ZLIBDIR
 	fi
 
-	# Copy user specified kit.rc and kit.ico in to build directory, if found
-	cp "${KITCREATOR_ICON}" "${BUILDDIR}/kit.ico"
+	# Copy user specified kit.rc and tclkit.ico in to build directory, if found
+	cp "${KITCREATOR_ICON}" "${BUILDDIR}/tclkit.ico"
 	cp "${KITCREATOR_RC}" "${BUILDDIR}/kit.rc"
 
 	# Include extra objects as required

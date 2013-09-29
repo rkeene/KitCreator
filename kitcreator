@@ -105,7 +105,7 @@ fi
 if [ -f "kit.ico" ]; then
 	KITCREATOR_ICON="$(pwd)/kit.ico"
 else
-	KITCREATOR_ICON="$(echo "$(pwd)/kitsh/buildsrc"/kitsh-*/kit.ico)"
+	KITCREATOR_ICON="$(echo "$(pwd)/kitsh/buildsrc"/kitsh-*/tclkit.ico)"
 fi
 if [ -f "kit.rc" ]; then
 	KITCREATOR_RC="$(pwd)/kit.rc"
