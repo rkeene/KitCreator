@@ -114,7 +114,7 @@ for kit in $kits; do
 			kitcreator="./build/make-kit-win32"
 			xcompile="1"
 			runnable="1"
-			kitruncmd="wine"
+			kitruncmd="wine64"
 			args="${args} --enable-64bit"
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
