@@ -45,18 +45,21 @@ for file in "${TESTDIR}"/kits/*.log; do
 done
 
 # Disable WINE debugging
-WINEPREFIX="${TESTDIR}/.wine"
-export WINEPREFIX
-rm -rf "${WINEPREFIX}"
-mkdir "${WINEPREFIX}"
+WINEPREFIX32="${TESTDIR}/.wine"
+WINEPREFIX64="${TESTDIR}/.wine64"
+export WINEPREFIX32 WINEPREFIX64
+rm -rf "${WINEPREFIX32}" "${WINEPREFIX64}"
+mkdir "${WINEPREFIX32}" "${WINEPREFIX64}"
 
-cat << \_EOF_ > "${WINEPREFIX}/update-reg"
+cat << \_EOF_ > "${WINEPREFIX32}/update-reg"
 [HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\AeDebug]
 "Auto"=dword:00000001
 "Debugger"="false"
 _EOF_
+cp "${WINEPREFIX32}/update-reg" "${WINEPREFIX64}/update-reg"
 
-regedit "${WINEPREFIX}/update-reg" >/dev/null 2>/dev/null
+regedit "${WINEPREFIX32}/update-reg" >/dev/null 2>/dev/null
+regedit "${WINEPREFIX64}/update-reg" >/dev/null 2>/dev/null
 
 # Start Xvfb for X11-based tests
 XVFB_PID="$(
@@ -148,6 +151,17 @@ for kit in $kits; do
 			if echo "${kit}" | egrep -- '-(hppa64|amd64|sparc64)-' >/dev/null; then
 				args="${args} --enable-64bit"
 			fi
+			;;
+	esac
+
+	case "${kitruncmd}" in
+		wine)
+			WINEPREFIX="${WINEPREFIX32}"
+			export WINEPREFIX
+			;;
+		wine64)
+			WINEPREFIX="${WINEPREFIX64}"
+			export WINEPREFIX
 			;;
 	esac
 
@@ -520,7 +534,7 @@ fi
 kill -9 "${XVFB_PID}"
 
 ## Remove wine
-rm -rf "${WINEPREFIX}"
+rm -rf "${WINEPREFIX32}" "${WINEPREFIX64}"
 
 ./kitcreator clean
 rm -f tclsh
