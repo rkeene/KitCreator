@@ -118,7 +118,6 @@ for kit in $kits; do
 			xcompile="1"
 			runnable="1"
 			kitruncmd="wine64"
-			args="${args} --enable-64bit"
 			;;
 		linux-mipsel-min|linux-mipsel-min-kitdll)
 			kitcreator="./build/make-kit-linux-mipsel"
@@ -148,11 +147,12 @@ for kit in $kits; do
 			xcompile="1"
 			iszip="0"
 
-			if echo "${kit}" | egrep -- '-(hppa64|amd64|sparc64)-' >/dev/null; then
-				args="${args} --enable-64bit"
-			fi
 			;;
 	esac
+
+	if echo "${kit}" | egrep -- '-(hppa64|amd64|sparc64)-' >/dev/null; then
+		args="${args} --enable-64bit"
+	fi
 
 	case "${kitruncmd}" in
 		wine)
