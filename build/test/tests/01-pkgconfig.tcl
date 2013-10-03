@@ -17,4 +17,6 @@ if {[tcl::pkgconfig get 64bit] == $is64bit} {
 	exit 0
 }
 
+puts "tcl::pkgconfig get returned [tcl::pkgconfig get 64bit], but we platform 64 bit returned: $is64bit"
+
 exit 1
