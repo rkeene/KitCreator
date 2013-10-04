@@ -150,7 +150,7 @@ for kit in $kits; do
 			;;
 	esac
 
-	if echo "${kit}" | egrep -- '-(hppa64|amd64|sparc64)-' >/dev/null; then
+	if echo "${kit}" | egrep -- '-(hppa64|amd64|sparc64)(-|$)' >/dev/null; then
 		args="${args} --enable-64bit"
 	fi
 
