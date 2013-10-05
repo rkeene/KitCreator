@@ -58,8 +58,8 @@ cat << \_EOF_ > "${WINEPREFIX32}/update-reg"
 _EOF_
 cp "${WINEPREFIX32}/update-reg" "${WINEPREFIX64}/update-reg"
 
-regedit "${WINEPREFIX32}/update-reg" >/dev/null 2>/dev/null
-regedit "${WINEPREFIX64}/update-reg" >/dev/null 2>/dev/null
+WINEPREFIX="${WINEPREFIX32}" regedit "${WINEPREFIX32}/update-reg" >/dev/null 2>/dev/null
+WINEPREFIX="${WINEPREFIX64}" regedit "${WINEPREFIX64}/update-reg" >/dev/null 2>/dev/null
 
 # Start Xvfb for X11-based tests
 XVFB_PID="$(
