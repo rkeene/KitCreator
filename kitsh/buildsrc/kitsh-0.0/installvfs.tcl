@@ -14,6 +14,11 @@ if {[lindex $argv 2] != ""} {
 	set opt_compression [lindex $argv 2]
 }
 
+# On Windows, use the ".exe" file extension
+if {$tcl_platform(platform) eq "windows"} {
+  set kitfile [file rootname $kitfile].exe
+}
+
 # Determine what storage mechanism is being used
 set fd [open Makefile.common r]
 set data [read $fd]

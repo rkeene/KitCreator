@@ -10,6 +10,11 @@ if [ -z "${TCLVERS}" ]; then
 
 	exit 1
 fi
+if [ -z "${TCLVERS2}" ]; then
+	echo 'ERROR: The TCLVERS2 environment variable is not set' >&2
+
+	exit 1
+fi
 
 KITSHVERS="0.0"
 BUILDDIR="$(pwd)/build/kitsh-${KITSHVERS}"
@@ -205,7 +210,10 @@ mkdir 'out' 'inst' || exit 1
 		echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
 		echo 'source installvfs.tcl' >> setup.tcl
 
-		echo 'Running: echo | ./runkit'
+		TCL_LIBRARY="$(pwd)/starpack.vfs/lib/tcl${TCLVERS2}"
+		export TCL_LIBRARY
+
+		echo 'Running: echo | ./runkit setup.tcl'
 		echo | ./runkit setup.tcl || exit 1
 	fi
 

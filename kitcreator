@@ -18,6 +18,10 @@ if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | egrep '^(cvs|foss
 fi
 export TCLVERS
 
+# Determine the two part Tcl version
+TCLVERS2=$(echo ${TCLVERS} | cut -d. -f1,2)
+export TCLVERS2
+
 # Verify that "pre.sh" has been run if this is a development snapshot of
 # KitCreator
 if [ -f 'build/pre.sh' ]; then
