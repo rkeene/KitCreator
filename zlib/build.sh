@@ -17,7 +17,9 @@ SRCURL="http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERS}/zlib-${ZLI
 BUILDDIR="$(pwd)/build/zlib-${ZLIBVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export ZLIBVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
+PATCHSCRIPTDIR="$(pwd)/patchscripts"
+PATCHDIR="$(pwd)/patches"
+export ZLIBVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
 
 # Set configure options for this sub-project
 LDFLAGS="${KC_ZLIB_LDFLAGS}"
@@ -49,9 +51,28 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
-	# ZLIB Expects AR to contain options
-	AR="${AR:-ar} rcu"
-	export AR
+
+	# Apply patches if needed
+	for patch in "${PATCHDIR}/all"/zlib-${ZLIBVERS}-*.diff "${PATCHDIR}/all"/zlib-all-*.diff "${PATCHDIR}/${ZLIBVERS}"/zlib-${ZLIBVERS}-*.diff; do
+		if [ ! -f "${patch}" ]; then
+			continue
+		fi
+
+		echo "Applying: ${patch}"
+		${PATCH:-patch} -p1 < "${patch}"
+	done
+
+
+	# Apply patch scripts if needed
+	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do
+		if [ -f "${patchscript}" ]; then
+			echo "Running patch script: ${patchscript}"
+
+			(
+				. "${patchscript}"
+			)
+		fi
+	done
 
 	# If we are building for KitDLL, compile with '-fPIC'
 	if [ "${KITTARGET}" = "kitdll" ]; then
@@ -64,11 +85,11 @@ fi
 	echo "Running: ./configure --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\""
 	./configure --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib"
 
-	echo "Running: ${MAKE:-make} AR=\"${AR}\""
-	${MAKE:-make} AR="${AR}" || exit 1
+	echo "Running: ${MAKE:-make}"
+	${MAKE:-make} || exit 1
 
-	echo "Running: ${MAKE:-make} install AR=\"${AR}\""
-	${MAKE:-make} install AR="${AR}"
+	echo "Running: ${MAKE:-make} install"
+	${MAKE:-make} install
 
 	# We don't really care too much about failure in zlib
 	exit 0
