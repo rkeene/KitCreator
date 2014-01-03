@@ -171,6 +171,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 	for projdir in ../../../*/; do
 		proj="`basename "${projdir}"`"
+		subprojs="$proj"
 
 		if test "${proj}" = "build"; then
 			continue
@@ -203,7 +204,6 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		AC_MSG_RESULT([${projlibfilesnostub} ${projlibextra}])
 
 		hide_symbols="1"
-		initialize="1"
 
 		if test "${proj}" = "tcl"; then
 			DC_TEST_WHOLE_ARCHIVE_SHARED_LIB([$ARCHS $projlibfilesnostub], [
@@ -215,7 +215,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			])
 
 			hide_symbols="0"
-			initialize="0"
+			subprojs="`echo " $projlibfilesnostub " | sed 's@ [[^ ]]*/@ @g;s@ lib@@g;s@[[0-9\.]]*\.a@ @g;s@ sqlite @ sqlite3 @;s@ tcl @ @;s@^ *@@;s@ *$@@'`"
 		fi
 
 		if test "${proj}" = "mk4tcl"; then
@@ -227,7 +227,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 				DC_DO_STATIC_LINK_LIBCXX
 			fi
 
-			initialize="0"
+			subprojs=""
 		fi
 
 		if test "${proj}" = "tk"; then
@@ -254,11 +254,11 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 				hide_symbols="0"
 			fi
 
-			initialize="0"
+			subprojs=""
 		fi
 
 		if test "${proj}" = "tclvfs"; then
-			initialize="0"
+			subprojs=""
 		fi
 
 		if test "${hide_symbols}" = "1"; then
@@ -270,16 +270,18 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			continue
 		fi
 
-		if test "${initialize}" = "1"; then
+		if test -n "${subprojs}"; then
 			if test -n "${projlibfilesnostub}"; then
-				projucase="`echo ${proj} | dd conv=ucase 2>/dev/null`"
-				projtcase="`echo ${projucase} | cut -c 1``echo ${proj} | cut -c 2-`"
-				lib_init_func="${projtcase}_Init"
+				for subproj in $subprojs; do
+					subprojucase="`echo ${subproj} | dd conv=ucase 2>/dev/null`"
+					subprojtcase="`echo ${subprojucase} | cut -c 1``echo ${subproj} | cut -c 2-`"
+					lib_init_func="${subprojtcase}_Init"
 
-				echo "#define KIT_INCLUDES_${projucase}" >> kitInit-libs.h
-				echo "Tcl_AppInitProc ${lib_init_func};" >> kitInit-libs.h
+					echo "#define KIT_INCLUDES_${subprojucase}" >> kitInit-libs.h
+					echo "Tcl_AppInitProc ${lib_init_func};" >> kitInit-libs.h
 
-				libs_init_funcs="${libs_init_funcs} ${lib_init_func}"
+					libs_init_funcs="${libs_init_funcs} ${lib_init_func}"
+				done
 			fi
 		fi
 
