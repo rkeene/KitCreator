@@ -215,7 +215,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			])
 
 			hide_symbols="0"
-			subprojs="`echo " $projlibfilesnostub " | sed 's@ [[^ ]]*/@ @g;s@ lib@@g;s@[[0-9\.]]*\.a@ @g;s@ tdbc[[^ ]]* @ @g;s@ sqlite @ sqlite3 @;s@ tcl @ @;s@^ *@@;s@ *[$]@@'`"
+			subprojs="`echo " $projlibfilesnostub " | sed 's@ [[^ ]]*/@ @g;s@ lib@@g;s@[[0-9\.]]*\.a@ @g;s@ tdbc[[^ ]]*@ @g;s@ sqlite @ sqlite3 @;s@ tcl @ @;s@^ *@@;s@ *[$]@@'`"
 		fi
 
 		if test "${proj}" = "mk4tcl"; then
