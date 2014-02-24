@@ -396,6 +396,10 @@ static void _Tclkit_Interp_Init(Tcl_Interp *interp) {
 	 * before and after that command is run. */
 	FindAndSetExecName(interp);
 
+#if defined(_WIN32) && defined(KIT_INCLUDES_TK)
+	Tk_InitConsoleChannels(interp);
+#endif /* _WIN32 and KIT_INCLUDES_TK */
+
 	return;
 }
 
