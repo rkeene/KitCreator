@@ -104,6 +104,12 @@ int main(int argc, char **argv);
 #  endif /* HAVE_ACCEPTABLE_DLADDR */
 #endif /* !TCLKIT_DLL */
 
+#ifdef TCLKIT_DLL
+void __attribute__((constructor)) _Tclkit_Init(void);
+#else
+static void _Tclkit_Init(void);
+#endif
+
 #ifdef TCLKIT_REQUIRE_TCLEXECUTABLENAME
 char *tclExecutableName;
 #endif
@@ -143,11 +149,9 @@ static char *preInitCmd =
 #ifdef KIT_INCLUDES_MK4TCL
 	"catch { load {} Mk4tcl }\n"
 #endif
-#ifdef TCLKIT_DLL
 	"load {} tclkit::init\n"
 	"::tclkit::init::initInterp\n"
 	"rename ::tclkit::init::initInterp {}\n"
-#endif /* TCLKIT_DLL */
 	"set bootfile [file join " TCLKIT_MOUNTPOINT " boot.tcl]\n"
 	"if {[file exists $bootfile]} {\n"
 		"catch {\n"
@@ -397,6 +401,7 @@ static void _Tclkit_Interp_Init(Tcl_Interp *interp) {
 	FindAndSetExecName(interp);
 
 #if defined(_WIN32) && defined(KIT_INCLUDES_TK)
+	/* Every interpreter needs this done */
 	Tk_InitConsoleChannels(interp);
 #endif /* _WIN32 and KIT_INCLUDES_TK */
 
@@ -414,9 +419,7 @@ int TclKit_AppInit(Tcl_Interp *interp) {
 #endif /* KIT_INCLUDES_TK */
 
 	/* Perform common initialization */
-	_Tclkit_Generic_Init();
-
-	_Tclkit_Interp_Init(interp);
+	_Tclkit_Init();
 
 	if (Tcl_Init(interp) == TCL_ERROR) {
 		goto error;
@@ -518,6 +521,9 @@ static char *find_tclkit_dll_path(void) {
 
 	return(NULL);
 }
+#else
+# define find_tclkit_dll_path() NULL
+#endif
 
 /*
  * This function exists to allow C code to initialize a particular
@@ -562,11 +568,14 @@ int Tclkit_init_Init(Tcl_Interp *interp) {
  * Initialize the Tcl system when we are loaded, that way Tcl functions
  * are ready to be used when invoked.
  */
+#ifdef TCLKIT_DLL
 void __attribute__((constructor)) _Tclkit_Init(void) {
+#else
+static void _Tclkit_Init(void) {
+#endif
 	Tcl_StaticPackage(0, "tclkit::init", Tclkit_init_Init, NULL);
 
 	_Tclkit_Generic_Init();
 
 	return;
 }
-#endif
