@@ -139,8 +139,35 @@ fi
 	cp tcc.tcl "${pkgDir}"
 	cp pkgIndex.tcl "${pkgDir}"
 
+	# Install headers needed for compilation
+	incDir="${pkgDir}/include"
+	mkdir "${incDir}"
+
+	touch include/windows.h
+	cp -r include/* "${incDir}"
+	cp -r ../../../{tcl,tk}/inst/include/* "${incDir}"
+
+	find "${incDir}" -name '*.a' | xargs rm -f
+
+	# Install libraries
+	libDir="${pkgDir}/lib"
+	mkdir "${libDir}"
+
+	(
+		cd c || exit 1
+		rm -f *.a *.o
+		for file in *.c; do
+			ofile="$(echo "${file}" | sed 's@\.c$@.o@')"
+			"${CC:-gcc}" -I../include -I../../../../{tcl,tk}/inst/include/ -I../../../../tcl/build/tcl${TCLVERS}/generic/ -I../../../../tcl/build/tcl${TCLVERS}/unix/ -DUSE_TCL_STUBS=1 -c "${file}" -o "${ofile}"
+		done
+		"${AR:-ar}" cu ../lib/libtcc1.a *.o
+		"${RANLIB:-ranlib}" ../lib/libtcc1.a
+	)
+	cp lib/libtcc1.a "${libDir}"
+
+	# Create VFS-insert
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1
-	find "${OUTDIR}" -name '*.a' -type f | xargs -n 1 rm -f --
+	find "${OUTDIR}" -name '*.a' -type f | grep -v '/lib/libtcc1\.a$' | xargs rm -f
 
 	exit 0
 ) || exit 1

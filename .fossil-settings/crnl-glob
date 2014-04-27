@@ -1,1 +1,2 @@
 tcc/patches/all/tcltcc-0.4-fixloading.diff
+tcc/patches/all/tcltcc-0.4-setincpath.diff
