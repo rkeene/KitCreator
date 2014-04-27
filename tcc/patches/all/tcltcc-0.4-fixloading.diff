@@ -1,0 +1,22 @@
+--- tcltcc-0.4.orig/tcc.tcl	2007-11-07 10:04:42.000000000 -0600
++++ tcltcc-0.4/tcc.tcl	2014-04-26 23:06:24.272645002 -0500
+@@ -9,10 +9,15 @@
+    variable commands
+ 
+    set dir [file dirname [info script]]
+-   switch -exact -- $::tcl_platform(platform) {
+-	   windows { load $dir/tcc02.dll tcc }
+-	   unix { load $dir/libtcc0.2.so tcc }
+-	   default {error "unsupport platform"}
++   if {[info command ::tcc] == ""} {
++      catch { load {} tcc }
++   }
++   if {[info command ::tcc] == ""} {
++       switch -exact -- $::tcl_platform(platform) {
++	       windows { load $dir/tcc04.dll tcc }
++	       unix { load $dir/libtcc0.4.so tcc }
++	       default {error "unsupport platform"}
++       }
+    }
+    set libs $dir/lib
+    set includes $dir/include
