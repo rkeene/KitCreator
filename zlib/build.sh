@@ -11,7 +11,7 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-ZLIBVERS="1.2.3"
+ZLIBVERS="1.2.8"
 SRC="src/zlib-${ZLIBVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERS}/zlib-${ZLIBVERS}.tar.gz/download"
 BUILDDIR="$(pwd)/build/zlib-${ZLIBVERS}"
@@ -49,9 +49,6 @@ fi
 	fi
 
 	cd "${BUILDDIR}" || exit 1
-	# ZLIB Expects AR to contain options
-	AR="${AR:-ar} rcu"
-	export AR
 
 	# If we are building for KitDLL, compile with '-fPIC'
 	if [ "${KITTARGET}" = "kitdll" ]; then
@@ -64,11 +61,11 @@ fi
 	echo "Running: ./configure --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\""
 	./configure --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib"
 
-	echo "Running: ${MAKE:-make} AR=\"${AR}\""
-	${MAKE:-make} AR="${AR}" || exit 1
+	echo "Running: ${MAKE:-make}"
+	${MAKE:-make} || exit 1
 
-	echo "Running: ${MAKE:-make} install AR=\"${AR}\""
-	${MAKE:-make} install AR="${AR}"
+	echo "Running: ${MAKE:-make} install"
+	${MAKE:-make} install
 
 	# We don't really care too much about failure in zlib
 	exit 0
