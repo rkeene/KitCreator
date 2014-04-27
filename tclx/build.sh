@@ -131,7 +131,6 @@ package ifneeded Tclx 8.4 [list load {} Tclx]
 _EOF_
         fi
 
-
 	# Install files needed by installation
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1
 	find "${OUTDIR}" -name '*.a' -type f | xargs -n 1 rm -f --
