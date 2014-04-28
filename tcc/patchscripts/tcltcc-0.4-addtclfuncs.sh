@@ -1,10 +1,6 @@
 #! /bin/bash
 
-set -x
-
 function find_syms() {
-	set -x
-
 	${CC:-gcc} ${CPPFLAGS} -E include/tcl.h  | grep '^ *extern.*Tcl_'| sed 's@^ *extern *@@;s@([^(]*$@@;s@.* *\**  *@@'  | sort -u | grep '^Tcl_' | grep -v ';$' | while read -r sym; do
 		echo "    TCCSYM($sym)"
 	done
