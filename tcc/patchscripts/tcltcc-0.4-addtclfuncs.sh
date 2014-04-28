@@ -1,16 +1,11 @@
 #! /bin/bash
 
-function find_syms() {
-	if [ -z "${NM}" ]; then
-		if echo "${CC}" | sed 's@ .*$@@' | grep '[-]' >/dev/null; then
-			NM="$(echo "${CC}" | sed 's@ .*$@@;s@\(.*\)-[^-]*$@\1-nm@')"
-		else
-			NM='nm'
-		fi
-	fi
+set -x
 
-	# "${NM}" "${LIBTCL}" | sed 's@:.*$@@' | sed 's@.* @@' | grep '^Tcl_' | sort -u | while read -r sym; do
-	${CC:-gcc} ${CPPFLAGS} -E include/tcl.h  | grep '^ *extern.*Tcl_'| sed 's@^ *extern *@@;s@(.*@@;s@.* *\**  *@@'  | sort -u | grep '^Tcl_' | grep -v ';$' | while read -r sym; do
+function find_syms() {
+	set -x
+
+	${CC:-gcc} ${CPPFLAGS} -E include/tcl.h  | grep '^ *extern.*Tcl_'| sed 's@^ *extern *@@;s@([^(]*$@@;s@.* *\**  *@@'  | sort -u | grep '^Tcl_' | grep -v ';$' | while read -r sym; do
 		echo "    TCCSYM($sym)"
 	done
 }
