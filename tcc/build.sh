@@ -17,8 +17,9 @@ SRCURL="https://tcltcc.googlecode.com/files/tcltcc${TCLTCCVERS}.zip"
 BUILDDIR="$(pwd)/build/tcltcc-0.4"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
+PATCHSCRIPTDIR="$(pwd)/patchscripts"
 PATCHDIR="$(pwd)/patches"
-export TCLTCCVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHDIR
+export TCLTCCVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
 
 # Set configure options for this sub-project
 LDFLAGS="${KC_TCLTCC_LDFLAGS}"
@@ -61,6 +62,10 @@ fi
 
 	# Apply required patches
 	cd "${BUILDDIR}" || exit 1
+
+	# Install current Tcl headers
+	cp -r ../../../{tcl,tk}/inst/include/* include/
+
 	for patch in "${PATCHDIR}/all"/tcltcc-${TCLTCCVERS}-*.diff "${PATCHDIR}/${TCL_VERSION}"/tcltcc-${TCLTCCVERS}-*.diff; do
 		if [ ! -f "${patch}" ]; then
 			continue
@@ -70,7 +75,16 @@ fi
 		${PATCH:-patch} -p1 < "${patch}"
 	done
 
-	cd "${BUILDDIR}" || exit 1
+	# Apply patch scripts if needed
+	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do
+		if [ -f "${patchscript}" ]; then
+			echo "Running patch script: ${patchscript}"
+
+			(
+				. "${patchscript}"
+			)
+		fi
+	done
 
 	# Try to build as a shared object if requested
 	if [ "${STATICTCLTCC}" = "0" ]; then
@@ -104,6 +118,10 @@ fi
 			CFLAGS="${SAVE_CFLAGS} -fPIC"
 		else
 			CFLAGS="${SAVE_CFLAGS}"
+		fi
+
+		if [ "${isshared}" = "0" ]; then
+			CFLAGS="${CFLAGS} -DCONFIG_TCC_STATIC=1"
 		fi
 		export CFLAGS
 
@@ -145,7 +163,6 @@ fi
 
 	touch include/windows.h
 	cp -r include/* "${incDir}"
-	cp -r ../../../{tcl,tk}/inst/include/* "${incDir}"
 
 	find "${incDir}" -name '*.a' | xargs rm -f
 
@@ -160,7 +177,7 @@ fi
 			ofile="$(echo "${file}" | sed 's@\.c$@.o@')"
 			"${CC:-gcc}" -I../include -I../../../../{tcl,tk}/inst/include/ -I../../../../tcl/build/tcl${TCLVERS}/generic/ -I../../../../tcl/build/tcl${TCLVERS}/unix/ -DUSE_TCL_STUBS=1 -c "${file}" -o "${ofile}"
 		done
-		"${AR:-ar}" cu ../lib/libtcc1.a *.o
+		"${AR:-ar}" rcu ../lib/libtcc1.a *.o
 		"${RANLIB:-ranlib}" ../lib/libtcc1.a
 	)
 	cp lib/libtcc1.a "${libDir}"
