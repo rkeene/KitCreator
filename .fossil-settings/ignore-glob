@@ -23,6 +23,7 @@ kitsh/buildsrc/kitsh-0.0/config.status
 kitsh/buildsrc/kitsh-0.0/configure
 kitsh/buildsrc/kitsh-0.0/kit
 kitsh/buildsrc/kitsh-0.0/zipvfs.tcl.h
+kitsh/buildsrc/kitsh-0.0/cvfs.tcl.h
 kitsh/inst
 kitsh/inst/*
 kitsh/out
