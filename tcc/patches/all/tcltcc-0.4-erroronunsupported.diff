@@ -1,0 +1,14 @@
+diff -uNr tcltcc-0.4.orig/generic/tcc.h tcltcc-0.4-1erroronunsupported/generic/tcc.h
+--- tcltcc-0.4.orig/generic/tcc.h	2007-11-07 10:04:32.000000000 -0600
++++ tcltcc-0.4-1erroronunsupported/generic/tcc.h	2014-04-28 16:34:24.600645002 -0500
+@@ -21,6 +21,10 @@
+ #include "config.h"
+ #include "tcl.h"
+ 
++#if defined(__x86_64__)
++#  error "KitCreator TclTCC: Unsupported platform"
++#endif
++
+ #ifdef CONFIG_TCCBOOT
+ 
+ #include "tccboot.h"
