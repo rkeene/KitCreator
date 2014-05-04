@@ -176,8 +176,10 @@ fi
 
 		if [ "${dir}" = "win" ]; then
 			# Statically link Tk to Tclkit if we are compiling for
-			# Windows
-			STATICTK="1"
+			# Windows unless otherwise requested
+			if [ -z "${STATICTK}" ]; then
+				STATICTK="1"
+			fi
 
 			if [ "${win64}" = "1" ]; then
 				# Mingw32 for AMD64 requires this, apparently
