@@ -114,7 +114,7 @@ for kit in $kits; do
 			kitruncmd="wine"
 			;;
 		win64|win64-*)
-			kitcreator="./build/make-kit-win32"
+			kitcreator="./build/make-kit-win64"
 			xcompile="1"
 			runnable="1"
 			kitruncmd="wine64"
@@ -129,6 +129,7 @@ for kit in $kits; do
 		linux-i386|linux-i386-*)
 			kitcreator="./build/make-kit-linux-i386"
 			xcompile="1"
+			runnable="0"
 			;;
 		android-arm|android-arm-*|\
 		linux-mipsel|linux-mipsel-*|\
