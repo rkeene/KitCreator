@@ -191,8 +191,15 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 		AC_MSG_CHECKING([for libraries required for ${proj}])
 
-		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | sort | tr "\n" ' '`"
-		projlibfilesnostub="`find "${projlibdir}" -name '*.a' 2>/dev/null | grep -v 'stub' | tr "\n" ' '`"
+		projlibfiles="`find "${projlibdir}" -name '*.a' 2>/dev/null | sort`"
+		projexcludefile="${projlibdir}/kitcreator-nolibs"
+		if test -e "${projexcludefile}"; then
+			projexclude="`cat "$projexcludefile"`"
+			projlibfiles="`echo "$projlibfiles" | egrep -v "$projexclude"`"
+		fi
+
+		projlibfilesnostub="`echo "$projlibfiles" | grep -v 'stub' | tr "\n" ' '`"
+		projlibfiles="`echo "$projlibfiles" | tr "\n" ' '`"
 		projlibextra=""
 
 		for libfile in ${projlibfilesnostub}; do

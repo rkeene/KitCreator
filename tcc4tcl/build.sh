@@ -121,6 +121,9 @@ fi
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1
 	find "${OUTDIR}" -name '*.a' -type f | grep -v '/libtcc1\.a$' | xargs rm -f
 
+	# Tell Kitsh not to try to link against "libtcc1.a"
+	echo "/libtcc1\.a" > "${INSTDIR}/kitcreator-nolibs"
+
 	exit 0
 ) || exit 1
 
