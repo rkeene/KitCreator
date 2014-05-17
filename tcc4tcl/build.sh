@@ -11,7 +11,7 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-TCC4TCLVERS="0.5"
+TCC4TCLVERS="0.6"
 SRC="src/tcc4tcl-${TCC4TCLVERS}.tar.gz"
 SRCURL="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${TCC4TCLVERS}.tar.gz"
 BUILDDIR="$(pwd)/build/tcc4tcl-${TCC4TCLVERS}"
