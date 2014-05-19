@@ -202,6 +202,10 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		projlibfiles="`echo "$projlibfiles" | tr "\n" ' '`"
 		projlibextra=""
 
+		if test "$projlibfilesnostub" = ' '; then
+			projlibfilesnostub=''
+		fi
+
 		for libfile in ${projlibfilesnostub}; do
 			if test -f "${libfile}.linkadd"; then
 				projlibextra="`cat "${libfile}.linkadd"`"
@@ -277,6 +281,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			continue
 		fi
 
+echo "***: proj=$proj; subprojs=$subprojs; projlibfilesnostub=\"$projlibfilesnostub\""
 		if test -n "${subprojs}"; then
 			if test -n "${projlibfilesnostub}"; then
 				for subproj in $subprojs; do
