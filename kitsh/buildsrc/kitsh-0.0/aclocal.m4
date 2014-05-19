@@ -281,7 +281,6 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			continue
 		fi
 
-echo "***: proj=$proj; subprojs=$subprojs; projlibfilesnostub=\"$projlibfilesnostub\""
 		if test -n "${subprojs}"; then
 			if test -n "${projlibfilesnostub}"; then
 				for subproj in $subprojs; do
