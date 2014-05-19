@@ -138,8 +138,8 @@ _EOF_
 
 chmod +x fake-bin/fake-uname
 
-sed 's|`uname |`'"$(pwd)"'/fake-bin/fake-uname |g' "${TCLPRIVATE}/unix/configure" > "${TCLPRIVATE}/unix/configure.new"
-cat "${TCLPRIVATE}/unix/configure.new" > "${TCLPRIVATE}/unix/configure"
-rm -f "${TCLPRIVATE}/unix/configure.new"
+sed 's|`uname |`'"$(pwd)"'/fake-bin/fake-uname |g' unix/configure > unix/configure.new
+cat unix/configure.new > unix/configure
+rm -f unix/configure.new
 
 exit 0
