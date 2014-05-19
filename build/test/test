@@ -222,10 +222,12 @@ for kit in $kits; do
 
 	for version in ${VERSIONS}; do
 		# Work around changes in default behaviour
-		if [ "${version}" = "cvs_HEAD" ]; then
-			kit="$(echo "${kit}" | sed 's@-threaded@-unthreaded@')"
-			args="$(echo "${args}" | sed 's@ --enable-threads@ --disable-threads@')"
-		fi
+		case "${version}" in
+			8.6.*|cvs_HEAD)
+				kit="$(echo "${kit}" | sed 's@-threaded@-unthreaded@')"
+				args="$(echo "${args}" | sed 's@ --enable-threads@ --disable-threads@')"
+				;;
+		esac
 
 		# Create Tclkit
 		if [ "${kitdll}" = "1" ]; then
