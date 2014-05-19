@@ -1,4 +1,17 @@
-#! /usr/bin/env bash
+#! /bin/bash
+
+case "${CC}" in
+	*-*-*)
+		;;
+	*)
+		exit 0
+		;;
+esac
+
+mkdir fake-bin
+
+cat << \_EOF_ > fake-bin/fake-uname
+#! /bin/bash
 
 if [ "$1" == "--fake" ]; then
 	echo "true"
@@ -6,18 +19,18 @@ if [ "$1" == "--fake" ]; then
 	exit 0
 fi
 
-# Some systems do not compile well with this fake uname in place
-# provide the real uname for them.
-case "${CROSS}" in
-	mipsel-unknown-linux-uclibc)
-		unset CROSS
+case "${CC}" in
+	*-*-*)
+		;;
+	*)
+		CC=''
 		;;
 esac
 
-if [ -z "${CROSS}" ]; then
+if [ -z "${CC}" ]; then
 	# If not cross compiling, revert to system uname
 	while [ "$(uname --fake 2>/dev/null)" == "true" -a -n "${PATH}" ]; do
-		PATH="$(echo "${PATH}" | /usr/bin/sed 's@^[^:]*$@@;s@^[^:]*:@@')"
+		PATH="$(echo "${PATH}" | sed 's@^[^:]*$@@;s@^[^:]*:@@')"
 
 		export PATH
 	done
@@ -29,7 +42,7 @@ if [ -z "${CROSS}" ]; then
 	exec uname "$@"
 fi
 
-CROSS="$(echo "${CROSS}" | sed 's@-*$@@')"
+CROSS="$(echo "${CC}" | sed -r 's@-[^-]*($| .*$)@@')"
 
 # Determine release information
 case "${CROSS}" in
@@ -52,6 +65,10 @@ case "${CROSS}" in
 	*-freebsd*)
 		sysname="FreeBSD"
 		sysrelease="$(echo "${CROSS}" | sed 's@^.*-freebsd@@;s@$@.0-RELEASE@')"
+		;;
+	*-aix[0-9].*)
+		sysname="AIX"
+		sysrelease="$(echo "${CROSS}" | sed 's@.*-aix\([0-9]\..*\)@\1@')"
 		;;
 esac
 
@@ -81,12 +98,18 @@ case "${CROSS}" in
 	mipsel-*|mipseb-*)
 		sysmachine="mips"
 		;;
+	powerpc-*)
+		sysmachine="ppc"
+		;;
 esac
 
 for arg in $(echo "$@" | sed 's@.@ & @g'); do
 	case "${arg}" in
 		-)
 			continue
+			;;
+		v)
+			retval="${retval} unknown"
 			;;
 		r)
 			retval="${retval} ${sysrelease}"
@@ -111,3 +134,12 @@ for arg in $(echo "$@" | sed 's@.@ & @g'); do
 done
 
 echo "${retval}" | sed 's@^  *@@;s@  *$@@'
+_EOF_
+
+chmod +x fake-bin/fake-uname
+
+sed 's|`uname |`'"$(pwd)"'/fake-bin/fake-uname |g' "${TCLPRIVATE}/unix/configure" > "${TCLPRIVATE}/unix/configure.new"
+cat "${TCLPRIVATE}/unix/configure.new" > "${TCLPRIVATE}/unix/configure"
+rm -f "${TCLPRIVATE}/unix/configure.new"
+
+exit 0
