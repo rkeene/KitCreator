@@ -206,6 +206,10 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			projlibfilesnostub=''
 		fi
 
+		if test "$projlibfiles" = ' '; then
+			projlibfiles=''
+		fi
+
 		for libfile in ${projlibfilesnostub}; do
 			if test -f "${libfile}.linkadd"; then
 				projlibextra="`cat "${libfile}.linkadd"`"
