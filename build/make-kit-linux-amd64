@@ -1,6 +1,6 @@
 #! /bin/sh
 
-CROSS="x86_64-slackware-linux"
+CROSS="x86_64-redhat5-linux"
 CC_ADD="-m64"
 export CROSS CC_ADD
 
