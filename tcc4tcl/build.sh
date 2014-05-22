@@ -11,7 +11,7 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-TCC4TCLVERS="0.11"
+TCC4TCLVERS="0.13"
 SRC="src/tcc4tcl-${TCC4TCLVERS}.tar.gz"
 SRCURL="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${TCC4TCLVERS}.tar.gz"
 BUILDDIR="$(pwd)/build/tcc4tcl-${TCC4TCLVERS}"
@@ -78,6 +78,12 @@ fi
 		tryopts="--disable-shared"
 	fi
 
+	if echo " ${CONFIGUREEXTRA} " | grep ' --disable-load ' >/dev/null; then
+		dlopen_flag="--with-dlopen"
+	else
+		dlopen_flag="--without-dlopen"
+	fi
+
 	SAVE_CFLAGS="${CFLAGS}"
 	for tryopt in $tryopts __fail__; do
 		# Clean up, if needed
@@ -104,8 +110,8 @@ fi
 		fi
 
 		(
-			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
-			./configure $tryopt --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${dlopen_flag} ${CONFIGUREEXTRA}"
+			./configure $tryopt --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${dlopen_flag} ${CONFIGUREEXTRA}
 
 			echo "Running: ${MAKE:-make}"
 			${MAKE:-make} || exit 1
