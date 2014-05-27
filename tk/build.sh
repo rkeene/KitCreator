@@ -150,6 +150,12 @@ fi
 		fi
 	done
 
+	# Allow wrapper programs to supplant real programs
+	if [ -d 'fake-bin' ]; then
+		PATH="$(pwd)/fake-bin:${PATH}"
+		export PATH
+	fi
+
 	for dir in "${TCLCONFIGDIRTAIL}" unix win macosx win64 __fail__; do
 		if [ -z "${dir}" ]; then
 			continue
