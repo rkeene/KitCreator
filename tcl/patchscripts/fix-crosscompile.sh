@@ -1,12 +1,8 @@
 #! /bin/bash
 
-case "${CC}" in
-	*-*-*)
-		;;
-	*)
-		exit 0
-		;;
-esac
+if [ "${KC_CROSSCOMPILE}" != '1' ]; then
+	exit 0
+fi
 
 mkdir fake-bin
 
@@ -19,15 +15,7 @@ if [ "$1" == "--fake" ]; then
 	exit 0
 fi
 
-case "${CC}" in
-	*-*-*)
-		;;
-	*)
-		CC=''
-		;;
-esac
-
-if [ -z "${CC}" ]; then
+if [ -z "${KC_CROSSCOMPILE_HOST_OS}" ]; then
 	# If not cross compiling, revert to system uname
 	while [ "$(uname --fake 2>/dev/null)" == "true" -a -n "${PATH}" ]; do
 		PATH="$(echo "${PATH}" | sed 's@^[^:]*$@@;s@^[^:]*:@@')"
@@ -42,17 +30,15 @@ if [ -z "${CC}" ]; then
 	exec uname "$@"
 fi
 
-CROSS="$(echo "${CC}" | sed -r 's@-[^-]*($| .*$)@@')"
-
 # Determine release information
-case "${CROSS}" in
+case "${KC_CROSSCOMPILE_HOST_OS}" in
 	*-hpux11*)
 		sysname="HP-UX"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-hpux@@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-hpux@@')"
 		;;
 	*-solaris2*)
 		sysname="SunOS"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-solaris@@;s@^2@5@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-solaris@@;s@^2@5@')"
 		;;
 	*-linux*)
 		sysname="Linux"
@@ -60,20 +46,20 @@ case "${CROSS}" in
 		;;
 	*-netbsd*)
 		sysname="NetBSD"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-netbsd@@;s@$@.0@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-netbsd@@;s@$@.0@')"
 		;;
 	*-freebsd*)
 		sysname="FreeBSD"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-freebsd@@;s@$@.0-RELEASE@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-freebsd@@;s@$@.0-RELEASE@')"
 		;;
 	*-aix[0-9].*)
 		sysname="AIX"
-		sysrelease="$(echo "${CROSS}" | sed 's@.*-aix\([0-9]\..*\)@\1@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@.*-aix\([0-9]\..*\)@\1@')"
 		;;
 esac
 
 # Determine machine information
-case "${CROSS}" in
+case "${KC_CROSSCOMPILE_HOST_OS}" in
 	hppa64-*-hpux*)
 		sysmachine="9000/859"
 		;;

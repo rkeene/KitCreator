@@ -64,6 +64,25 @@ if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads' >/dev/null 2>/dev/null;
 	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
 fi
 
+# Determine cross-compile status
+host_os="$(echo " ${CONFIGUREEXTRA} " sed 's@^.* --host=\([^ ]*\) .*$@\1@
+t x
+d
+:x')"
+build_os="$(echo " ${CONFIGUREEXTRA} " sed 's@^.* --build=\([^ ]*\) .*$@\1@
+t x
+d
+:x')"
+
+if [ "${host_os}" != "${build_os}" -a -n "${host_os}" ]; then
+	KC_CROSSCOMPILE='1'
+	KC_CROSSCOMPILE_HOST_OS="${host_os}"
+else
+	KC_CROSSCOMPILE='0'
+	KC_CROSSCOMPILE_HOST_OS=''
+fi
+export KC_CROSSCOMPILE KC_CROSSCOMPILE_HOST_OS
+
 # Set default target
 KITTARGET="kitsh"
 export KITTARGET

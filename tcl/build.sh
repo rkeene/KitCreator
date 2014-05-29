@@ -201,10 +201,23 @@ fi
 	done
 
 	tryfirstdir=''
-	if [ "$(uname -s)" = "Darwin" ]; then
-		tryfirstdir='macosx'
-	fi
-
+	case "${KC_CROSSCOMPILE_HOST_OS}" in
+		*-*-darwin*)
+			# Cross-compiling for Mac OS X -- try to build macosx directory first
+			tryfirstdir='macosx'
+			;;
+		*-*-*)
+			# Cross-compiling, do not assume based on build platform
+			;;
+		'')
+			# Not cross-compiling, assume based on build platform
+			if [ "$(uname -s)" = "Darwin" ]; then
+				# Compiling for Mac OS X, build in that directory first
+				tryfirstdir='macosx'
+			fi
+			;;
+	esac
+		
 	for dir in "${tryfirstdir}" unix win macosx __fail__; do
 		if [ -z "${dir}" ]; then
 			continue
@@ -219,6 +232,7 @@ fi
 		# Remove previous directory's "tclConfig.sh" if found
 		rm -f 'tclConfig.sh'
 
+		echo "Working in: $dir"
 		cd "${BUILDDIR}/${dir}" || exit 1
 
 		# Remove broken pre-generated Makfiles
