@@ -56,10 +56,22 @@ case "${KC_CROSSCOMPILE_HOST_OS}" in
 		sysname="AIX"
 		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@.*-aix\([0-9]\..*\)@\1@')"
 		;;
+	*-*-darwin*)
+		sysname="Darwin"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@.*-darwin\([0-9]*\)@\1@')"
+		;;
 esac
 
 # Determine machine information
 case "${KC_CROSSCOMPILE_HOST_OS}" in
+	x86_64-*-darwin*)
+		sysmachine="Intel"
+		syscpu="x86_64"
+		;;
+	powerpc-*-darwin*)
+		sysmachine="Power Macintosh"
+		syscpu="powerpc"
+		;;
 	hppa64-*-hpux*)
 		sysmachine="9000/859"
 		;;
