@@ -181,6 +181,10 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			continue
 		fi
 
+		if test "${proj}" = "common"; then
+			continue
+		fi
+
 		projlibdir="../../../${proj}/inst"
 
 		if test -d "${projlibdir}"; then
