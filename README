@@ -150,18 +150,28 @@ Cross compiling Environment Variables:
 		C compiler   e.g. i686-pc-mingw32-gcc
 
 	2. CXX
-		C++ compiler if required could be just set to the
-		string "false". e.g. i686-pc-mingw32-g++
+		C++ compiler.  Required if you want to use mk4tcl. e.g. i686-pc-mingw32-g++
+		If not required, you can set it to the string "false"
 
 	3. AR
 		Library creator e.g. i686-pc-mingw32-ar
 
 	4. RANLIB
-		Library post processing script e.g. i686-pc-mingw32-ranlib
+		Library post processing executable e.g. i686-pc-mingw32-ranlib
+
+	5. STRIP
+		Executable name to strip binaries e.g. i686-pc-mingw32-strip
+
+	6. NM
+		Executable used to dump names from the objects  e.g. i686-pc-mingw32-nm
+
+	7. CC_FOR_BUILD, HOST_CC 
+		Set this to the name of compiler on the host on which
+		the cross compilation is being run.
 
 On Windows we also need this:
 
-	5. RC
+	1. RC
 		Resource compiler : e.g. i686-pc-mingw32-windres
 
 
