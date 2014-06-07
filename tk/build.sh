@@ -244,18 +244,24 @@ fi
 			# Update pkgIndex to load libtk from the local directory rather
 			# than the parent directory
 			for pkgIndex in "${INSTDIR}"/lib/tk*/pkgIndex.tcl; do
-				sed 's@ \.\. @ @g' "${pkgIndex}" > "${pkgIndex}.new"
+				sed 's@ \.\. bin @ @g;s@ \.\. @ @;s@ lib\(tk.*\.dll\)@ \1@' "${pkgIndex}" > "${pkgIndex}.new"
 				mv "${pkgIndex}.new" "${pkgIndex}"
 			done
 		fi
 
 		mkdir "${OUTDIR}/lib" || exit 1
 		cp -r "${INSTDIR}/lib"/tk* "${OUTDIR}/lib/"
+		cp -r "${INSTDIR}/bin"/tk*.dll "${OUTDIR}/lib/"/tk*/
 		cp -r "${INSTDIR}/lib"/libtk* "${OUTDIR}/lib"/tk*/
 		rm -rf "${OUTDIR}/lib"/tk*/demos
 
-		"${STRIP:-strip}" -g "${OUTDIR}"/lib/tk*/*.so >/dev/null 2>/dev/null
+		"${STRIP:-strip}" -g "${OUTDIR}"/lib/tk*/*.{so,dll,dylib,shlib} >/dev/null 2>/dev/null
 		find "${OUTDIR}" -type f -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
+
+		# If we have a shared object, delete static libraries
+		if find "${INSTDIR}" -type f '(' -name '*.dll' -o -name '*.so' -o -name '*.dylib' -o -name '*.shlib' ')' 2>/dev/null | grep '^' >/dev/null; then
+			find "${INSTDIR}" -type f -name '*.a' | grep -v 'stub' | xargs rm -f
+		fi
 
 		break
 	done
