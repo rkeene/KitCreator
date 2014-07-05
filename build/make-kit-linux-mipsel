@@ -1,6 +1,7 @@
 #! /bin/sh
 
-CROSS="mipsel-unknown-linux-uclibc"
-export CROSS
+CROSS="mips-unknown-linux-musl"
+KC_KITSH_LDFLAGS='-static'
+export CROSS KC_KITSH_LDFLAGS
 
 ./build/make-kit-crosscompile "$@"
