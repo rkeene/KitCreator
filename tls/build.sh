@@ -55,6 +55,12 @@ fi
 		cp -rp ../buildsrc/* './'
 	fi
 
+	# Determine SSL directory
+	if [ -z "${CPP}" ]; then
+		CPP="${CC} -E"
+	fi
+	SSLDIR="$(echo '#include <openssl/ssl.h>' 2>/dev/null | ${CPP} - | awk '/# 1 "\/.*\/ssl\.h/{ print $3; exit }' | sed 's@^"@@;s@"$@@;s@/include/openssl/ssl\.h$@@')"
+
 	# Apply required patches
 	cd "${BUILDDIR}" || exit 1
 	for patch in "${PATCHDIR}/all"/tls-${TLSVERS}-*.diff "${PATCHDIR}/${TCL_VERSION}"/tls-${TLSVERS}-*.diff; do
@@ -112,8 +118,8 @@ fi
 		rm -f configure.new
 
 		(
-			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
-			./configure $tryopt --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" --with-ssl-dir=\"${SSLDIR}\" ${CONFIGUREEXTRA}"
+			./configure $tryopt --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" --with-ssl-dir="${SSLDIR}" ${CONFIGUREEXTRA}
 
 			echo "Running: ${MAKE:-make} tcllibdir=\"${INSTDIR}/lib\" AR=\"${AR:-ar}\" RANLIB=\"${RANLIB:-ranlib}\""
 			${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" || exit 1
