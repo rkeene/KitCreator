@@ -66,6 +66,8 @@ foreach line [split $data "\n"] {
 			"threaded" {
 				if {$value} {
 					lappend args "--enable-threads"
+				} else {
+					lappend args "--disable-threads"
 				}
 			}
 		}
