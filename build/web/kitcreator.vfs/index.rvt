@@ -132,6 +132,14 @@
 
 		## Update key with options in deterministic order
 		foreach option [lsort -dictionary [array names build_options]] {
+			switch -- $option {
+				"threaded" - "kitdll" {
+					# For boolean options, skip them if they are not enabled
+					if {!$build_options($option)} {
+						continue
+					}
+				}
+			}
 			lappend key [list "option:$option" $build_options($option)]
 		}
 
@@ -298,6 +306,7 @@
             <input type="checkbox" name="option_kitdll">Kit: Build Library (KitDLL)<br>
           </td>
         </tr>
+<!--
         <tr>
           <td>Kit Icon:</td>
           <td>
@@ -310,6 +319,7 @@
             <input type="text" name="option_desc">
           </td>
         </tr>
+-->
       </table>
       <input type="submit" name="submit" value="Create">
     </form>
