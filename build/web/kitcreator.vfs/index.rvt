@@ -176,7 +176,7 @@
 	</head>
 	<body>
 		<h1>KitCreator Web Interface</h1>
-		<p>Build in progress, output will be: <a href="<? puts -nonewline $url ?>"><? puts -nonewline $url ?></a></p>
+		<p>Build in progress, see <a href="<? puts -nonewline $url ?>"><? puts -nonewline $url ?></a> for build information</p>
 	</body>
 </html>
 <?
