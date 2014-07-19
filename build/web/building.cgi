@@ -20,9 +20,11 @@ if {[info exists key]} {
 
 if {[info exists workdir]} {
 	if {[file exists $workdir]} {
-		set fd [open [file join $workdir filename]]
-		set filename [gets $fd]
+		set fd [open [file join $workdir buildinfo]]
+		set buildinfo_list [gets $fd]
 		close $fd
+		array set buildinfo $buildinfo_list
+		set filename $buildinfo(filename)
 
 		set outfile [file join $workdir $filename]
 	} else {

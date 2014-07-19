@@ -42,8 +42,8 @@ foreach line [split $data "\n"] {
 	file mkdir $workdir
 	cd $workdir
 
-	set fd [open ../filename w]
-	puts $fd $buildinfo(filename)
+	set fd [open ../buildinfo w]
+	puts $fd [array get buildinfo]
 	close $fd
 
 	set tarball kitcreator-${buildinfo(kitcreator_version)}.tar.gz

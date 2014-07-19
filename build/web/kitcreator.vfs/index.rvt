@@ -50,6 +50,7 @@
 		platform solaris-sparc tcc4tcl
 		platform solaris-sparc64 tcc4tcl
 		platform hpux-hppa64 tcc4tcl
+		platform linux-arm tk
 	}
 
 	set specific {
