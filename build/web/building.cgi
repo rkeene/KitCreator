@@ -35,11 +35,11 @@ if {[info exists workdir]} {
 if {[info exists outfile]} {
 	if {[file exists $outfile]} {
 		set status "Complete"
+		set terminal 1
 
 		set url "http://kitcreator.rkeene.org/kits/$key/$filename"
 	} elseif {[file exists "${outfile}.buildfail"]} {
 		set status "Failed"
-
 		set terminal 1
 	} else {
 		set status "Building"
@@ -48,7 +48,9 @@ if {[info exists outfile]} {
 
 puts "Content-Type: text/html"
 if {[info exists url]} {
-	puts "Location: $url"
+	# Use a refresh here instead of a "Location" so that
+	# the client can see the page
+	puts "Refresh: 0;url=$url"
 } else {
 	if {!$terminal} {
 		puts "Refresh: 30;url=."
@@ -62,5 +64,8 @@ puts "\t</head>"
 puts "\t<body>"
 puts "\t\t<h1>KitCreator Web Interface</h1>"
 puts "\t\t<p><b>Status:</b> $status</p>"
+if {[info exists url]} {
+puts "\t\t<p><b>URL:</b> <a href=\"$url\">$url</a></p>"
+}
 puts "\t</body>"
 puts "</html>"
