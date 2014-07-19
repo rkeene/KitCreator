@@ -113,12 +113,12 @@
 		## XXX: TODO
 		set cache_tcl_version $build_tcl_version
 		if {$build_tcl_version == "fossil_trunk"} {
-			set cache_tcl_version [clock seconds]
+			set cache_tcl_version [clock format [clock seconds] -format {%Y%m%d}]
 		}
 
 		set cache_kitcreator_version $build_kitcreator_version
 		if {$build_kitcreator_version == "trunk"} {
-			set cache_kitcreator_version [clock seconds]
+			set cache_kitcreator_version [clock format [clock seconds] -format {%Y%m%d}]
 		}
 
 		# Generate a serialized hash that represents the state of the build
