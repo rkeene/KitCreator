@@ -1,5 +1,8 @@
 build/test/kits
 build/test/kits/*
+build/web/queue
+build/web/kitcreator.cgi
+build/web/kitcreator.kit
 itcl/build
 itcl/build/*
 itcl/build.log
@@ -93,6 +96,15 @@ tcc4tcl/out
 tcc4tcl/out/*
 tcc4tcl/src
 tcc4tcl/src/*
+tls/build
+tls/build/*
+tls/build.log
+tls/inst
+tls/inst/*
+tls/out
+tls/out/*
+tls/src
+tls/src/*
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
