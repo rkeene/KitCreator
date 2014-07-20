@@ -71,6 +71,7 @@
 		set build_packages [list]
 		set build_options(threaded) 0
 		set build_options(kitdll) 0
+		set build_options(debug) 0
 		foreach arg [array names args] {
 			switch -glob -- $arg {
 				"option_package_*" {
@@ -83,6 +84,9 @@
 				}
 				"option_kitdll" {
 					set build_options(kitdll) 1
+				}
+				"option_debug" {
+					set build_options(debug) 1
 				}
 				"option_storage" {
 					switch -- $args($arg) {
@@ -140,7 +144,7 @@
 		## Update key with options in deterministic order
 		foreach option [lsort -dictionary [array names build_options]] {
 			switch -- $option {
-				"threaded" - "kitdll" {
+				"threaded" - "kitdll" - "debug" {
 					# For boolean options, skip them if they are not enabled
 					if {!$build_options($option)} {
 						continue
@@ -310,6 +314,7 @@
             <input type="checkbox" name="option_package_<? puts -nonewline $package ?>" id="option_package_<? puts -nonewline $package ?>">Package: <? puts -nonewline $packages($package) ?><br>
 <? } ?>
             <input type="checkbox" name="option_threaded">Kit: Threaded<br>
+            <input type="checkbox" name="option_debug">Kit: Debugging Build<br>
             <input type="checkbox" name="option_kitdll">Kit: Build Library (KitDLL)<br>
           </td>
         </tr>

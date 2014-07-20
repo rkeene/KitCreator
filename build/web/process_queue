@@ -70,6 +70,12 @@ foreach line [split $data "\n"] {
 					lappend args "--disable-threads"
 				}
 			}
+			"debug" {
+				if {$value} {
+					lappend args "--enable-symbols"
+					set ::env(STRIP) true
+				}
+			}
 			"storage" {
 				lappend args "--enable-kit-storage=$value"
 			}
@@ -85,10 +91,18 @@ foreach line [split $data "\n"] {
 	}
 
 	catch {
-		set fd [open "${outfile}.log" w]
-		puts $fd "Running: [list $script $buildinfo(tcl_version) {*}$args]"
+		file delete "${outfile}.log"
+	}
+
+	catch {
+		set cmd [list $script $buildinfo(tcl_version) {*}$args]
+		set fd [open "${outfile}.log" w+]
+		puts $fd "Running: $cmd"
 		close $fd
-		exec $script $buildinfo(tcl_version) {*}$args > "${outfile}.log" 2>@1
+	}
+
+	catch {
+		exec {*}$cmd >> "${outfile}.log" 2>@1
 	}
 
 	catch {
