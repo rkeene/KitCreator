@@ -84,6 +84,13 @@
 				"option_kitdll" {
 					set build_options(kitdll) 1
 				}
+				"option_storage" {
+					switch -- $args($arg) {
+						"mk4" - "zip" - "cvfs" {
+							set build_options(storage) $args($arg)
+						}
+					}
+				}
 			}
 		}
 		set build_packages [lsort -dictionary $build_packages]
@@ -306,6 +313,17 @@
             <input type="checkbox" name="option_kitdll">Kit: Build Library (KitDLL)<br>
           </td>
         </tr>
+	<tr>
+		<td>Kit Storage:</td>
+		<td>
+			<select name="option_storage">
+				<option value="auto">Automatically Determined</option>
+				<option value="mk4">Metakit</option>
+				<option value="zip">Zip</option>
+				<option value="cvfs">C-VFS</option>
+			</select>
+		</td>
+	</tr>
 <!--
         <tr>
           <td>Kit Icon:</td>
