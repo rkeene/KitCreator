@@ -27,6 +27,7 @@ if {[info exists workdir]} {
 		set filename $buildinfo(filename)
 
 		set outfile [file join $workdir $filename]
+		set logfile "${outfile}.log"
 	} else {
 		set status "Queued"
 	}
@@ -65,7 +66,17 @@ puts "\t<body>"
 puts "\t\t<h1>KitCreator Web Interface</h1>"
 puts "\t\t<p><b>Status:</b> $status</p>"
 if {[info exists url]} {
-puts "\t\t<p><b>URL:</b> <a href=\"$url\">$url</a></p>"
+	puts "\t\t<p><b>URL:</b> <a href=\"$url\">$url</a></p>"
+}
+if {[info exists logfile]} {
+	catch {
+		set fd [open $logfile]
+		set logdata [read $fd]
+		close $fd
+
+
+		puts "\t\t<p><b>Log:</b><pre>\n$logdata</pre></p>"
+	}
 }
 puts "\t</body>"
 puts "</html>"
