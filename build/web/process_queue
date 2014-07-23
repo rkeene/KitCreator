@@ -97,6 +97,12 @@ foreach line [split $data "\n"] {
 	catch {
 		set cmd [list $script $buildinfo(tcl_version) {*}$args]
 		set fd [open "${outfile}.log" w+]
+		puts $fd "Running: export KITCREATOR_PKGS=\"$::env(KITCREATOR_PKGS)\""
+
+		if {[info exists ::env(STRIP)]} {
+			puts $fd "Running: export STRIP=\"$::env(STRIP)\""
+		}
+
 		puts $fd "Running: $cmd"
 		close $fd
 	}
