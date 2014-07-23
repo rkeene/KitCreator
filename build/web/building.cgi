@@ -33,6 +33,53 @@ if {[info exists workdir]} {
 	}
 }
 
+if {[info exists buildinfo]} {
+	set description "Tcl $buildinfo(tcl_version)"
+	append description ", KitCreator $buildinfo(kitcreator_version)"
+	append description ", Platform $buildinfo(platform)"
+
+	foreach {option value} $buildinfo(options) {
+		switch -- $option {
+			"kitdll" {
+				if {$value} {
+					append description ", Built as a Library"
+				}
+			}
+			"threaded" {
+				if {$value} {
+					append description ", Threaded"
+				} else {
+					append description ", Unthreaded"
+				}
+			}
+			"debug" {
+				if {$value} {
+					append description ", With Symbols"
+				}
+			}
+			"storage" {
+				switch -- $value {
+					"mk4" {
+						append description ", Metakit-based"
+					}
+					"zip" {
+						append description ", Zip-kit"
+					}
+					"cvfs" {
+						append description ", Static Storage"
+					}
+				}
+			}
+		}
+	}
+
+	if {[llength $buildinfo(packages)] > 0} {
+		append description ", Packages: [join $buildinfo(packages) {, }]"
+	} else {
+		append description ", No packages"
+	}
+}
+
 if {[info exists outfile]} {
 	if {[file exists $outfile]} {
 		set status "Complete"
@@ -64,9 +111,12 @@ puts "\t\t<title>KitCreator, Web Interface</title>"
 puts "\t</head>"
 puts "\t<body>"
 puts "\t\t<h1>KitCreator Web Interface</h1>"
-puts "\t\t<p><b>Status:</b> $status</p>"
+if {[info exists description]} {
+	puts "\t\t<p><b>Description:</b> $description"
+}
+puts "\t\t<p><b>Status:</b> $status"
 if {[info exists url]} {
-	puts "\t\t<p><b>URL:</b> <a href=\"$url\">$url</a></p>"
+	puts "\t\t<p><b>URL:</b> <a href=\"$url\">$url</a>"
 }
 if {[info exists logfile]} {
 	catch {
@@ -75,7 +125,7 @@ if {[info exists logfile]} {
 		close $fd
 
 
-		puts "\t\t<p><b>Log:</b><pre>\n$logdata</pre></p>"
+		puts "\t\t<p><b>Log:</b><pre>\n$logdata</pre>"
 	}
 }
 puts "\t</body>"
