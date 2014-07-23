@@ -16,6 +16,8 @@ set fd [open $queue r]
 set data [read $fd]
 close $fd
 
+set ::env(TCLKIT) "/home/rkeene/bin/tclkit"
+
 foreach line [split $data "\n"] {
 	if {$line == ""} {
 		continue
