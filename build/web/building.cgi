@@ -111,12 +111,12 @@ puts "\t\t<title>KitCreator, Web Interface</title>"
 puts "\t</head>"
 puts "\t<body>"
 puts "\t\t<h1>KitCreator Web Interface</h1>"
-if {[info exists description]} {
-	puts "\t\t<p><b>Description:</b> $description"
-}
 puts "\t\t<p><b>Status:</b> $status"
 if {[info exists url]} {
 	puts "\t\t<p><b>URL:</b> <a href=\"$url\">$url</a>"
+}
+if {[info exists description]} {
+	puts "\t\t<p><b>Description:</b> $description"
 }
 if {[info exists logfile]} {
 	catch {
