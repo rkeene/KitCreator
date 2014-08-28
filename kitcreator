@@ -1,5 +1,8 @@
 #! /usr/bin/env bash
 
+# Clean variables which will interfere with the build
+unset MAKEFLAGS
+
 # Determine appropriate mode
 mode="build"
 case "$1" in
@@ -10,7 +13,7 @@ case "$1" in
 esac
 
 # Determine which Tcl version to build
-TCLVERS="8.6.1"
+TCLVERS="8.6.2"
 if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | egrep '^(cvs|fossil)_' >/dev/null; then
 	TCLVERS="$1"
 
