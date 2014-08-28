@@ -17,9 +17,7 @@ SRCURL="http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERS}/zlib-${ZLI
 BUILDDIR="$(pwd)/build/zlib-${ZLIBVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-PATCHSCRIPTDIR="$(pwd)/patchscripts"
-PATCHDIR="$(pwd)/patches"
-export ZLIBVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
+export ZLIBVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
 
 # Set configure options for this sub-project
 LDFLAGS="${LDFLAGS} ${KC_ZLIB_LDFLAGS}"

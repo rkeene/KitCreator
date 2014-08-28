@@ -171,6 +171,7 @@ On Windows we also need this:
 	1. RC
 		Resource compiler : e.g. i686-pc-mingw32-windres
 
+
 Kitsh Configure Options:
 	1. --enable-kit-storage={zip|mk4|auto}
 		Specify which type of storage to use with the Tclkit.  The
