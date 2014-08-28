@@ -25,10 +25,10 @@ export KITSHVERS BUILDDIR OUTDIR INSTDIR OTHERPKGSDIR
 
 # Set configure options for this sub-project
 LDFLAGS_ADD="${KC_KITSH_LDFLAGS_ADD}"
-LDFLAGS="${KC_KITSH_LDFLAGS}"
-CFLAGS="${KC_KITSH_CFLAGS}"
-CPPFLAGS="${KC_KITSH_CPPFLAGS}"
-LIBS="${KC_KITSH_LIBS}"
+LDFLAGS="${LDFLAGS} ${KC_KITSH_LDFLAGS}"
+CFLAGS="${CFLAGS} ${KC_KITSH_CFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${KC_KITSH_CPPFLAGS}"
+LIBS="${LIBS} ${KC_KITSH_LIBS}"
 export LDFLAGS_ADD LDFLAGS CFLAGS CPPFLAGS LIBS
 
 if [ -z "${ENABLECOMPRESSION}" ]; then
@@ -202,7 +202,7 @@ mkdir 'out' 'inst' || exit 1
 		### Call installer
 		echo "Running: \"${TCLKIT}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
 		"${TCLKIT}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
-	else
+	elif echo 'exit 0' | ./kit >/dev/null 2>/dev/null; then
 		## Bootstrap (cannot cross-compile)
 		### Call installer
 		cp kit runkit
@@ -215,6 +215,12 @@ mkdir 'out' 'inst' || exit 1
 
 		echo 'Running: echo | ./runkit setup.tcl'
 		echo | ./runkit setup.tcl || exit 1
+	else
+		## Install using Tclsh, which may work if we're not using Metakit
+		### Call installer
+		echo "Running: \"${TCLSH_NATIVE}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
+		"${TCLSH_NATIVE}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
+		
 	fi
 
 	# Cleanup

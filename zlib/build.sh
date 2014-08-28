@@ -22,10 +22,10 @@ PATCHDIR="$(pwd)/patches"
 export ZLIBVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
 
 # Set configure options for this sub-project
-LDFLAGS="${KC_ZLIB_LDFLAGS}"
-CFLAGS="${KC_ZLIB_CFLAGS}"
-CPPFLAGS="${KC_ZLIB_CPPFLAGS}"
-LIBS="${KC_ZLIB_LIBS}"
+LDFLAGS="${LDFLAGS} ${KC_ZLIB_LDFLAGS}"
+CFLAGS="${CFLAGS} ${KC_ZLIB_CFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${KC_ZLIB_CPPFLAGS}"
+LIBS="${LIBS} ${KC_ZLIB_LIBS}"
 export LDFLAGS CFLAGS CPPFLAGS LIBS
 
 rm -rf 'build' 'out' 'inst'
@@ -52,28 +52,6 @@ fi
 
 	cd "${BUILDDIR}" || exit 1
 
-	# Apply patches if needed
-	for patch in "${PATCHDIR}/all"/zlib-${ZLIBVERS}-*.diff "${PATCHDIR}/all"/zlib-all-*.diff "${PATCHDIR}/${ZLIBVERS}"/zlib-${ZLIBVERS}-*.diff; do
-		if [ ! -f "${patch}" ]; then
-			continue
-		fi
-
-		echo "Applying: ${patch}"
-		${PATCH:-patch} -p1 < "${patch}"
-	done
-
-
-	# Apply patch scripts if needed
-	for patchscript in "${PATCHSCRIPTDIR}"/*.sh; do
-		if [ -f "${patchscript}" ]; then
-			echo "Running patch script: ${patchscript}"
-
-			(
-				. "${patchscript}"
-			)
-		fi
-	done
-
 	# If we are building for KitDLL, compile with '-fPIC'
 	if [ "${KITTARGET}" = "kitdll" ]; then
 		CFLAGS="${CFLAGS} -fPIC"
@@ -82,8 +60,8 @@ fi
 
 	# We don't pass CONFIGUREEXTRA here, since this isn't a GNU autoconf
 	# script and will puke
-	echo "Running: ./configure --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\""
-	./configure --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib"
+	echo "Running: ./configure --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --static"
+	./configure --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --static
 
 	echo "Running: ${MAKE:-make}"
 	${MAKE:-make} || exit 1

@@ -1,0 +1,33 @@
+diff -uNr tls1.6/tlsIO.c tls1.6-eof-1dgp/tlsIO.c
+--- tls1.6/tlsIO.c	2008-03-17 19:59:02.000000000 -0500
++++ tls1.6-eof-1dgp/tlsIO.c	2014-07-07 22:41:14.017514735 -0500
+@@ -729,6 +729,19 @@
+ 	statePtr->timer = (Tcl_TimerToken) NULL;
+     }
+ 
++    if (statePtr->flags & TLS_TCL_CALLBACK) {
++	return 0;
++    }
++
++    if (statePtr->flags & TLS_TCL_INIT
++	    && !SSL_is_init_finished(statePtr->ssl)) {
++	int errorCode;
++	if (Tls_WaitForConnect(statePtr, &errorCode) <= 0
++		&& errorCode == EAGAIN) {
++	    return 0;
++	}
++    }
++
+     return mask;
+ }
+ 
+@@ -900,6 +913,9 @@
+ 		    continue;
+ 		}
+ 	    } else if (err == 0) {
++		if (Tcl_Eof(statePtr->self)) {
++		    return 0;
++		}
+ 		dprintf(stderr,"CR! ");
+ 		*errorCodePtr = ECONNRESET;
+ 		return -1;

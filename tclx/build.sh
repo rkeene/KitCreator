@@ -11,20 +11,20 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-TLSVERS="1.6"
-SRC="src/tls-${TLSVERS}.tar.gz"
-SRCURL="http://sourceforge.net/projects/tls/files/tls/${TLSVERS}/tls${TLSVERS}-src.tar.gz"
-BUILDDIR="$(pwd)/build/tls${TLSVERS}"
+TCLXVERS="8.4.1"
+SRC="src/tclx${TCLXVERS}.tar.bz2"
+SRCURL="http://sourceforge.net/projects/tclx/files/TclX/${TCLXVERS}/tclx${TCLXVERS}.tar.bz2/download"
+BUILDDIR="$(pwd)/build/tclx8.4"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
 PATCHDIR="$(pwd)/patches"
-export TLSVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHDIR
+export TCLXVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHDIR
 
 # Set configure options for this sub-project
-LDFLAGS="${LDFLAGS} ${KC_TLS_LDFLAGS}"
-CFLAGS="${CFLAGS} ${KC_TLS_CFLAGS}"
-CPPFLAGS="${CPPFLAGS} ${KC_TLS_CPPFLAGS}"
-LIBS="${LIBS} ${KC_TLS_LIBS}"
+LDFLAGS="${LDFLAGS} ${KC_TCLX_LDFLAGS}"
+CFLAGS="${CFLAGS} ${KC_TCLX_CFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${KC_TCLX_CPPFLAGS}"
+LIBS="${LIBS} ${KC_TCLX_LIBS}"
 export LDFLAGS CFLAGS CPPFLAGS LIBS
 
 rm -rf 'build' 'out' 'inst'
@@ -50,20 +50,14 @@ fi
 	cd 'build' || exit 1
 
 	if [ ! -d '../buildsrc' ]; then
-		gzip -dc "../${SRC}" | tar -xf -
+		bzip2 -dc "../${SRC}" | tar -xf -
 	else    
 		cp -rp ../buildsrc/* './'
 	fi
 
-	# Determine SSL directory
-	if [ -z "${CPP}" ]; then
-		CPP="${CC} -E"
-	fi
-	SSLDIR="$(echo '#include <openssl/ssl.h>' 2>/dev/null | ${CPP} - | awk '/# 1 "\/.*\/ssl\.h/{ print $3; exit }' | sed 's@^"@@;s@"$@@;s@/include/openssl/ssl\.h$@@')"
-
 	# Apply required patches
 	cd "${BUILDDIR}" || exit 1
-	for patch in "${PATCHDIR}/all"/tls-${TLSVERS}-*.diff "${PATCHDIR}/${TCL_VERSION}"/tls-${TLSVERS}-*.diff; do
+	for patch in "${PATCHDIR}/all"/tclx-${TCLXVERS}-*.diff "${PATCHDIR}/${TCL_VERSION}"/tclx-${TCLXVERS}-*.diff; do
 		if [ ! -f "${patch}" ]; then
 			continue
 		fi
@@ -75,9 +69,9 @@ fi
 	cd "${BUILDDIR}" || exit 1
 
 	# Try to build as a shared object if requested
-	if [ "${STATICTLS}" = "0" ]; then
+	if [ "${STATICTCLX}" = "0" ]; then
 		tryopts="--enable-shared --disable-shared"
-	elif [ "${STATICTLS}" = "-1" ]; then
+	elif [ "${STATICTCLX}" = "-1" ]; then
 		tryopts="--enable-shared"
 	else
 		tryopts="--disable-shared"
@@ -100,7 +94,7 @@ fi
 			isshared="0"
 		fi
 
-		# If build a static TLS for KitDLL, ensure that we use PIC
+		# If build a static TclX for KitDLL, ensure that we use PIC
 		# so that it can be linked into the shared object
 		if [ "${isshared}" = "0" -a "${KITTARGET}" = "kitdll" ]; then
 			CFLAGS="${SAVE_CFLAGS} -fPIC"
@@ -118,8 +112,8 @@ fi
 		rm -f configure.new
 
 		(
-			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" --with-ssl-dir=\"${SSLDIR}\" ${CONFIGUREEXTRA}"
-			./configure $tryopt --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" --with-ssl-dir="${SSLDIR}" ${CONFIGUREEXTRA}
+			echo "Running: ./configure $tryopt --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
+			./configure $tryopt --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
 			echo "Running: ${MAKE:-make} tcllibdir=\"${INSTDIR}/lib\" AR=\"${AR:-ar}\" RANLIB=\"${RANLIB:-ranlib}\""
 			${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" || exit 1
@@ -131,21 +125,15 @@ fi
 		break
 	done
 
-	# Create pkgIndex if needed
-	if [ ! -e "${INSTDIR}/lib/tls${TLSVERS}/pkgIndex.tcl" ]; then
-		cat << _EOF_ > "${INSTDIR}/lib/tls${TLSVERS}/pkgIndex.tcl"
-package ifneeded tls ${TLSVERS} \
-    "[list source [file join \$dir tls.tcl]] ; \
-     [list load {} tls]"
+	if [ ! -e "${INSTDIR}/lib/tclx8.4/pkgIndex.tcl" ]; then
+		cat << _EOF_ > "${INSTDIR}/lib/tclx8.4/pkgIndex.tcl"
+package ifneeded Tclx 8.4 [list load {} Tclx]
 _EOF_
-	fi
+        fi
 
 	# Install files needed by installation
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1
 	find "${OUTDIR}" -name '*.a' -type f | xargs -n 1 rm -f --
-
-	## XXX: TODO: Determine what we actually need to link against
-	echo '-lssl -lcrypto' > "${INSTDIR}/lib/tls${TLSVERS}/libtls${TLSVERS}.a.linkadd"
 
 	exit 0
 ) || exit 1

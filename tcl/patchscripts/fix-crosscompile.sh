@@ -1,4 +1,13 @@
-#! /usr/bin/env bash
+#! /bin/bash
+
+if [ "${KC_CROSSCOMPILE}" != '1' ]; then
+	exit 0
+fi
+
+mkdir fake-bin
+
+cat << \_EOF_ > fake-bin/fake-uname
+#! /bin/bash
 
 if [ "$1" == "--fake" ]; then
 	echo "true"
@@ -6,18 +15,10 @@ if [ "$1" == "--fake" ]; then
 	exit 0
 fi
 
-# Some systems do not compile well with this fake uname in place
-# provide the real uname for them.
-case "${CROSS}" in
-	mipsel-unknown-linux-uclibc)
-		unset CROSS
-		;;
-esac
-
-if [ -z "${CROSS}" ]; then
+if [ -z "${KC_CROSSCOMPILE_HOST_OS}" ]; then
 	# If not cross compiling, revert to system uname
 	while [ "$(uname --fake 2>/dev/null)" == "true" -a -n "${PATH}" ]; do
-		PATH="$(echo "${PATH}" | /usr/bin/sed 's@^[^:]*$@@;s@^[^:]*:@@')"
+		PATH="$(echo "${PATH}" | sed 's@^[^:]*$@@;s@^[^:]*:@@')"
 
 		export PATH
 	done
@@ -29,17 +30,15 @@ if [ -z "${CROSS}" ]; then
 	exec uname "$@"
 fi
 
-CROSS="$(echo "${CROSS}" | sed 's@-*$@@')"
-
 # Determine release information
-case "${CROSS}" in
+case "${KC_CROSSCOMPILE_HOST_OS}" in
 	*-hpux11*)
 		sysname="HP-UX"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-hpux@@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-hpux@@')"
 		;;
 	*-solaris2*)
 		sysname="SunOS"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-solaris@@;s@^2@5@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-solaris@@;s@^2@5@')"
 		;;
 	*-linux*)
 		sysname="Linux"
@@ -47,16 +46,32 @@ case "${CROSS}" in
 		;;
 	*-netbsd*)
 		sysname="NetBSD"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-netbsd@@;s@$@.0@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-netbsd@@;s@$@.0@')"
 		;;
 	*-freebsd*)
 		sysname="FreeBSD"
-		sysrelease="$(echo "${CROSS}" | sed 's@^.*-freebsd@@;s@$@.0-RELEASE@')"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@^.*-freebsd@@;s@$@.0-RELEASE@')"
+		;;
+	*-aix[0-9].*)
+		sysname="AIX"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@.*-aix\([0-9]\..*\)@\1@')"
+		;;
+	*-*-darwin*)
+		sysname="Darwin"
+		sysrelease="$(echo "${KC_CROSSCOMPILE_HOST_OS}" | sed 's@.*-darwin\([0-9]*\)@\1@')"
 		;;
 esac
 
 # Determine machine information
-case "${CROSS}" in
+case "${KC_CROSSCOMPILE_HOST_OS}" in
+	x86_64-*-darwin*)
+		sysmachine="Intel"
+		syscpu="x86_64"
+		;;
+	powerpc-*-darwin*)
+		sysmachine="Power Macintosh"
+		syscpu="powerpc"
+		;;
 	hppa64-*-hpux*)
 		sysmachine="9000/859"
 		;;
@@ -81,12 +96,18 @@ case "${CROSS}" in
 	mipsel-*|mipseb-*)
 		sysmachine="mips"
 		;;
+	powerpc-*)
+		sysmachine="ppc"
+		;;
 esac
 
 for arg in $(echo "$@" | sed 's@.@ & @g'); do
 	case "${arg}" in
 		-)
 			continue
+			;;
+		v)
+			retval="${retval} unknown"
 			;;
 		r)
 			retval="${retval} ${sysrelease}"
@@ -111,3 +132,12 @@ for arg in $(echo "$@" | sed 's@.@ & @g'); do
 done
 
 echo "${retval}" | sed 's@^  *@@;s@  *$@@'
+_EOF_
+
+chmod +x fake-bin/fake-uname
+
+sed 's|`uname |`'"$(pwd)"'/fake-bin/fake-uname |g' unix/configure > unix/configure.new
+cat unix/configure.new > unix/configure
+rm -f unix/configure.new
+
+exit 0

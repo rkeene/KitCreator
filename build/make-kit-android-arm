@@ -3,4 +3,4 @@
 CROSS="arm-android9-linux-androideabi"
 export CROSS
 
-./build/make-kit-crosscompile "$@"
+./build/make-kit-crosscompile "$@" LDFLAGS=-static-libgcc

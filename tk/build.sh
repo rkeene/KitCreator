@@ -21,10 +21,10 @@ PATCHSCRIPTDIR="$(pwd)/patchscripts"
 export SRC SRCURL BUILDDIR PATCHDIR OUTDIR INSTDIR PATCHSCRIPTDIR
 
 # Set configure options for this sub-project
-LDFLAGS="${KC_TK_LDFLAGS}"
-CFLAGS="${KC_TK_CFLAGS}"
-CPPFLAGS="${KC_TK_CPPFLAGS}"
-LIBS="${KC_TK_LIBS}"
+LDFLAGS="${LDFLAGS} ${KC_TK_LDFLAGS}"
+CFLAGS="${CFLAGS} ${KC_TK_CFLAGS}"
+CPPFLAGS="${CPPFLAGS} ${KC_TK_CPPFLAGS}"
+LIBS="${LIBS} ${KC_TK_LIBS}"
 export LDFLAGS CFLAGS CPPFLAGS LIBS
 
 # Must be kept in-sync with "../tcl/build.sh"
@@ -150,6 +150,12 @@ fi
 		fi
 	done
 
+	# Allow wrapper programs to supplant real programs
+	if [ -d 'fake-bin' ]; then
+		PATH="$(pwd)/fake-bin:${PATH}"
+		export PATH
+	fi
+
 	for dir in "${TCLCONFIGDIRTAIL}" unix win macosx win64 __fail__; do
 		if [ -z "${dir}" ]; then
 			continue
@@ -176,8 +182,10 @@ fi
 
 		if [ "${dir}" = "win" ]; then
 			# Statically link Tk to Tclkit if we are compiling for
-			# Windows
-			STATICTK="1"
+			# Windows unless otherwise requested
+			if [ -z "${STATICTK}" ]; then
+				STATICTK="1"
+			fi
 
 			if [ "${win64}" = "1" ]; then
 				# Mingw32 for AMD64 requires this, apparently
@@ -236,18 +244,24 @@ fi
 			# Update pkgIndex to load libtk from the local directory rather
 			# than the parent directory
 			for pkgIndex in "${INSTDIR}"/lib/tk*/pkgIndex.tcl; do
-				sed 's@ \.\. @ @g' "${pkgIndex}" > "${pkgIndex}.new"
+				sed 's@ \.\. bin @ @g;s@ \.\. @ @;s@ lib\(tk.*\.dll\)@ \1@' "${pkgIndex}" > "${pkgIndex}.new"
 				mv "${pkgIndex}.new" "${pkgIndex}"
 			done
 		fi
 
 		mkdir "${OUTDIR}/lib" || exit 1
 		cp -r "${INSTDIR}/lib"/tk* "${OUTDIR}/lib/"
+		cp -r "${INSTDIR}/bin"/tk*.dll "${OUTDIR}/lib/"/tk*/
 		cp -r "${INSTDIR}/lib"/libtk* "${OUTDIR}/lib"/tk*/
 		rm -rf "${OUTDIR}/lib"/tk*/demos
 
-		"${STRIP:-strip}" -g "${OUTDIR}"/lib/tk*/*.so >/dev/null 2>/dev/null
+		"${STRIP:-strip}" -g "${OUTDIR}"/lib/tk*/*.{so,dll,dylib,shlib} >/dev/null 2>/dev/null
 		find "${OUTDIR}" -type f -name '*.a' | xargs rm -f >/dev/null 2>/dev/null
+
+		# If we have a shared object, delete static libraries
+		if find "${INSTDIR}" -type f '(' -name '*.dll' -o -name '*.so' -o -name '*.dylib' -o -name '*.shlib' ')' 2>/dev/null | grep '^' >/dev/null; then
+			find "${INSTDIR}" -type f -name '*.a' | grep -v 'stub' | xargs rm -f
+		fi
 
 		break
 	done

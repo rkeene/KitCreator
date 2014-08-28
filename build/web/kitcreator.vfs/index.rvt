@@ -1,5 +1,12 @@
 <?
+	package require sha1
+
+	load_response args
+
 	set sourcedir "/web/rkeene/devel/kitcreator/all"
+	set queue "/home/rkeene/devel/kitcreator/build/web/queue"
+	set secretfile "/home/rkeene/etc/kitcreator-web-secret"
+
 	foreach file [glob -tails -nocomplain -directory $sourcedir "kitcreator-*.tar.gz"] {
 		regexp {^kitcreator-(.*).tar.gz$} $file -> vers
 		set kitcreator_versions($vers) $vers
@@ -8,29 +15,212 @@
 
 	set kitcreator_versions(trunk) "Fossil Trunk Tip"
 
-	set tcl_versions(8.4.19) 8.4.19
-	set tcl_versions(8.5.9) 8.5.9
-	set tcl_versions(cvs_HEAD) "Fossil Trunk Tip"
+	set tcl_versions(8.5.15) 8.5.15
+	set tcl_versions(8.6.1) 8.6.1
+	set tcl_versions(8.6.2) 8.6.2
+	set tcl_versions(fossil_trunk) "Fossil Trunk Tip"
 
-	set platforms(linux-x86) "Linux on x86"
-	set platforms(linux-amd64) "Linux on amd64"
-	set platforms(linux-mipsel) "Linux on MIPSEL"
-	set platforms(windows-x86) "Windows on x86"
+	set platforms(android-arm) "Android/ARM"
+	set platforms(freebsd-amd64) "FreeBSD/amd64"
+	set platforms(hpux-hppa64) "HP-UX/PA-RISC 2.0"
+	set platforms(linux-amd64) "Linux/amd64"
+	set platforms(linux-arm) "Linux/ARM"
+	set platforms(linux-i386) "Linux/i386"
+	set platforms(linux-mipsel) "Linux/MIPS"
+	set platforms(netbsd-amd64) "NetBSD/amd64"
+	set platforms(netbsd-i386) "NetBSD/i386"
+	set platforms(solaris-amd64) "Solaris/amd64"
+	set platforms(solaris-i386) "Solaris/i386"
+	set platforms(solaris-sparc) "Solaris/SPARC"
+	set platforms(solaris-sparc64) "Solaris/SPARC64"
+	set platforms(win32) "Windows/i386"
+	set platforms(win64) "Windows/amd64"
+
+	set packages(tk) "Tk"
+	set packages(mk4tcl) "Metakit"
+	set packages(tcc4tcl) "tcc4tcl"
+	set packages(tls) TLS
+	set packages(dbus) D-BUS
+	set packages(tclx) TclX
 
 	set disable {
-		platform linux-amd64 tk
-		platform linux-mipsel tk
+		platform linux-mipsel {tk tcc4tcl}
+		platform android-arm tk
+		platform netbsd-amd64 {tk tcc4tcl}
+		platform netbsd-i386 {tk tcc4tcl}
+		platform solaris-sparc tcc4tcl
+		platform solaris-sparc64 tcc4tcl
+		platform hpux-hppa64 tcc4tcl
+		platform linux-arm tk
 	}
 
 	set specific {
-		platform windows-x86 file icon {Kit Icon}
-		platform windows-x86 text description {Description}
+		platform win32 file icon {Kit Icon}
+		platform win32 text description {Description}
+		platform win64 file icon {Kit Icon}
+		platform win64 text description {Description}
 	}
+
+	if {[info exists args(platform)] && [info exists args(tcl_version)] && [info exist args(kitcreator_version)]} {
+		# Read in arguments
+		## Mandatory arguments
+		set build_platform $args(platform)
+		set build_tcl_version $args(tcl_version)
+		set build_kitcreator_version $args(kitcreator_version)
+
+		## Optional Arguments
+		set build_packages [list]
+		set build_options(threaded) 0
+		set build_options(kitdll) 0
+		set build_options(debug) 0
+		foreach arg [array names args] {
+			switch -glob -- $arg {
+				"option_package_*" {
+					set package [join [lrange [split $arg _] 2 end] _]
+
+					lappend build_packages $package
+				}
+				"option_threaded" {
+					set build_options(threaded) 1
+				}
+				"option_kitdll" {
+					set build_options(kitdll) 1
+				}
+				"option_debug" {
+					set build_options(debug) 1
+				}
+				"option_storage" {
+					switch -- $args($arg) {
+						"mk4" - "zip" - "cvfs" {
+							set build_options(storage) $args($arg)
+						}
+					}
+				}
+			}
+		}
+		set build_packages [lsort -dictionary $build_packages]
+
+		# Validate arguments
+		if {![info exists platforms($build_platform)]} {
+			unset build_platform
+		}
+
+		if {![info exists tcl_versions($build_tcl_version)]} {
+			unset build_tcl_version
+		}
+
+		if {![info exists kitcreator_versions($build_kitcreator_version)]} {
+			unset build_kitcreator_version
+		}
+
+		foreach package $build_packages {
+			if {![info exists packages($package)]} {
+				unset build_packages
+
+				break
+			}
+		}
+
+		# Resolve version numbers to checkin IDs
+		## XXX: TODO
+		set cache_tcl_version $build_tcl_version
+		if {$build_tcl_version == "fossil_trunk"} {
+			set cache_tcl_version [clock format [clock seconds] -format {%Y%m%d}]
+		}
+
+		set cache_kitcreator_version $build_kitcreator_version
+		if {$build_kitcreator_version == "trunk"} {
+			set cache_kitcreator_version [clock format [clock seconds] -format {%Y%m%d}]
+		}
+
+		# Generate a serialized hash that represents the state of the build
+		## Load a secret so keys cannot be pre-computed (but remain consistent)
+		set secretfd [open $secretfile "r"]
+		set secret [gets $secretfd]
+		close $secretfd
+
+		## Compute basic key	
+		set key [list $secret $build_platform $cache_tcl_version $cache_kitcreator_version $build_packages]
+
+		## Update key with options in deterministic order
+		foreach option [lsort -dictionary [array names build_options]] {
+			switch -- $option {
+				"threaded" - "kitdll" - "debug" {
+					# For boolean options, skip them if they are not enabled
+					if {!$build_options($option)} {
+						continue
+					}
+				}
+			}
+			lappend key [list "option:$option" $build_options($option)]
+		}
+
+		## Convert key to a user-consumable string via hashing
+		set key [string tolower [sha1::sha1 -hex $key]]
+
+		# Determine filename
+		if {$build_options(kitdll)} {
+			set extension "so"
+			switch -- $build_platform {
+				"win32" - "win64" {
+					set extension "dll"
+				}
+				"hpux-hppa64" {
+					set extension "sl"
+				}
+			}
+
+			## XXX: TODO: The version here needs to match what's in the SONAME
+			set filename "libtclkit[string map [list "." ""] ${cache_tcl_version}].${extension}"
+		} else {
+			set filename "tclkit"
+
+			switch -- $build_platform {
+				"win32" - "win64" {
+					append filename ".exe"
+				}
+			}
+		}
+
+		# Queue build up and wait for it to complete
+		set fd [open $queue a+]
+		puts $fd [list filename $filename key $key platform $build_platform tcl_version $build_tcl_version kitcreator_version $build_kitcreator_version packages $build_packages options [array get build_options]]
+		close $fd
+
+		set url "http://kitcreator.rkeene.org/kits/building/$key/"
+
+		headers redirect $url
+?><html>
+	<head>
+		<title>KitCreator, Web Interface</title>
+	</head>
+	<body>
+		<h1>KitCreator Web Interface</h1>
+		<p>Build in progress, see <a href="<? puts -nonewline $url ?>"><? puts -nonewline $url ?></a> for build information</p>
+	</body>
+</html>
+<?
+	} else {
 ?><html>
   <head>
     <title>KitCreator, Web Interface</title>
     <script>
 <!--
+	function enablePackage(package) {
+		var obj;
+
+		obj = document.getElementById('option_package_' + package);
+		obj.disabled = false;
+	}
+
+	function disablePackage(package) {
+		var obj;
+
+		obj = document.getElementById('option_package_' + package);
+		obj.checked = false;
+		obj.disabled = true;
+	}
+
 	function verifyOptions() {
 		var kitcreator_version;
 		var tcl_version;
@@ -40,11 +230,35 @@
 		tcl_version = document.getElementsByName('tcl_version')[0].value;
 		platform = document.getElementsByName('platform')[0].value;
 
+<?
+		set alldisabledpackages [list]
+		foreach {keyword value disablepackages} $disable {
+			foreach package $disablepackages {
+				if {[lsearch -exact $alldisabledpackages $package] == -1} {
+					lappend alldisabledpackages $package
+				}
+			}
+		}
+
+		foreach package $alldisabledpackages {
+			puts "\t\tenablePackage(\"$package\");"
+		}
+
+		foreach {keyword value disablepackages} $disable {
+			puts "\t\tif ($keyword == \"$value\") \{"
+
+			foreach package $disablepackages {
+				puts "\t\t\tdisablePackage(\"$package\");"
+			}
+
+			puts "\t\t\}"
+		}
+?>
 	}
 -->
     </script>
   </head>
-  <body>
+  <body onLoad="verifyOptions();">
     <h1>KitCreator Web Interface</h1>
     <form method="post" enctype="multipart/form-data">
       <table>
@@ -97,27 +311,41 @@
         <tr>
           <td>Kit Options:</td>
           <td>
-            <input type="checkbox" name="option_package_tk">Tk<br>
-            <input type="checkbox" name="option_package_itcl">[incr Tcl]<br>
-            <input type="checkbox" name="option_package_mk4tcl">Metakit<br>
-            <input type="checkbox" name="option_threaded">Threaded<br>
-            <input type="checkbox" name="option_kitdll">Build Library (KitDLL)<br>
+<?  foreach package [lsort -dictionary [array names packages]] { ?>
+            <input type="checkbox" name="option_package_<? puts -nonewline $package ?>" id="option_package_<? puts -nonewline $package ?>">Package: <? puts -nonewline $packages($package) ?><br>
+<? } ?>
+            <input type="checkbox" name="option_threaded">Kit: Threaded<br>
+            <input type="checkbox" name="option_debug">Kit: Debugging Build<br>
+            <input type="checkbox" name="option_kitdll">Kit: Build Library (KitDLL)<br>
           </td>
         </tr>
+	<tr>
+		<td>Kit Storage:</td>
+		<td>
+			<select name="option_storage">
+				<option value="auto">Automatically Determined</option>
+				<option value="mk4">Metakit</option>
+				<option value="zip">Zip</option>
+				<option value="cvfs">C-VFS</option>
+			</select>
+		</td>
+	</tr>
+<!--
         <tr>
           <td>Kit Icon:</td>
           <td>
-            <input type="file" name="platform-windows-x86-icon">
+            <input type="file" name="option_icon">
           </td>
         </tr>
         <tr>
           <td>Description:</td>
           <td>
-            <input type="text" name="platform-windows-x86-desc">
+            <input type="text" name="option_desc">
           </td>
         </tr>
+-->
       </table>
       <input type="submit" name="submit" value="Create">
     </form>
   </body>
-</html>
+</html><? } ?>
