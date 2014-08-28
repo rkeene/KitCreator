@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # Clean variables which will interfere with the build
-unset MAKEFLAGS
+unset MAKEFLAGS DESTDIR
 
 # Determine appropriate mode
 mode="build"
