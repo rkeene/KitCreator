@@ -42,6 +42,7 @@
 	set packages(tls) TLS
 	set packages(dbus) D-BUS
 	set packages(tclx) TclX
+	set packages(itcl) {[incr Tcl]}
 
 	set disable {
 		platform linux-mipsel {tk tcc4tcl}
