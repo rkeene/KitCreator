@@ -55,6 +55,8 @@
 		platform solaris-sparc64 tcc4tcl
 		platform hpux-hppa64 tcc4tcl
 		platform linux-arm tk
+		platform linux-amd64-static {tk dbus}
+		platform linux-i386-static {tk dbus}
 	}
 
 	set specific {
