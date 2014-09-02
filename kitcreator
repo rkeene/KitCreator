@@ -113,10 +113,16 @@ if [ "${KITTARGET}" = "kitdll" ]; then
 			STATICTK="1"
 			export STATICTK
 		fi
+	fi
 
+	if echo " ${KITCREATOR_PKGS} " | grep ' mk4tcl ' >/dev/null 2>/dev/null; then
 		if [ -z "${STATICMK4}" ]; then
 			echo 'Warning: Linking Mk4tcl dynamically because you are building KitDLL' 2>&1
-			echo '         Set STATICMK4 to 1 if you really want to link Mk4tcl statically.' >&2
+			echo '         Set STATICMK4 to make this message go away.' >&2
+			echo '         Set STATICMK4 to 1 if you really want to link Mk4tcl statically (normal default).' >&2
+			echo '         Set STATICMK4 to 0 to link Mk4tcl dynamically if possible (this is what is happening now).' >&2
+			echo '         Set STATICMK4 to -1 to build dynamically.' >&2
+0 = try shared; -1 = only shared; everything else = only static
 
 			STATICMK4="0"
 			export STATICMK4
