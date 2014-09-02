@@ -1,0 +1,16 @@
+diff -uNr tkimg1.4.orig/Makefile.in tkimg1.4-fixinstall/Makefile.in
+--- tkimg1.4.orig/Makefile.in	2013-11-21 16:03:12.000000000 -0600
++++ tkimg1.4-fixinstall/Makefile.in	2014-08-31 20:03:21.960077999 -0500
+@@ -141,9 +141,9 @@
+ 		cat Img/exec_prefix/lib/Img/pkgIndex.tcl >> pkgIndex.tcl ; \
+ 		fi ; \
+ 	done
+-	chmod ugo+w     Img/exec_prefix/lib/Img/pkgIndex.tcl
+-	mv pkgIndex.tcl Img/exec_prefix/lib/Img/pkgIndex.tcl
+-	chmod ugo+w     Img/exec_prefix/lib/Img/pkgIndex.tcl
++	if test "$(SHARED_BUILD)" = "1"; then chmod ugo+w     Img/exec_prefix/lib/Img/pkgIndex.tcl; fi
++	if test "$(SHARED_BUILD)" = "1"; then mv pkgIndex.tcl Img/exec_prefix/lib/Img/pkgIndex.tcl; fi
++	if test "$(SHARED_BUILD)" = "1"; then chmod ugo+w     Img/exec_prefix/lib/Img/pkgIndex.tcl; fi
+ 	for p in Img/exec_prefix/lib/*.sh ; do \
+ 		sed -e 's#$(libdir)/[^/ ]*\([/ ]\)#$(LIB_RUNTIME_DIR)\1#' \
+ 			$$p > $$p.1 && mv -f $$p.1 $$p ; \
