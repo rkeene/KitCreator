@@ -176,7 +176,7 @@ On Windows we also need this:
 
 
 Kitsh Configure Options:
-	1. --enable-kit-storage={zip|mk4|auto}
+	1. --enable-kit-storage={zip|mk4|cvfs|auto}
 		Specify which type of storage to use with the Tclkit.  The
 		default is to auto-detect.  Auto-detection uses Mk4 if
 		available and built statically, otherwise it falls back to Zip.
