@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSIONS="8.5.16 8.6.2 cvs_HEAD"
+VERSIONS="8.5.17 8.6.2 cvs_HEAD"
 
 # Find the base directory
 for x in 1 2 3 4 __fail__; do
@@ -440,7 +440,25 @@ for kit in $kits; do
 
 				if [ -f "${sdk}" ]; then
 					mv "${sdk}" "${outputname}-sdk.tar.gz"
+					openssl sha1 "${outputname}-sdk.tar.gz" | sed 's@^.*= @@' > "${outputname}-sdk.tar.gz.sha1"
 				fi
+			fi
+
+			openssl sha1 "${outputname}" | sed 's@^.*= @@' > "${outputname}.sha1"
+		fi
+
+		# Note the SHA1 has of the file
+		if [ -f "${outputname}.sha1" ]; then
+			echo "SHA1: $(cat "${outputname}.sha1")"
+		else
+			echo "SHA1: not recorded"
+		fi
+
+		if [ -f "${outputname}-sdk.tar.gz" ]; then
+			if [ -f "${outputname}-sdk.tar.gz.sha1" ]; then
+				echo "SDK SHA1: $(cat "${outputname}-sdk.tar.gz.sha1")"
+			else
+				echo "SDK SHA1: not recorded"
 			fi
 		fi
 
