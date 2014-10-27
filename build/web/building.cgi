@@ -45,6 +45,9 @@ if {[info exists buildinfo]} {
 					append description ", Built as a Library"
 				}
 			}
+			"dynamictk" {
+				append description ", Forced Tk Dynamic Linking"
+			}
 			"threaded" {
 				if {$value} {
 					append description ", Threaded"

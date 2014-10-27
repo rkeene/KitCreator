@@ -81,9 +81,10 @@ foreach line [split $data "\n"] {
 			"storage" {
 				lappend args "--enable-kit-storage=$value"
 			}
-			"staticmk4" {
+			"dynamictk" {
+				set ::env(STATICTK) -1
 			}
-			"statictk" {
+			"staticmk4" {
 			}
 		}
 	}
@@ -103,6 +104,9 @@ foreach line [split $data "\n"] {
 
 		if {[info exists ::env(STRIP)]} {
 			puts $fd "Running: export STRIP=\"$::env(STRIP)\""
+		}
+		if {[info exists ::env(STATICTK)]} {
+			puts $fd "Running: export STATICTK=\"$::env(STATICTK)\""
 		}
 
 		puts $fd "Running: $cmd"

@@ -80,6 +80,7 @@
 		set build_options(threaded) 0
 		set build_options(kitdll) 0
 		set build_options(debug) 0
+		set build_options(dynamictk) 0
 		foreach arg [array names args] {
 			switch -glob -- $arg {
 				"option_package_*" {
@@ -95,6 +96,9 @@
 				}
 				"option_debug" {
 					set build_options(debug) 1
+				}
+				"option_dynamictk" {
+					set build_options(dynamictk) 1
 				}
 				"option_storage" {
 					switch -- $args($arg) {
@@ -324,6 +328,7 @@
             <input type="checkbox" name="option_threaded">Kit: Threaded<br>
             <input type="checkbox" name="option_debug">Kit: Debugging Build<br>
             <input type="checkbox" name="option_kitdll" id="option_kitdll">Kit: Build Library (KitDLL)<br>
+            <input type="checkbox" name="option_dynamictk" id="option_dynamictk">Kit: Always link Tk dynamically (if Tk is built)
           </td>
         </tr>
 	<tr>
