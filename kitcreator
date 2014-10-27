@@ -168,7 +168,11 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 		(
 			cd "${pkg}" >/dev/null 2>/dev/null || exit 1
 
-			./build.sh 3>&1 4>&2 > build.log 2>&1 || exit 1
+			build_script='./build.sh'
+			if [ -x 'kitcreator-build.sh' ]; then
+				build_script='./kitcreator-build.sh'
+			fi
+			"${build_script}" 3>&1 4>&2 > build.log 2>&1 || exit 1
 		) || failed="1"
 	fi
 
