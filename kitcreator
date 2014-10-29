@@ -34,7 +34,7 @@ KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread dbus tls tclx tc
 
 # Always rebuild kitsh
 rm -f "kitsh/.success"
-for pkg in ${KITCREATOR_ALLPKGS}; do
+for pkg in ${KITCREATOR_ALLPKGS} ${KITCREATOR_PKGS}; do
 	if [ "${mode}" != "retry" -o ! -f "${pkg}/.success" ]; then
 		rm -f "${pkg}/build.log" "${pkg}/.success"
 		rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
