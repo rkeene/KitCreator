@@ -20,6 +20,7 @@
 	set tcl_versions(8.5.17) 8.5.17
 	set tcl_versions(8.6.1) 8.6.1
 	set tcl_versions(8.6.2) 8.6.2
+	set tcl_versions(8.6.3) 8.6.3
 	set tcl_versions(fossil_trunk) "Fossil Trunk Tip"
 
 	set platforms(android-arm) "Android/ARM"

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSIONS="8.5.17 8.6.2 cvs_HEAD"
+VERSIONS="8.5.17 8.6.3 cvs_HEAD"
 
 # Find the base directory
 for x in 1 2 3 4 __fail__; do
