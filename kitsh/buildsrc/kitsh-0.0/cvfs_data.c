@@ -20,6 +20,7 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	unsigned long num_children;
 	const char *hashkey;
 	const char *file;
+	int idx;
 
 	if (objc != 3) {
 		Tcl_SetResult(interp, "wrong # args: should be \"getMetadata hashKey fileName\"", TCL_STATIC);
@@ -86,9 +87,21 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 	ret_list_items[18] = Tcl_NewStringObj("ctime", 5);
 	ret_list_items[19] = Tcl_NewStringObj("0", 1);
 
+	for (idx = 0; idx < (sizeof(ret_list_items) / sizeof(ret_list_items[0])); idx++) {
+		Tcl_IncrRefCount(ret_list_items[idx]);
+	}
+
 	ret_list = Tcl_NewListObj(sizeof(ret_list_items) / sizeof(ret_list_items[0]), ret_list_items);
 
+	Tcl_IncrRefCount(ret_list);
+
+	for (idx = 0; idx < (sizeof(ret_list_items) / sizeof(ret_list_items[0])); idx++) {
+		Tcl_DecrRefCount(ret_list_items[idx]);
+	}
+
 	Tcl_SetObjResult(interp, ret_list);
+
+	Tcl_DecrRefCount(ret_list);
 
 	return(TCL_OK);
 }
@@ -180,7 +193,11 @@ static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST o
 
 	ret_str = Tcl_NewByteArrayObj(finfo->data + start, (end - start));
 
+	Tcl_IncrRefCount(ret_str);
+
 	Tcl_SetObjResult(interp, ret_str);
+
+	Tcl_DecrRefCount(ret_str);
 
 	return(TCL_OK);
 }
@@ -244,6 +261,8 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 		return(TCL_ERROR);
 	}
 
+	Tcl_IncrRefCount(ret_list);
+
 	children = malloc(sizeof(*children) * num_children);
 
 	num_children = cmd_getChildren(file, children, num_children);
@@ -259,12 +278,18 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 
 		ret_curr_obj = Tcl_NewStringObj(child, strlen(child));
 
+		Tcl_IncrRefCount(ret_curr_obj);
+
 		Tcl_ListObjAppendList(interp, ret_list, ret_curr_obj);
+
+		Tcl_DecrRefCount(ret_curr_obj);
 	}
 
 	free(children);
 
 	Tcl_SetObjResult(interp, ret_list);
+
+	Tcl_DecrRefCount(ret_list);
 
 	return(TCL_OK);
 }
