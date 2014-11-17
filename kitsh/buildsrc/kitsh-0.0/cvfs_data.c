@@ -95,13 +95,13 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 
 	Tcl_IncrRefCount(ret_list);
 
-	for (idx = 0; idx < (sizeof(ret_list_items) / sizeof(ret_list_items[0])); idx++) {
-		Tcl_DecrRefCount(ret_list_items[idx]);
-	}
-
 	Tcl_SetObjResult(interp, ret_list);
 
 	Tcl_DecrRefCount(ret_list);
+
+	for (idx = 0; idx < (sizeof(ret_list_items) / sizeof(ret_list_items[0])); idx++) {
+		Tcl_DecrRefCount(ret_list_items[idx]);
+	}
 
 	return(TCL_OK);
 }
