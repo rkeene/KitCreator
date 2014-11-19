@@ -50,14 +50,14 @@
 	set packages(itcl) {[incr Tcl]}
 
 	set disable {
-		platform linux-mipsel {package_tk package_tcc4tcl kitdll}
-		platform android-arm package_tk
-		platform netbsd-amd64 {package_tk package_tcc4tcl}
-		platform netbsd-i386 {package_tk package_tcc4tcl}
-		platform solaris-sparc package_tcc4tcl
-		platform solaris-sparc64 package_tcc4tcl
-		platform hpux-hppa64 package_tcc4tcl
-		platform linux-arm package_tk
+		platform linux-mipsel {package_tk package_tcc4tcl package_tclx kitdll}
+		platform android-arm {package_tk package_tclx}
+		platform netbsd-amd64 {package_tk package_tcc4tcl package_tclx}
+		platform netbsd-i386 {package_tk package_tcc4tcl package_tclx}
+		platform solaris-sparc {package_tcc4tcl package_tclx}
+		platform solaris-sparc64 {package_tcc4tcl package_tclx}
+		platform hpux-hppa64 {package_tcc4tcl package_tclx}
+		platform linux-arm {package_tk package_tclx}
 		platform linux-amd64-static {package_tk package_dbus kitdll}
 		platform linux-i386-static {package_tk package_dbus kitdll}
 	}
