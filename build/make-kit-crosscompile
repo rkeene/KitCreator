@@ -19,4 +19,14 @@ if [ -z "${STRIP}" ]; then
 fi
 export PATH AR CC CXX RANLIB STRIP
 
+# When cross-compiling Tcl it cannot detect these things and so assumes failure
+# This in turn creates linking issues because it will define the replacements
+# in the main library and stubs library, which we may both link to
+ac_cv_func_memcmp_working=yes
+tcl_cv_strstr_unbroken=ok
+tcl_cv_strtoul_unbroken=ok
+tcl_cv_strtod_unbroken=ok
+tcl_cv_strtod_buggy=ok
+export ac_cv_func_memcmp_working tcl_cv_strstr_unbroken tcl_cv_strtoul_unbroken tcl_cv_strtod_unbroken tcl_cv_strtod_buggy
+
 ./kitcreator "$@" --host="${CROSS}"
