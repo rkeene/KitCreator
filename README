@@ -180,6 +180,11 @@ Kitsh Configure Options:
 		Specify which type of storage to use with the Tclkit.  The
 		default is to auto-detect.  Auto-detection uses Mk4 if
 		available and built statically, otherwise it falls back to Zip.
+	2. --with-obsfucated-cvfs
+		Specify that CVFS should be obsfucated.  The contents of the
+		CVFS are encrypted on disk and the encryption key is included
+		in the executable.  Files are then transparently decrypted on
+		access.
 
 --------------------
 Using the KitDLL SDK
