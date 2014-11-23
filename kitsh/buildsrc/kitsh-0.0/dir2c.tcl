@@ -124,7 +124,7 @@ proc encrypt_key_export {key_dict target} {
 				"c" {
 					set retval ".type = CVFS_KEYTYPE_ROTATE_SUBST,\n"
 					append retval ".typedata.rotate_subst.rotate_length = $key(rotate_length),\n"
-					append retval ".typedata.rotate_subst.subst         = [stringify $key(subst)]\n"
+					append retval ".typedata.rotate_subst.subst         = (unsigned char *) [stringify $key(subst)]\n"
 
 					return $retval
 				}
@@ -244,8 +244,8 @@ puts {
 typedef enum {
 	CVFS_FILETYPE_FILE            = 0,
 	CVFS_FILETYPE_DIR             = 1,
-	CVFS_FILETYPE_OBSFUCATED_FILE = 2,
-	CVFS_FILETYPE_ENCRYPTED_FILE  = 3,
+	CVFS_FILETYPE_ENCRYPTED_FILE  = 2,
+	CVFS_FILETYPE_COMPRESSED_FILE = 4,
 } cvfs_filetype_t;
 
 struct cvfs_data {
@@ -254,6 +254,7 @@ struct cvfs_data {
 	unsigned long            size;
 	cvfs_filetype_t          type;
 	const unsigned char *    data;
+	int                      free;
 };
 
 typedef enum {
@@ -285,7 +286,6 @@ static unsigned long cvfs_hash(const unsigned char *path) {
         return(h);
 }
 
-#include <stdio.h>
 static int cvfs_decrypt(unsigned char *out, const unsigned char *in, unsigned long in_out_length, struct cvfs_key *key) {
 	unsigned long i;
 	unsigned char in_ch, out_ch;
@@ -308,11 +308,13 @@ puts ""
 
 puts "static struct cvfs_data ${code_tag}_data\[\] = {"
 puts "\t{"
+puts "\t\t/* Index 0 cannot be used because we use the value 0 to represent failure */"
 puts "\t\t.name  = NULL,"
 puts "\t\t.index = 0,"
 puts "\t\t.type  = 0,"
 puts "\t\t.size  = 0,"
 puts "\t\t.data  = NULL,"
+puts "\t\t.free  = 0,"
 puts "\t},"
 for {set idx 1} {$idx < [llength $files]} {incr idx} {
 	set file [lindex $files $idx]
@@ -331,7 +333,7 @@ for {set idx 1} {$idx < [llength $files]} {incr idx} {
 			close $fd
 
 			if {$obsfucate} {
-				set type "CVFS_FILETYPE_OBSFUCATED_FILE"
+				set type "CVFS_FILETYPE_ENCRYPTED_FILE"
 				set data "(unsigned char *) [stringify [encrypt $data $obsfucation_key]]"
 			} else {
 				set type "CVFS_FILETYPE_FILE"
@@ -351,6 +353,7 @@ for {set idx 1} {$idx < [llength $files]} {incr idx} {
 	puts "\t\t.type  = $type,"
 	puts "\t\t.size  = $size,"
 	puts "\t\t.data  = $data,"
+	puts "\t\t.free  = 0,"
 	puts "\t},"
 }
 puts "};"
@@ -506,8 +509,8 @@ puts ""
 if {$obsfucate} {
 	puts "static void ${code_tag}_decryptFile(const char *path, struct cvfs_data *finfo) {"
 	puts "\tstatic struct cvfs_key key = { [string map [list "\n" " "] [encrypt_key_export $obsfucation_key "c"]] };"
-	puts "\tunsigned char *new_data;"
-	puts "\tint decrypt_ret;"
+	puts "\tunsigned char *new_data, *old_data;"
+	puts "\tint decrypt_ret, free_old_data;"
 	puts ""
 	puts "\tnew_data = malloc(finfo->size);"
 	puts "\tdecrypt_ret = cvfs_decrypt(new_data, finfo->data, finfo->size, &key);"
@@ -516,8 +519,17 @@ if {$obsfucate} {
 	puts ""
 	puts "\t\treturn;"
 	puts "\t}"
+	puts ""
+	puts "\tfree_old_data = finfo->free;"
+	puts "\told_data = (void *) finfo->data;"
+	puts ""
 	puts "\tfinfo->data = new_data;"
+	puts "\tfinfo->free = 1;"
 	puts "\tfinfo->type = CVFS_FILETYPE_FILE;"
+	puts ""
+	puts "\tif (free_old_data) {"
+	puts "\t\tfree(old_data);"
+	puts "\t}"
 	puts "\treturn;"
 	puts "}"
 	puts ""

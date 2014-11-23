@@ -166,7 +166,7 @@ static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST o
 		return(TCL_ERROR);
 	}
 
-	if (finfo->type == CVFS_FILETYPE_OBSFUCATED_FILE || finfo->type == CVFS_FILETYPE_ENCRYPTED_FILE) {
+	if (finfo->type == CVFS_FILETYPE_ENCRYPTED_FILE) {
 		cmd_decryptFile = getCmdDecryptFile(hashkey);
 
 		if (cmd_decryptFile != NULL) {
