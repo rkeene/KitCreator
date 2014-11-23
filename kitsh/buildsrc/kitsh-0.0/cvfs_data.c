@@ -6,10 +6,12 @@
 
 typedef struct cvfs_data *(cmd_getData_t)(const char *, unsigned long);
 typedef unsigned long (cmd_getChildren_t)(const char *, unsigned long *, unsigned long);
+typedef void (cmd_decryptFile_t)(const char *, struct cvfs_data *); 
 
 /* Your implementation must provide these */
 static cmd_getData_t *getCmdData(const char *hashkey);
 static cmd_getChildren_t *getCmdChildren(const char *hashkey);
+static cmd_decryptFile_t *getCmdDecryptFile(const char *hashkey);
 
 /* Tcl Commands */
 static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
@@ -109,6 +111,7 @@ static int getMetadata(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST objv[]) {
 	struct cvfs_data *finfo = NULL;
 	cmd_getData_t *cmd_getData;
+	cmd_decryptFile_t *cmd_decryptFile;
 	const char *hashkey;
 	const char *file;
 	const char *end_str;
@@ -161,6 +164,14 @@ static int getData(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CONST o
 		Tcl_SetResult(interp, "No such file or directory", TCL_STATIC);
 
 		return(TCL_ERROR);
+	}
+
+	if (finfo->type == CVFS_FILETYPE_OBSFUCATED_FILE || finfo->type == CVFS_FILETYPE_ENCRYPTED_FILE) {
+		cmd_decryptFile = getCmdDecryptFile(hashkey);
+
+		if (cmd_decryptFile != NULL) {
+			cmd_decryptFile(file, finfo);
+		}
 	}
 
 	if (finfo->type != CVFS_FILETYPE_FILE) {
