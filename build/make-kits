@@ -1,0 +1,30 @@
+#! /usr/bin/env bash
+
+versions=(8.5.17 8.6.3)
+
+for version in ${versions[@]}; do
+	for includetk in 0 1; do
+		if [ "${includetk}" = '1' ]; then
+			unset KITCREATOR_PKGS
+
+			add=''
+		else
+			KITCREATOR_PKGS='itcl mk4tcl'
+			export KITCREATOR_PKGS
+
+			add='sh'
+		fi
+
+		case "$(hostname)" in
+			powermacg5.home.rkeene.org)
+				CXXFLAGS='-arch i386 -arch x86_64 -mmacosx-version-min=10.5' CFLAGS='-arch i386 -arch x86_64 -mmacosx-version-min=10.5' ./kitcreator ${version} --enable-aqua --host=x86_64-apple-darwin9
+				mv tclkit-${version} tclkit${add}-${version}-macosx10.5-ix86
+
+				CXXFLAGS='-arch ppc -arch ppc64 -mmacosx-version-min=10.5' CFLAGS='-arch ppc -arch ppc64 -mmacosx-version-min=10.5' ./kitcreator ${version} --enable-aqua
+				mv tclkit-${version} tclkit${add}-${version}-macosx10.5-powerpc
+				;;
+			maul)
+				echo "Nothing to do yet"
+				;;
+	done
+done
