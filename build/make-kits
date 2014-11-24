@@ -17,14 +17,23 @@ for version in ${versions[@]}; do
 
 		case "$(hostname)" in
 			powermacg5.home.rkeene.org)
-				CXXFLAGS='-arch i386 -arch x86_64 -mmacosx-version-min=10.5' CFLAGS='-arch i386 -arch x86_64 -mmacosx-version-min=10.5' ./kitcreator ${version} --enable-aqua --host=x86_64-apple-darwin9
-				mv tclkit-${version} tclkit${add}-${version}-macosx10.5-ix86
+				if [ ! -f "tclkit${add}-${version}-macosx10.5-ix86" ]; then
+					echo "Building x86_64/ix86 Tclkit${add} version ${version}"
 
-				CXXFLAGS='-arch ppc -arch ppc64 -mmacosx-version-min=10.5' CFLAGS='-arch ppc -arch ppc64 -mmacosx-version-min=10.5' ./kitcreator ${version} --enable-aqua
-				mv tclkit-${version} tclkit${add}-${version}-macosx10.5-powerpc
+					CXXFLAGS='-arch i386 -arch x86_64 -mmacosx-version-min=10.5' CFLAGS='-arch i386 -arch x86_64 -mmacosx-version-min=10.5' ./kitcreator ${version} --enable-aqua --host=x86_64-apple-darwin9
+					mv tclkit-${version} tclkit${add}-${version}-macosx10.5-ix86
+				fi
+
+				if [ ! -f "tclkit${add}-${version}-macosx10.5-powerpc" ]; then
+					echo "Building ppc64/ppc Tclkit${add} version ${version}"
+
+					CXXFLAGS='-arch ppc -arch ppc64 -mmacosx-version-min=10.5' CFLAGS='-arch ppc -arch ppc64 -mmacosx-version-min=10.5' ./kitcreator ${version} --enable-aqua
+					mv tclkit-${version} tclkit${add}-${version}-macosx10.5-powerpc
+				fi
 				;;
 			maul)
 				echo "Nothing to do yet"
 				;;
+		esac
 	done
 done
