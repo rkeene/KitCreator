@@ -8,11 +8,13 @@ for version in ${versions[@]}; do
 			unset KITCREATOR_PKGS
 
 			add=''
+			addurl=''
 		else
 			KITCREATOR_PKGS='itcl mk4tcl'
 			export KITCREATOR_PKGS
 
 			add='sh'
+			addurl='-notk'
 		fi
 
 		case "$(hostname)" in
@@ -32,7 +34,14 @@ for version in ${versions[@]}; do
 				fi
 				;;
 			maul)
-				echo "Nothing to do yet"
+				echo wget -O tclkit${add}-${version}-android-arm http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-android-arm${addurl}-xcompile 
+				echo wget -O tclkit${add}-${version}-linux-mips http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-linux-mipsel${addurl}-xcompile
+				echo wget -O tclkit${add}-${version}-solaris-sparc http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-solaris-sparc${addurl}-xcompile
+				echo wget -O tclkit${add}-${version}-solaris-sparc64 http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-solaris-sparc64${addurl}-xcompile
+				echo wget -O tclkit${add}-${version}-win32-ix86.exe http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-win32-i586${addurl}-xcompile
+				echo wget -O tclkit${add}-${version}-win32-x86_64.exe http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-win64-amd64${addurl}-xcompile
+				echo wget -O tclkit${add}-${version}-rhel5-ix86 http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-linux-i386${addurl}-xcompile
+				echo wget -O tclkit${add}-${version}-rhel5-x86_64 http://www.rkeene.org/devel/kitcreator/kitbuild/nightly/tclkit-${version}-linux-amd64${addurl}
 				;;
 		esac
 	done
