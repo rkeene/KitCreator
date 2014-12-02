@@ -46,7 +46,9 @@ if {[info exists buildinfo]} {
 				}
 			}
 			"dynamictk" {
-				append description ", Forced Tk Dynamic Linking"
+				if {[lsearch -exact $buildinfo(packages) "tk"] != -1} {
+					append description ", Forced Tk Dynamic Linking"
+				}
 			}
 			"threaded" {
 				if {$value} {
