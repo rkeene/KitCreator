@@ -82,6 +82,7 @@
 		set build_options(kitdll) 0
 		set build_options(debug) 0
 		set build_options(dynamictk) 0
+		set build_options(minbuild) 0
 		foreach arg [array names args] {
 			switch -glob -- $arg {
 				"option_package_*" {
@@ -100,6 +101,9 @@
 				}
 				"option_dynamictk" {
 					set build_options(dynamictk) 1
+				}
+				"option_minbuild" {
+					set build_options(minbuild) 1
 				}
 				"option_storage" {
 					switch -- $args($arg) {
@@ -330,6 +334,7 @@
             <input type="checkbox" name="option_debug">Kit: Debugging Build<br>
             <input type="checkbox" name="option_kitdll" id="option_kitdll">Kit: Build Library (KitDLL)<br>
             <input type="checkbox" name="option_dynamictk" id="option_dynamictk">Kit: Always link Tk dynamically (if Tk is built)
+            <input type="checkbox" name="option_minbuild">Kit: "Minimal" build (remove extra packages shipped as part of Tcl and reduce encodings)
           </td>
         </tr>
 	<tr>

@@ -62,6 +62,11 @@ if {[info exists buildinfo]} {
 					append description ", With Symbols"
 				}
 			}
+			"minbuild" {
+				if {$value} {
+					append description ", Without Tcl pkgs/ and all encodings"
+				}
+			}
 			"storage" {
 				switch -- $value {
 					"mk4" {

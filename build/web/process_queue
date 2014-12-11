@@ -86,6 +86,12 @@ foreach line [split $data "\n"] {
 					set ::env(STATICTK) -1
 				}
 			}
+			"minbuild" {
+				if {$value} {
+					set ::env(KITCREATOR_MINENCODINGS) 1
+					set ::env(KITCREATOR_MINBUILD) 1
+				}
+			}
 			"staticmk4" {
 			}
 		}
@@ -104,11 +110,10 @@ foreach line [split $data "\n"] {
 		set fd [open "${outfile}.log" w+]
 		puts $fd "Running: export KITCREATOR_PKGS=\"$::env(KITCREATOR_PKGS)\""
 
-		if {[info exists ::env(STRIP)]} {
-			puts $fd "Running: export STRIP=\"$::env(STRIP)\""
-		}
-		if {[info exists ::env(STATICTK)]} {
-			puts $fd "Running: export STATICTK=\"$::env(STATICTK)\""
+		foreach variable [list STRIP STATICTK KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD] {
+			if {[info exists ::env($variable)]} {
+				puts $fd "Running: export $variable=\"$::env($variable)\""
+			}
 		}
 
 		puts $fd "Running: $cmd"
