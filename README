@@ -141,7 +141,10 @@ Environment variables:
 		are excluded.  This typically includes (as of Tcl 8.6):
 			itcl thread
 
-		Also, TclOO is removed from Tcl 8.6 forcefully.
+	10. KC_TCL_STATICPKGS
+		Set this variable to the value "1" to attempt to force the
+		packages included in the "pkgs" directory of Tcl 8.6+
+		to be compiled statically
 
 
 Cross compiling Environment Variables:
