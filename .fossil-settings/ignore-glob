@@ -105,6 +105,15 @@ tls/out
 tls/out/*
 tls/src
 tls/src/*
+tcllib/build
+tcllib/build/*
+tcllib/build.log
+tcllib/inst
+tcllib/inst/*
+tcllib/out
+tcllib/out/*
+tcllib/src
+tcllib/src/*
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
