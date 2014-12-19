@@ -123,6 +123,15 @@ udp/out
 udp/out/*
 udp/src
 udp/src/*
+yajltcl/build
+yajltcl/build/*
+yajltcl/build.log
+yajltcl/inst
+yajltcl/inst/*
+yajltcl/out
+yajltcl/out/*
+yajltcl/src
+yajltcl/src/*
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
