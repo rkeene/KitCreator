@@ -64,7 +64,6 @@ fi
 	(
 		cd "${YAJLBUILDDIR}" || exit 1
 		./configure -p "$(pwd)/INST" || exit 1
-		make || exit 1
 		make install || exit 1
 		rm -f INST/lib/*.so*
 		mv INST/lib/libyajl_s.a INST/lib/libyajl.a || exit 1
