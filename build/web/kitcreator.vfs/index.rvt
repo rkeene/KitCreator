@@ -48,6 +48,9 @@
 	set packages(dbus) D-BUS
 	set packages(tclx) TclX
 	set packages(itcl) {[incr Tcl]}
+	set packages(tcllib) "Tcllib"
+	set packages(yajltcl) "YAJL-TCL"
+	set packages(udp) "TclUDP"
 
 	set disable {
 		platform linux-mipsel {package_tk package_tcc4tcl package_tclx kitdll}
