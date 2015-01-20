@@ -83,6 +83,9 @@ fi
 		tryopts="--disable-shared"
 	fi
 
+	# Disable SSLv2, newer SSL libraries drop support for it entirely
+	CFLAGS="${CFLAGS} -DNO_SSL2=1"
+
 	SAVE_CFLAGS="${CFLAGS}"
 	for tryopt in $tryopts __fail__; do
 		# Clean up, if needed
