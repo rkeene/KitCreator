@@ -141,12 +141,15 @@ package ifneeded tls ${TLSVERS} \
     "[list source [file join \$dir tls.tcl]] ; \
      [list load {} tls]"
 _EOF_
-		## XXX: TODO: Determine what we actually need to link against
-		echo '-Wl,-Bstatic -lssl -lcrypto -Wl,-Bdynamic' > "${INSTDIR}/lib/tls${TLSVERS}/libtls${TLSVERS}.a.linkadd"
-	else
-		## XXX: TODO: Determine what we actually need to link against
-		echo '-lssl -lcrypto' > "${INSTDIR}/lib/tls${TLSVERS}/libtls${TLSVERS}.a.linkadd"
 	fi
+
+	## XXX: TODO: Determine what we actually need to link against
+	addlibs="-lssl -lcrypto"
+	if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
+		echo "-Wl,-Bstatic ${addlibs} -Wl,-Bdynamic"
+	else
+		echo "${addlibs}"
+	fi > "${INSTDIR}/lib/tls${TLSVERS}/libtls${TLSVERS}.a.linkadd"
 
 	# Install files needed by installation
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1
