@@ -2,6 +2,7 @@
 
 set queue "/home/rkeene/devel/kitcreator/build/web/queue"
 set outdir "/web/customers/kitcreator.rkeene.org/kits"
+set builddir "/tmp/kitcreator-web/builds"
 
 if {![file exists "${queue}.old"]} {
 	if {![file exists $queue]} {
@@ -39,19 +40,28 @@ foreach line [split $data "\n"] {
 		continue
 	}
 
-	set workdir [file join $outdir $buildinfo(key) build]
-	file delete -force $workdir
+	# Set the build directory
+	file delete -force -- $builddir
+	set workdir [file join $builddir $buildinfo(key) build]
 	file mkdir $workdir
 	cd $workdir
 
-	set fd [open ../buildinfo w]
+	# Find place to store build info
+	set keydir [file join $outdir $buildinfo(key)]
+	file mkdir $keydir
+	set fd [open [file join $keydir buildinfo] w]
 	puts $fd [array get buildinfo]
 	close $fd
 
 	set tarball kitcreator-${buildinfo(kitcreator_version)}.tar.gz
-	exec wget -q -O $tarball http://kitcreator.rkeene.org/fossil/tarball/${tarball}?uuid=${buildinfo(kitcreator_version)}
-	exec gzip -dc $tarball | tar -xf -
-	cd kitcreator-${buildinfo(kitcreator_version)}
+
+	if {[catch {
+		exec wget -q -O $tarball http://kitcreator.rkeene.org/fossil/tarball/${tarball}?uuid=${buildinfo(kitcreator_version)}
+		exec gzip -dc $tarball | tar -xf -
+		cd kitcreator-${buildinfo(kitcreator_version)}
+	}]} {
+		continue
+	}
 
 	set script "./build/make-kit-${buildinfo(platform)}"
 	set args [list]
@@ -130,7 +140,7 @@ foreach line [split $data "\n"] {
 	}
 
 	catch {
-		exec grep ^ {*}[glob */build.log] >> "${outfile}.log"
+		exec grep ^ {*}[lsort -dictionary [glob */build.log]] >> "${outfile}.log"
 	}
 
 	foreach file [list tclkit-$buildinfo(tcl_version) {*}[glob -nocomplain libtclkit*]] {
