@@ -309,9 +309,18 @@
           <td>
             <select name="tcl_version" onChange="verifyOptions();">
 <?
-	foreach tcl_version [lsort -dictionary [array names tcl_versions]] {
+	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
+	set tcl_version_selected [lindex $tcl_version_list end-1]
+	foreach tcl_version $tcl_version_list {
 		set tcl_version_name $tcl_versions($tcl_version)
-		puts "              <option value=\"${tcl_version}\">${tcl_version_name}</option>"
+
+		if {$tcl_version == $tcl_version_selected} {
+			set selected " selected"
+		} else {
+			set selected ""
+		}
+
+		puts "              <option value=\"${tcl_version}\"${selected}>${tcl_version_name}</option>"
 	}
 ?>
             </select>
