@@ -560,3 +560,26 @@ AC_DEFUN(DC_SETLDRUNPATH, [
 
 	AC_SUBST(LDRUNPATH)
 ])
+
+AC_DEFUN(DC_SET_DIR2C_FLAGS, [
+	AC_MSG_CHECKING([if we should obsufcate the CVFS])
+
+	AC_ARG_WITH(obsfucated-cvfs, AC_HELP_STRING([--with-obsfucated-cvfs], [Obsfucate CVFS filesystem (requires --enable-kit-storage=cvfs)]), [
+		obsfucate_cvfs=$withval
+	], [
+		obsfucate_cvfs='no'
+	])
+
+	case "$obsfucate_cvfs" in
+		yes)
+			AC_MSG_RESULT([yes])
+			DIR2C_FLAGS='--obsfucate'
+			;;
+		*)
+			AC_MSG_RESULT([no])
+			DIR2C_FLAGS=''
+			;;
+	esac
+
+	AC_SUBST(DIR2C_FLAGS)
+])

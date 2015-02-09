@@ -1,7 +1,14 @@
 #! /usr/bin/env tclsh
 
+set obsfucate 0
+if {[lindex $argv end] == "--obsfucate"} {
+	set obsfucate 1
+
+	set argv [lrange $argv 0 end-1]
+}
+
 if {[llength $argv] != 2} {
-	puts stderr "Usage: dir2c.tcl <hashkey> <startdir>"
+	puts stderr "Usage: dir2c.tcl <hashkey> <startdir> \[--obsfucate\]"
 
 	exit 1
 }
@@ -75,6 +82,101 @@ proc stringify {data} {
 	return $ret
 }
 
+# Encrypt the data
+proc random_byte {} {
+	set value [expr {int(256 * rand())}]
+
+	return $value
+}
+
+proc encrypt_key_generate {method} {
+	switch -- $method {
+		"rotate_subst" {
+			set key(method) $method
+			set key(rotate_length) [random_byte]
+
+			set key_data [list]
+			while {[llength $key_data] != 256} {
+				set value [random_byte]
+				if {[lsearch -exact $key_data $value] != -1} {
+					continue
+				}
+
+				lappend key_data $value
+			}
+
+			foreach value $key_data {
+				append key(subst) [format %c $value]
+			}
+
+			return [array get key]
+		}
+	}
+	error "not implemented"
+}
+
+proc encrypt_key_export {key_dict target} {
+	array set key $key_dict
+
+	switch -- $key(method) {
+		"rotate_subst" {
+			switch -- $target {
+				"c" {
+					set retval ".type = CVFS_KEYTYPE_ROTATE_SUBST,\n"
+					append retval ".typedata.rotate_subst.rotate_length = $key(rotate_length),\n"
+					append retval ".typedata.rotate_subst.subst         = (unsigned char *) [stringify $key(subst)]\n"
+
+					return $retval
+				}
+			}
+		}
+	}
+
+	error "not implemented"
+}
+
+proc encrypt {data key_dict {decrypt 0}} {
+	array set key $key_dict
+
+	switch -- $key(method) {
+		"rotate_subst" {
+			set retval ""
+			set datalen [string length $data]
+
+			for {set i 0} {$i < $datalen} {incr i $key(rotate_length)} {
+				set map [list]
+				for {set j 0} {$j < 256} {incr j} {
+					if {$decrypt} {
+						lappend map [format %c $j] [string index $key(subst) $j]
+					} else {
+						lappend map [string index $key(subst) $j] [format %c $j]
+					}
+				}
+
+				set end [expr {$i + $key(rotate_length) - 1}]
+
+				set block [string range $data $i $end]
+				set block [string map $map $block]
+
+				append retval $block
+
+				set key_end [string index $key(subst) 0]
+				set key(subst) [string range $key(subst) 1 end]$key_end
+			}
+
+			return $retval
+		}
+		"aes" {
+			package require aes
+		}
+	}
+	error "not implemented"
+}
+
+proc decrypt {data key_dict} {
+	return [encrypt $data $key_dict 1]
+}
+
 # This function must be kept in-sync with the generated C function below
 proc cvfs_hash {path} {
 	set h 0
@@ -94,6 +196,11 @@ proc cvfs_hash {path} {
 	}
 
 	return $h
+}
+
+# If encryption is requested, generate a key
+if {$obsfucate} {
+	set obsfucation_key [encrypt_key_generate "rotate_subst"]
 }
 
 # Generate list of files to include in output
@@ -117,6 +224,9 @@ puts {
 #    ifndef HAVE_STRING_H
 #      define HAVE_STRING_H 1
 #    endif
+#    ifndef HAVE_STDLIB_H
+#      define HAVE_STDLIB_H 1
+#    endif
 #  endif
 #  ifdef HAVE_UNISTD_H
 #    include <unistd.h>
@@ -124,13 +234,18 @@ puts {
 #  ifdef HAVE_STRING_H
 #    include <string.h>
 #  endif
+#  ifdef HAVE_STDLIB_H
+#    include <stdlib.h>
+#  endif
 
 #  ifndef LOADED_CVFS_COMMON
 #    define LOADED_CVFS_COMMON 1
 
 typedef enum {
-	CVFS_FILETYPE_FILE,
-	CVFS_FILETYPE_DIR
+	CVFS_FILETYPE_FILE            = 0,
+	CVFS_FILETYPE_DIR             = 1,
+	CVFS_FILETYPE_ENCRYPTED_FILE  = 2,
+	CVFS_FILETYPE_COMPRESSED_FILE = 4,
 } cvfs_filetype_t;
 
 struct cvfs_data {
@@ -139,6 +254,21 @@ struct cvfs_data {
 	unsigned long            size;
 	cvfs_filetype_t          type;
 	const unsigned char *    data;
+	int                      free;
+};
+
+typedef enum {
+	CVFS_KEYTYPE_ROTATE_SUBST     = 0,
+} cvfs_keytype_t;
+
+struct cvfs_key {
+	cvfs_keytype_t type;
+	union {
+		struct {
+			int rotate_length;
+			unsigned char *subst;
+		} rotate_subst;
+	} typedata;
 };
 
 static unsigned long cvfs_hash(const unsigned char *path) {
@@ -156,16 +286,35 @@ static unsigned long cvfs_hash(const unsigned char *path) {
         return(h);
 }
 
+static int cvfs_decrypt(unsigned char *out, const unsigned char *in, unsigned long in_out_length, struct cvfs_key *key) {
+	unsigned long i;
+	unsigned char in_ch, out_ch;
+	int ch_idx;
+
+	for (i = 0; i < in_out_length; i++) {
+		in_ch = in[i];
+
+		ch_idx = (in_ch + (i / key->typedata.rotate_subst.rotate_length)) % 256;
+
+		out_ch = key->typedata.rotate_subst.subst[ch_idx];
+		out[i] = out_ch;
+	}
+
+	return(0);
+}
+
 #  endif /* !LOADED_CVFS_COMMON */}
 puts ""
 
 puts "static struct cvfs_data ${code_tag}_data\[\] = {"
 puts "\t{"
+puts "\t\t/* Index 0 cannot be used because we use the value 0 to represent failure */"
 puts "\t\t.name  = NULL,"
 puts "\t\t.index = 0,"
 puts "\t\t.type  = 0,"
 puts "\t\t.size  = 0,"
 puts "\t\t.data  = NULL,"
+puts "\t\t.free  = 0,"
 puts "\t},"
 for {set idx 1} {$idx < [llength $files]} {incr idx} {
 	set file [lindex $files $idx]
@@ -176,7 +325,6 @@ for {set idx 1} {$idx < [llength $files]} {incr idx} {
 
 	switch -- $finfo(type) {
 		"file" {
-			set type "CVFS_FILETYPE_FILE"
 			set size $finfo(size)
 
 			set fd [open $file]
@@ -184,7 +332,13 @@ for {set idx 1} {$idx < [llength $files]} {incr idx} {
 			set data [read $fd]
 			close $fd
 
-			set data "(unsigned char *) [stringify $data]"
+			if {$obsfucate} {
+				set type "CVFS_FILETYPE_ENCRYPTED_FILE"
+				set data "(unsigned char *) [stringify [encrypt $data $obsfucation_key]]"
+			} else {
+				set type "CVFS_FILETYPE_FILE"
+				set data "(unsigned char *) [stringify $data]"
+			}
 		}
 		"directory" {
 			set type "CVFS_FILETYPE_DIR"
@@ -199,6 +353,7 @@ for {set idx 1} {$idx < [llength $files]} {incr idx} {
 	puts "\t\t.type  = $type,"
 	puts "\t\t.size  = $size,"
 	puts "\t\t.data  = $data,"
+	puts "\t\t.free  = 0,"
 	puts "\t},"
 }
 puts "};"
@@ -351,12 +506,40 @@ puts "\treturn(num_children);"
 puts "}"
 puts ""
 
+if {$obsfucate} {
+	puts "static void ${code_tag}_decryptFile(const char *path, struct cvfs_data *finfo) {"
+	puts "\tstatic struct cvfs_key key = { [string map [list "\n" " "] [encrypt_key_export $obsfucation_key "c"]] };"
+	puts "\tunsigned char *new_data, *old_data;"
+	puts "\tint decrypt_ret, free_old_data;"
+	puts ""
+	puts "\tnew_data = malloc(finfo->size);"
+	puts "\tdecrypt_ret = cvfs_decrypt(new_data, finfo->data, finfo->size, &key);"
+	puts "\tif (decrypt_ret != 0) {"
+	puts "\t\tfree(new_data);"
+	puts ""
+	puts "\t\treturn;"
+	puts "\t}"
+	puts ""
+	puts "\tfree_old_data = finfo->free;"
+	puts "\told_data = (void *) finfo->data;"
+	puts ""
+	puts "\tfinfo->data = new_data;"
+	puts "\tfinfo->free = 1;"
+	puts "\tfinfo->type = CVFS_FILETYPE_FILE;"
+	puts ""
+	puts "\tif (free_old_data) {"
+	puts "\t\tfree(old_data);"
+	puts "\t}"
+	puts "\treturn;"
+	puts "}"
+	puts ""
+}
+
 puts "#  ifdef CVFS_MAKE_LOADABLE"
 
 set fd [open "cvfs_data.c"]
 puts [read $fd]
 close $fd
-
 
 puts "static cmd_getData_t *getCmdData(const char *hashkey) {"
 puts "\treturn(${code_tag}_getData);"
@@ -364,6 +547,14 @@ puts "}"
 puts ""
 puts "static cmd_getChildren_t *getCmdChildren(const char *hashkey) {"
 puts "\treturn(${code_tag}_getChildren);"
+puts "}"
+puts ""
+puts "static cmd_decryptFile_t *getCmdDecryptFile(const char *hashkey) {"
+if {$obsfucate} {
+	puts "\treturn(${code_tag}_decryptFile);"
+} else {
+	puts "\treturn(NULL);"
+}
 puts "}"
 puts ""
 

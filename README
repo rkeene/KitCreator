@@ -141,6 +141,11 @@ Environment variables:
 		are excluded.  This typically includes (as of Tcl 8.6):
 			itcl thread
 
+	10. KC_TCL_STATICPKGS
+		Set this variable to the value "1" to attempt to force the
+		packages included in the "pkgs" directory of Tcl 8.6+
+		to be compiled statically
+
 Cross compiling Environment Variables:
 
 	1. CC  
@@ -173,10 +178,15 @@ On Windows we also need this:
 
 
 Kitsh Configure Options:
-	1. --enable-kit-storage={zip|mk4|auto}
+	1. --enable-kit-storage={zip|mk4|cvfs|auto}
 		Specify which type of storage to use with the Tclkit.  The
 		default is to auto-detect.  Auto-detection uses Mk4 if
 		available and built statically, otherwise it falls back to Zip.
+	2. --with-obsfucated-cvfs
+		Specify that CVFS should be obsfucated.  The contents of the
+		CVFS are encrypted on disk and the encryption key is included
+		in the executable.  Files are then transparently decrypted on
+		access.
 
 --------------------
 Using the KitDLL SDK

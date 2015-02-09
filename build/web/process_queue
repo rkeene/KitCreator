@@ -2,6 +2,7 @@
 
 set queue "/home/rkeene/devel/kitcreator/build/web/queue"
 set outdir "/web/customers/kitcreator.rkeene.org/kits"
+set builddir "/tmp/kitcreator-web/builds"
 
 if {![file exists "${queue}.old"]} {
 	if {![file exists $queue]} {
@@ -39,19 +40,28 @@ foreach line [split $data "\n"] {
 		continue
 	}
 
-	set workdir [file join $outdir $buildinfo(key) build]
-	file delete -force $workdir
+	# Set the build directory
+	file delete -force -- $builddir
+	set workdir [file join $builddir $buildinfo(key) build]
 	file mkdir $workdir
 	cd $workdir
 
-	set fd [open ../buildinfo w]
+	# Find place to store build info
+	set keydir [file join $outdir $buildinfo(key)]
+	file mkdir $keydir
+	set fd [open [file join $keydir buildinfo] w]
 	puts $fd [array get buildinfo]
 	close $fd
 
 	set tarball kitcreator-${buildinfo(kitcreator_version)}.tar.gz
-	exec wget -q -O $tarball http://kitcreator.rkeene.org/fossil/tarball/${tarball}?uuid=${buildinfo(kitcreator_version)}
-	exec gzip -dc $tarball | tar -xf -
-	cd kitcreator-${buildinfo(kitcreator_version)}
+
+	if {[catch {
+		exec wget -q -O $tarball http://kitcreator.rkeene.org/fossil/tarball/${tarball}?uuid=${buildinfo(kitcreator_version)}
+		exec gzip -dc $tarball | tar -xf -
+		cd kitcreator-${buildinfo(kitcreator_version)}
+	}]} {
+		continue
+	}
 
 	set script "./build/make-kit-${buildinfo(platform)}"
 	set args [list]
@@ -81,9 +91,23 @@ foreach line [split $data "\n"] {
 			"storage" {
 				lappend args "--enable-kit-storage=$value"
 			}
-			"staticmk4" {
+			"dynamictk" {
+				if {[lsearch -exact $buildinfo(packages) "tk"] != -1} {
+					set ::env(STATICTK) -1
+				}
 			}
-			"statictk" {
+			"minbuild" {
+				if {$value} {
+					set ::env(KITCREATOR_MINENCODINGS) 1
+					set ::env(KITCREATOR_MINBUILD) 1
+				}
+			}
+			"staticlibssl" {
+				if {$value} {
+					set ::env(KC_TLS_LINKSSLSTATIC) 1
+				}
+			}
+			"staticmk4" {
 			}
 		}
 	}
@@ -101,8 +125,10 @@ foreach line [split $data "\n"] {
 		set fd [open "${outfile}.log" w+]
 		puts $fd "Running: export KITCREATOR_PKGS=\"$::env(KITCREATOR_PKGS)\""
 
-		if {[info exists ::env(STRIP)]} {
-			puts $fd "Running: export STRIP=\"$::env(STRIP)\""
+		foreach variable [list STRIP STATICTK KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD KC_TLS_LINKSSLSTATIC] {
+			if {[info exists ::env($variable)]} {
+				puts $fd "Running: export $variable=\"$::env($variable)\""
+			}
 		}
 
 		puts $fd "Running: $cmd"
@@ -114,7 +140,7 @@ foreach line [split $data "\n"] {
 	}
 
 	catch {
-		exec grep ^ {*}[glob */build.log] >> "${outfile}.log"
+		exec grep ^ {*}[lsort -dictionary [glob */build.log]] >> "${outfile}.log"
 	}
 
 	foreach file [list tclkit-$buildinfo(tcl_version) {*}[glob -nocomplain libtclkit*]] {

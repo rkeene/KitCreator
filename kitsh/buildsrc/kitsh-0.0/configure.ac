@@ -190,6 +190,9 @@ AS_CASE([$storage_mech],
 		dnl Add appropriate dependencies
 		EXTRA_KIT_DEPS="cvfs.tcl.h"
 		EXTRA_VFS_OBJS="${EXTRA_VFS_OBJS} cvfs_data_tcl.o"
+
+		dnl Set any flags as required
+		DC_SET_DIR2C_FLAGS
 	]
 )
 

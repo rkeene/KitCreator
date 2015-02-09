@@ -15,12 +15,13 @@ EXTRA_KIT_DEPS = @EXTRA_KIT_DEPS@
 EXTRA_VFS_OBJS = @EXTRA_VFS_OBJS@
 TCLSH_NATIVE = tclsh
 LDFLAGS_ADD = @LDFLAGS_ADD@
+DIR2C_FLAGS = @DIR2C_FLAGS@
 
 # Build targets
 ## VFS Build
 cvfs_data_tcl.o: cvfs_data_tcl.c
 cvfs_data_tcl.c: dir2c.tcl starpack.vfs cvfs_data.c
-	"$(TCLSH_NATIVE)" dir2c.tcl tcl starpack.vfs > cvfs_data_tcl.c
+	"$(TCLSH_NATIVE)" dir2c.tcl tcl starpack.vfs $(DIR2C_FLAGS) > cvfs_data_tcl.c
 
 ## Tcl scripts that need to be converted to C headers
 cvfs.tcl.h: cvfs.tcl

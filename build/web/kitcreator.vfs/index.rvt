@@ -16,17 +16,22 @@
 	set kitcreator_versions(trunk) "Fossil Trunk Tip"
 
 	set tcl_versions(8.5.15) 8.5.15
+	set tcl_versions(8.5.16) 8.5.16
+	set tcl_versions(8.5.17) 8.5.17
 	set tcl_versions(8.6.1) 8.6.1
 	set tcl_versions(8.6.2) 8.6.2
+	set tcl_versions(8.6.3) 8.6.3
 	set tcl_versions(fossil_trunk) "Fossil Trunk Tip"
 
 	set platforms(android-arm) "Android/ARM"
 	set platforms(freebsd-amd64) "FreeBSD/amd64"
 	set platforms(hpux-hppa64) "HP-UX/PA-RISC 2.0"
 	set platforms(linux-amd64) "Linux/amd64"
+	set platforms(linux-amd64-static) "Linux/amd64 (static)"
 	set platforms(linux-arm) "Linux/ARM"
 	set platforms(linux-i386) "Linux/i386"
-	set platforms(linux-mipsel) "Linux/MIPS"
+	set platforms(linux-i386-static) "Linux/i386 (static)"
+	set platforms(linux-mipsel) "Linux/MIPS (static)"
 	set platforms(netbsd-amd64) "NetBSD/amd64"
 	set platforms(netbsd-i386) "NetBSD/i386"
 	set platforms(solaris-amd64) "Solaris/amd64"
@@ -42,16 +47,22 @@
 	set packages(tls) TLS
 	set packages(dbus) D-BUS
 	set packages(tclx) TclX
+	set packages(itcl) {[incr Tcl]}
+	set packages(tcllib) "Tcllib"
+	set packages(yajltcl) "YAJL-TCL"
+	set packages(udp) "TclUDP"
 
 	set disable {
-		platform linux-mipsel {tk tcc4tcl}
-		platform android-arm tk
-		platform netbsd-amd64 {tk tcc4tcl}
-		platform netbsd-i386 {tk tcc4tcl}
-		platform solaris-sparc tcc4tcl
-		platform solaris-sparc64 tcc4tcl
-		platform hpux-hppa64 tcc4tcl
-		platform linux-arm tk
+		platform linux-mipsel {package_tk package_tcc4tcl package_tclx kitdll}
+		platform android-arm {package_tk package_tclx}
+		platform netbsd-amd64 {package_tk package_tcc4tcl package_tclx}
+		platform netbsd-i386 {package_tk package_tcc4tcl package_tclx}
+		platform solaris-sparc {package_tcc4tcl package_tclx}
+		platform solaris-sparc64 {package_tcc4tcl package_tclx}
+		platform hpux-hppa64 {package_tcc4tcl package_tclx}
+		platform linux-arm {package_tk package_tclx}
+		platform linux-amd64-static {package_tk package_dbus kitdll}
+		platform linux-i386-static {package_tk package_dbus kitdll}
 	}
 
 	set specific {
@@ -73,6 +84,8 @@
 		set build_options(threaded) 0
 		set build_options(kitdll) 0
 		set build_options(debug) 0
+		set build_options(dynamictk) 0
+		set build_options(minbuild) 0
 		foreach arg [array names args] {
 			switch -glob -- $arg {
 				"option_package_*" {
@@ -88,6 +101,15 @@
 				}
 				"option_debug" {
 					set build_options(debug) 1
+				}
+				"option_dynamictk" {
+					set build_options(dynamictk) 1
+				}
+				"option_minbuild" {
+					set build_options(minbuild) 1
+				}
+				"option_staticlibssl" {
+					set build_options(staticlibssl) 1
 				}
 				"option_storage" {
 					switch -- $args($arg) {
@@ -206,17 +228,17 @@
     <title>KitCreator, Web Interface</title>
     <script>
 <!--
-	function enablePackage(package) {
+	function enableOption(option) {
 		var obj;
 
-		obj = document.getElementById('option_package_' + package);
+		obj = document.getElementById('option_' + option);
 		obj.disabled = false;
 	}
 
-	function disablePackage(package) {
+	function disableOption(option) {
 		var obj;
 
-		obj = document.getElementById('option_package_' + package);
+		obj = document.getElementById('option_' + option);
 		obj.checked = false;
 		obj.disabled = true;
 	}
@@ -231,24 +253,24 @@
 		platform = document.getElementsByName('platform')[0].value;
 
 <?
-		set alldisabledpackages [list]
-		foreach {keyword value disablepackages} $disable {
-			foreach package $disablepackages {
-				if {[lsearch -exact $alldisabledpackages $package] == -1} {
-					lappend alldisabledpackages $package
+		set alldisabledoptions [list]
+		foreach {keyword value disableoptions} $disable {
+			foreach option $disableoptions {
+				if {[lsearch -exact $alldisabledoptions $option] == -1} {
+					lappend alldisabledoptions $option
 				}
 			}
 		}
 
-		foreach package $alldisabledpackages {
-			puts "\t\tenablePackage(\"$package\");"
+		foreach option $alldisabledoptions {
+			puts "\t\tenableOption(\"$option\");"
 		}
 
-		foreach {keyword value disablepackages} $disable {
+		foreach {keyword value disableoptions} $disable {
 			puts "\t\tif ($keyword == \"$value\") \{"
 
-			foreach package $disablepackages {
-				puts "\t\t\tdisablePackage(\"$package\");"
+			foreach option $disableoptions {
+				puts "\t\t\tdisableOption(\"$option\");"
 			}
 
 			puts "\t\t\}"
@@ -287,9 +309,18 @@
           <td>
             <select name="tcl_version" onChange="verifyOptions();">
 <?
-	foreach tcl_version [lsort -dictionary [array names tcl_versions]] {
+	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
+	set tcl_version_selected [lindex $tcl_version_list end-1]
+	foreach tcl_version $tcl_version_list {
 		set tcl_version_name $tcl_versions($tcl_version)
-		puts "              <option value=\"${tcl_version}\">${tcl_version_name}</option>"
+
+		if {$tcl_version == $tcl_version_selected} {
+			set selected " selected"
+		} else {
+			set selected ""
+		}
+
+		puts "              <option value=\"${tcl_version}\"${selected}>${tcl_version_name}</option>"
 	}
 ?>
             </select>
@@ -316,7 +347,10 @@
 <? } ?>
             <input type="checkbox" name="option_threaded">Kit: Threaded<br>
             <input type="checkbox" name="option_debug">Kit: Debugging Build<br>
-            <input type="checkbox" name="option_kitdll">Kit: Build Library (KitDLL)<br>
+            <input type="checkbox" name="option_kitdll" id="option_kitdll">Kit: Build Library (KitDLL)<br>
+            <input type="checkbox" name="option_dynamictk" id="option_dynamictk">Kit: Always link Tk dynamically (if Tk is built)<br>
+            <input type="checkbox" name="option_minbuild">Kit: "Minimal" build (remove extra packages shipped as part of Tcl and reduce encodings)<br>
+            <input type="checkbox" name="option_staticlibssl">TLS: Statically link to LibSSL
           </td>
         </tr>
 	<tr>

@@ -45,6 +45,13 @@ if {[info exists buildinfo]} {
 					append description ", Built as a Library"
 				}
 			}
+			"dynamictk" {
+				if {$value} {
+					if {[lsearch -exact $buildinfo(packages) "tk"] != -1} {
+						append description ", Forced Tk Dynamic Linking"
+					}
+				}
+			}
 			"threaded" {
 				if {$value} {
 					append description ", Threaded"
@@ -55,6 +62,16 @@ if {[info exists buildinfo]} {
 			"debug" {
 				if {$value} {
 					append description ", With Symbols"
+				}
+			}
+			"minbuild" {
+				if {$value} {
+					append description ", Without Tcl pkgs/ and all encodings"
+				}
+			}
+			"staticlibssl" {
+				if {$value} {
+					append description ", Statically linked to LibSSL"
 				}
 			}
 			"storage" {

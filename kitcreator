@@ -13,7 +13,7 @@ case "$1" in
 esac
 
 # Determine which Tcl version to build
-TCLVERS="8.6.2"
+TCLVERS="8.6.3"
 if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | egrep '^(cvs|fossil)_' >/dev/null; then
 	TCLVERS="$1"
 
@@ -34,11 +34,11 @@ if [ -f 'build/pre.sh' ]; then
 fi
 
 # Define the list of all packages, for cleaning purposes
-KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread dbus tls tclx tcc4tcl"
+KITCREATOR_ALLPKGS="kitsh tcl tclvfs zlib tk itcl mk4tcl thread dbus tls tclx tcc4tcl tcllib udp yajltcl"
 
 # Always rebuild kitsh
 rm -f "kitsh/.success"
-for pkg in ${KITCREATOR_ALLPKGS}; do
+for pkg in ${KITCREATOR_ALLPKGS} ${KITCREATOR_PKGS}; do
 	if [ "${mode}" != "retry" -o ! -f "${pkg}/.success" ]; then
 		rm -f "${pkg}/build.log" "${pkg}/.success"
 		rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
@@ -117,10 +117,15 @@ if [ "${KITTARGET}" = "kitdll" ]; then
 			STATICTK="1"
 			export STATICTK
 		fi
+	fi
 
+	if echo " ${KITCREATOR_PKGS} " | grep ' mk4tcl ' >/dev/null 2>/dev/null; then
 		if [ -z "${STATICMK4}" ]; then
 			echo 'Warning: Linking Mk4tcl dynamically because you are building KitDLL' 2>&1
-			echo '         Set STATICMK4 to 1 if you really want to link Mk4tcl statically.' >&2
+			echo '         Set STATICMK4 to make this message go away.' >&2
+			echo '         Set STATICMK4 to 1 if you really want to link Mk4tcl statically (normal default).' >&2
+			echo '         Set STATICMK4 to 0 to link Mk4tcl dynamically if possible (this is what is happening now).' >&2
+			echo '         Set STATICMK4 to -1 to build dynamically.' >&2
 
 			STATICMK4="0"
 			export STATICMK4
@@ -167,7 +172,11 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 		(
 			cd "${pkg}" >/dev/null 2>/dev/null || exit 1
 
-			./build.sh 3>&1 4>&2 > build.log 2>&1 || exit 1
+			build_script='./build.sh'
+			if [ -x 'kitcreator-build.sh' ]; then
+				build_script='./kitcreator-build.sh'
+			fi
+			"${build_script}" 3>&1 4>&2 > build.log 2>&1 || exit 1
 		) || failed="1"
 	fi
 

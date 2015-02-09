@@ -83,6 +83,9 @@ fi
 		tryopts="--disable-shared"
 	fi
 
+	# Disable SSLv2, newer SSL libraries drop support for it entirely
+	CFLAGS="${CFLAGS} -DNO_SSL2=1"
+
 	SAVE_CFLAGS="${CFLAGS}"
 	for tryopt in $tryopts __fail__; do
 		# Clean up, if needed
@@ -140,12 +143,17 @@ package ifneeded tls ${TLSVERS} \
 _EOF_
 	fi
 
+	## XXX: TODO: Determine what we actually need to link against
+	addlibs="-lssl -lcrypto"
+	if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
+		echo "-Wl,-Bstatic ${addlibs} -Wl,-Bdynamic"
+	else
+		echo "${addlibs}"
+	fi > "${INSTDIR}/lib/tls${TLSVERS}/libtls${TLSVERS}.a.linkadd"
+
 	# Install files needed by installation
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1
 	find "${OUTDIR}" -name '*.a' -type f | xargs -n 1 rm -f --
-
-	## XXX: TODO: Determine what we actually need to link against
-	echo '-lssl -lcrypto' > "${INSTDIR}/lib/tls${TLSVERS}/libtls${TLSVERS}.a.linkadd"
 
 	exit 0
 ) || exit 1

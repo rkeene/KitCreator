@@ -14,6 +14,7 @@ fi
 MK4VERS="2.4.9.7"
 SRC="src/metakit-${MK4VERS}.tar.gz"
 SRCURL="http://www.equi4.com/pub/mk/metakit-${MK4VERS}.tar.gz"
+SRCURL="http://pkgs.fedoraproject.org/repo/pkgs/metakit/metakit-${MK4VERS}.tar.gz/17330257376eea657827ed632ea62c9e/metakit-${MK4VERS}.tar.gz"
 BUILDDIR="$(pwd)/build/metakit-${MK4VERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
