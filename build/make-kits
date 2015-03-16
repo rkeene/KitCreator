@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-versions=(8.5.17 8.6.3)
+versions=(8.5.18 8.6.4)
 
 for version in ${versions[@]}; do
 	for includetk in 0 1; do
