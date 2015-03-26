@@ -44,28 +44,43 @@ fi
 
 	if [ ! -d '../buildsrc' ]; then
 		gzip -dc "../${SRC}" | tar -xf -
-	else    
+	else
 		cp -rp ../buildsrc/* './'
 	fi
 
 	cd "${BUILDDIR}" || exit 1
 
-	# If we are building for KitDLL, compile with '-fPIC'
-	if [ "${KITTARGET}" = "kitdll" ]; then
-		CFLAGS="${CFLAGS} -fPIC"
-		export CFLAGS
-	fi
+	case $(uname -s 2> /dev/null) in
+		MINGW* | mingw*)
+			# use win32/Makefile.gcc instead.
+			echo "Running: cp win32/Makefile.gcc Makefile"
+			cp win32/Makefile.gcc Makefile
 
-	# We don't pass CONFIGUREEXTRA here, since this isn't a GNU autoconf
-	# script and will puke
-	echo "Running: ./configure --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --static"
-	./configure --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --static
+			echo "Running: ${MAKE:-make}"
+			${MAKE:-make} || exit 1
 
-	echo "Running: ${MAKE:-make}"
-	${MAKE:-make} || exit 1
+			echo "Running: BINARY_PATH=${INSTDIR}/bin INCLUDE_PATH=${INSTDIR}/include LIBRARY_PATH=${INSTDIR}/lib ${MAKE:-make} install"
+			BINARY_PATH=${INSTDIR}/bin INCLUDE_PATH=${INSTDIR}/include LIBRARY_PATH=${INSTDIR}/lib ${MAKE:-make} install
+			;;
+		*)
+			# If we are building for KitDLL, compile with '-fPIC'
+			if [ "${KITTARGET}" = "kitdll" ]; then
+				CFLAGS="${CFLAGS} -fPIC"
+				export CFLAGS
+			fi
 
-	echo "Running: ${MAKE:-make} install"
-	${MAKE:-make} install
+			# We don't pass CONFIGUREEXTRA here, since this isn't a GNU autoconf
+			# script and will puke
+			echo "Running: ./configure --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --static"
+			./configure --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --static
+
+			echo "Running: ${MAKE:-make}"
+			${MAKE:-make} || exit 1
+
+			echo "Running: ${MAKE:-make} install"
+			${MAKE:-make} install
+			;;
+	esac
 
 	# We don't really care too much about failure in zlib
 	exit 0
