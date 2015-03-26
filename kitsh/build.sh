@@ -197,22 +197,30 @@ mkdir 'out' 'inst' || exit 1
 		### Call installer
 		echo "Running: \"${TCLKIT}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
 		"${TCLKIT}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
-	elif echo 'exit 0' | ./kit >/dev/null 2>/dev/null; then
-		## Bootstrap (cannot cross-compile)
-		### Call installer
-		cp kit runkit
-		echo "set argv [list {${KITTARGET_NAME}} starpack.vfs {${ENABLECOMPRESSION}}]" > setup.tcl
-		echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
-		echo 'source installvfs.tcl' >> setup.tcl
-
-		echo 'Running: echo | ./runkit setup.tcl'
-		echo | ./runkit setup.tcl || exit 1
 	else
-		## Install using Tclsh, which may work if we're not using Metakit
-		### Call installer
-		echo "Running: \"${TCLSH_NATIVE}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
-		"${TCLSH_NATIVE}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
-		
+		if [ ! -f ./kit.exe ]; then
+			if echo 'exit 0' | ./kit >/dev/null 2>/dev/null; then
+				## Bootstrap (cannot cross-compile)
+				### Call installer
+				cp kit runkit
+				echo "set argv [list {${KITTARGET_NAME}} starpack.vfs {${ENABLECOMPRESSION}}]" > setup.tcl
+				echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
+				echo 'source installvfs.tcl' >> setup.tcl
+
+				echo 'Running: echo | ./runkit setup.tcl'
+				echo | ./runkit setup.tcl || exit 1
+			else
+				## Install using Tclsh, which may work if we're not using Metakit
+				### Call installer
+				echo "Running: \"${TCLSH_NATIVE}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
+				"${TCLSH_NATIVE}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
+			fi
+		else
+			## Install using Tclsh, which may work if we're not using Metakit
+			### Call installer
+			echo "Running: \"${TCLSH_NATIVE}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
+			"${TCLSH_NATIVE}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
+		fi
 	fi
 
 	# Cleanup
