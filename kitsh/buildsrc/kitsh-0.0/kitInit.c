@@ -200,11 +200,9 @@ static char *preInitCmd =
 		"}\n"
 	"}\n"
 #endif /* KIT_STORAGE_CVFS */
-#ifndef TCLKIT_DLL
 	"if {![info exists s]} {\n"
 		"set s \"\"\n"
 	"}\n"
-#endif /* !TCLKIT_DLL */
 #ifdef TCLKIT_DLL
 	"set ::TCLKIT_TYPE \"kitdll\"\n"
 #else
