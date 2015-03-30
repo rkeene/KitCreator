@@ -1,18 +1,19 @@
 #! /usr/bin/env tclsh
 
 # Parse arguments
-set opt_compression 1
-if {[llength $argv] < 2} {
-	puts stderr "Usage: installvfs.tcl <kitfile> <vfsdir> \[<enable_compression>\]"
+if {[llength $argv] != 4} {
+	puts stderr "Usage: installvfs.tcl <kitfile> <vfsdir> <enable_compression> <outfile>"
 
 	exit 1
 }
 
 set kitfile [lindex $argv 0]
 set vfsdir [lindex $argv 1]
-if {[lindex $argv 2] != ""} {
-	set opt_compression [lindex $argv 2]
+set opt_compression [lindex $argv 2]
+if {$opt_compression == ""} {
+	set opt_compression 1
 }
+set outfile [lindex $argv 3]
 
 # Determine what storage mechanism is being used
 set fd [open Makefile.common r]
@@ -71,6 +72,8 @@ proc recursive_copy {srcdir destdir} {
 # Update the kit, based on what kind of kit this is
 switch -- $tclKitStorage {
 	"mk4" {
+		file copy $kitfile $outfile
+
 		if {[catch {
 			# Try as if a pre-existing Tclkit, or a tclsh
 			package require vfs::mk4
@@ -87,14 +90,16 @@ switch -- $tclKitStorage {
 		}
 		set mk4vfs::compress $opt_compression
 
-		set handle [vfs::mk4::Mount $kitfile /kit -nocommit]
+		set handle [vfs::mk4::Mount $outfile /kit -nocommit]
 
 		recursive_copy $vfsdir /kit
 
 		vfs::unmount /kit
 	}
 	"zip" {
-		set kitfd [open $kitfile a+]
+		file copy $kitfile $outfile
+
+		set kitfd [open $outfile a+]
 		fconfigure $kitfd -translation binary
 
 		cd $vfsdir
@@ -118,6 +123,6 @@ switch -- $tclKitStorage {
 		}
 	}
 	"cvfs" {
-		# No-op
+		file copy $kitfile $outfile
 	}
 }

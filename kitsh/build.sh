@@ -195,39 +195,34 @@ mkdir 'out' 'inst' || exit 1
 	if echo 'exit 0' | "${TCLKIT}" >/dev/null 2>/dev/null; then
 		## Install using existing Tclkit
 		### Call installer
-		echo "Running: \"${TCLKIT}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
-		"${TCLKIT}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
+		echo "Running: \"${TCLKIT}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\" \"${KITTARGET_NAME}.new\""
+		"${TCLKIT}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" "${KITTARGET_NAME}.new" || exit 1
 	else
-		if [ ! -f ./kit.exe ]; then
-			if echo 'exit 0' | ./kit >/dev/null 2>/dev/null; then
-				## Bootstrap (cannot cross-compile)
-				### Call installer
-				cp kit runkit
-				echo "set argv [list {${KITTARGET_NAME}} starpack.vfs {${ENABLECOMPRESSION}}]" > setup.tcl
-				echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
-				echo 'source installvfs.tcl' >> setup.tcl
+		if echo 'exit 0' | ./kit >/dev/null 2>/dev/null; then
+			## Bootstrap (cannot cross-compile)
+			### Call installer
+			echo "set argv [list {${KITTARGET_NAME}} starpack.vfs {${ENABLECOMPRESSION}} {${KITTARGET_NAME}.new}]" > setup.tcl
+			echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
+			echo 'source installvfs.tcl' >> setup.tcl
 
-				echo 'Running: echo | ./runkit setup.tcl'
-				echo | ./runkit setup.tcl || exit 1
-			else
-				## Install using Tclsh, which may work if we're not using Metakit
-				### Call installer
-				echo "Running: \"${TCLSH_NATIVE}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
-				"${TCLSH_NATIVE}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
-			fi
+			echo 'Running: echo | ./kit setup.tcl'
+			echo | ./kit setup.tcl || exit 1
 		else
 			## Install using Tclsh, which may work if we're not using Metakit
 			### Call installer
-			echo "Running: \"${TCLSH_NATIVE}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\""
-			"${TCLSH_NATIVE}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" || exit 1
+			echo "Running: \"${TCLSH_NATIVE}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\" \"${KITTARGET_NAME}.new\""
+			"${TCLSH_NATIVE}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" "${KITTARGET_NAME}.new" || exit 1
 		fi
 	fi
+
+	cat "${KITTARGET_NAME}.new" > "${KITTARGET_NAME}" || exit 1
+	rm -f "${KITTARGET_NAME}.new"
 
 	# Cleanup
 	if [ "${KITTARGET}" = "kitdll" ]; then
 		## Remove built interpreters if we are building KitDLL --
 		## they're just tiny stubs anyway
-		rm -f kit runkit
+		rm -f kit
 	fi
 
 	exit 0
