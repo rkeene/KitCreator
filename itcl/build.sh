@@ -11,8 +11,8 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-ITCLVERS="3.4"
-ITCLVERSEXTRA="b1"
+ITCLVERS="3.4.2"
+ITCLVERSEXTRA=""
 SRC="src/itcl-${ITCLVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/incrtcl/files/%5BIncr%20Tcl_Tk%5D-source/${ITCLVERS}/itcl${ITCLVERS}${ITCLVERSEXTRA}.tar.gz/download"
 BUILDDIR="$(pwd)/build/itcl${ITCLVERS}"
