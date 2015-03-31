@@ -1,0 +1,7 @@
+#! /bin/sh
+
+CC='gcc -arch x86_64'
+CXX='g++ -arch x86_64'
+export CC CXX
+
+./build/make-kit-powermacg5 "$@" --enable-aqua --host=x86_64-apple-darwin9

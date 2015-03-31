@@ -1,0 +1,20 @@
+#! /bin/bash
+
+if [ "$(uname -s)" != 'Darwin' ]; then
+	buildid="$(( hostname; id -u; pwd ) | openssl sha1 | sed 's@^.*= *@@')"
+	workdir="/tmp/work-kitcreator-${buildid}"
+	rsync -aq --delete -e ssh . powermacg5.vpn.oc9.org:${workdir}/
+	(
+		newArgv=("$@"); declare -p newArgv
+		declare -p workdir
+		export
+		cat << \_EOF_
+cd "${workdir}" || exit 1
+./kitcreator "${newArgv[@]}"
+exit "$?"
+_EOF_
+	) | ssh powermacg5.vpn.oc9.org bash -s || exit "$?"
+
+	ssh powermacg5.vpn.oc9.org "workdir='${workdir}'; "'cd "${workdir}" && tar -cf - tclkit-* libtclkit* 2>/dev/null' | tar -xf -
+fi
+
