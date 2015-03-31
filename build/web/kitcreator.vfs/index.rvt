@@ -40,6 +40,10 @@
 	set platforms(solaris-i386) "Solaris/i386"
 	set platforms(solaris-sparc) "Solaris/SPARC"
 	set platforms(solaris-sparc64) "Solaris/SPARC64"
+	set platforms(macosx-i386) "Mac OS X/i386"
+	set platforms(macosx-amd64) "Mac OS X/amd64"
+	set platforms(macosx-ppc) "Mac OS X/ppc"
+	set platforms(macosx-ppc64) "Mac OS X/ppc64"
 	set platforms(win32) "Windows/i386"
 	set platforms(win64) "Windows/amd64"
 
@@ -65,6 +69,10 @@
 		platform linux-arm {package_tk package_tclx}
 		platform linux-amd64-static {package_tk package_dbus kitdll}
 		platform linux-i386-static {package_tk package_dbus kitdll}
+		platform macosx-ppc {package_dbus package_tcc4tcl}
+		platform macosx-ppc64 {package_dbus package_tcc4tcl}
+		platform macosx-i386 {package_dbus}
+		platform macosx-amd64 {package_dbus}
 	}
 
 	set specific {
