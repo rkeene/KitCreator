@@ -10,6 +10,7 @@ if [ "$(uname -s)" != 'Darwin' ]; then
 		export
 		cat << \_EOF_
 cd "${workdir}" || exit 1
+export PATH="${PATH}:/usr/local/bin:/usr/bin"
 ./kitcreator "${newArgv[@]}"
 exit "$?"
 _EOF_
