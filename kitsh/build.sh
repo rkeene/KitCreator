@@ -110,6 +110,9 @@ mkdir 'out' 'inst' || exit 1
 		rm -f "${BUILDDIR}/kit.rc"
 	fi
 
+	# Cleanup
+	rm -f kit kit.exe tclsh tclsh.exe
+
 	# Determine if target is KitDLL or KitSH
 	if [ "${KITTARGET}" = "kitdll" ]; then
 		CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll"
@@ -131,7 +134,7 @@ mkdir 'out' 'inst' || exit 1
 
 	# Strip the kit of all symbols, if possible
 	if ! echo " ${CONFIGUREEXTRA} " | grep ' --enable-symbols ' >/dev/null; then
-		"${STRIP:-strip}" kit >/dev/null 2>/dev/null
+		"${STRIP:-strip}" kit kit.exe >/dev/null 2>/dev/null
 		"${STRIP:-strip}" -g libtclkit* >/dev/null 2>/dev/null
 	fi
 
@@ -176,14 +179,22 @@ mkdir 'out' 'inst' || exit 1
 
 		## Also create an executable named "kit" so that we can run it later
 		${MAKE:-make} tclsh
-		mv tclsh kit
+		if [ -f "tclsh.exe" ]; then
+			mv tclsh.exe kit.exe
+		else
+			mv tclsh kit
+		fi
 	else
 		## The executable is always named "kit"
-		KITTARGET_NAME='kit'
+		if [ -f 'kit.exe' -a ! -f 'kit' ]; then
+			KITTARGET_NAME='kit.exe'
+		else
+			KITTARGET_NAME='kit'
+		fi
 	fi
 	export KITTARGET_NAME
 
-	if [ "x${KITTARGET_NAME}" = 'x__error__' ]; then
+	if [ "${KITTARGET_NAME}" = '__error__' ]; then
 		echo "Failed to locate kit target!" >&2
 
 		exit 1
