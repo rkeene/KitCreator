@@ -208,6 +208,9 @@ fi
 
 cp 'kitsh/build'/kitsh-*/libtclkit* . >/dev/null 2>/dev/null
 cp 'kitsh/build'/kitsh-*/kit "tclkit-${TCLVERS}" >/dev/null 2>/dev/null
+if [ ! -f "tclkit-${TCLVERS}" ]; then
+	cp 'kitsh/build'/kitsh-*/kit.exe "tclkit-${TCLVERS}" >/dev/null 2>/dev/null
+fi
 
 for postscript in common/post/*; do
 	if [ ! -f "${postscript}" ]; then
