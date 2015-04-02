@@ -21,7 +21,9 @@ _EOF_
 	# Clean-up if appropriate
 	case "$(pwd)" in
 		/home/rkeene/*)
-			ssh powermacg5.vpn.oc9.org "workdir='${workdir}'; "'rm -rf "${workdir}"' | tar -xf -
+			;;
+		*)
+			ssh powermacg5.vpn.oc9.org "workdir='${workdir}'; "'rm -rf "${workdir}"'
 			;;
 	esac
 fi
