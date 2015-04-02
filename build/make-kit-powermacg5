@@ -16,6 +16,13 @@ exit "$?"
 _EOF_
 	) | ssh powermacg5.vpn.oc9.org bash -s || exit "$?"
 
-	ssh powermacg5.vpn.oc9.org "workdir='${workdir}'; "'cd "${workdir}" && tar -cf - tclkit-* libtclkit* 2>/dev/null' | tar -xf -
+	ssh powermacg5.vpn.oc9.org "workdir='${workdir}'; "'cd "${workdir}" && tar -cf - tclkit-* libtclkit* */build.log 2>/dev/null' | tar -xf -
+
+	# Clean-up if appropriate
+	case "$(pwd)" in
+		/home/rkeene/*)
+			ssh powermacg5.vpn.oc9.org "workdir='${workdir}'; "'rm -rf "${workdir}"' | tar -xf -
+			;;
+	esac
 fi
 
