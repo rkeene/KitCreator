@@ -172,7 +172,7 @@ mkdir 'out' 'inst' || exit 1
 				continue
 			fi
 
-			KITTARGET_NAME="${chkkittarget}"
+			KITTARGET_NAME="./${chkkittarget}"
 
 			break
 		done
@@ -187,9 +187,9 @@ mkdir 'out' 'inst' || exit 1
 	else
 		## The executable is always named "kit"
 		if [ -f 'kit.exe' -a ! -f 'kit' ]; then
-			KITTARGET_NAME='kit.exe'
+			KITTARGET_NAME='./kit.exe'
 		else
-			KITTARGET_NAME='kit'
+			KITTARGET_NAME='./kit'
 		fi
 	fi
 	export KITTARGET_NAME
