@@ -156,7 +156,7 @@ fi
 		export PATH
 	fi
 
-	for dir in "${TCLCONFIGDIRTAIL}" unix win macosx win64 __fail__; do
+	for dir in "${TCLCONFIGDIRTAIL}" unix win win64 __fail__; do
 		if [ -z "${dir}" ]; then
 			continue
 		fi

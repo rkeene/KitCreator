@@ -1,7 +1,13 @@
 #! /bin/sh
 
-CC='gcc -arch x86_64'
-CXX='g++ -arch x86_64'
-export CC CXX
-
-./build/make-kit-powermacg5 "$@" --enable-aqua --host=x86_64-apple-darwin9
+if [ "$(uname -s)" != 'Darwin' ]; then
+  ./build/make-kit-powermacg5 "$@" --enable-aqua --host=x86_64-apple-darwin9
+else
+  CC='gcc -arch x86_64'
+  CXX='g++ -arch x86_64'
+  export CC CXX
+  LDFLAGS='-headerpad_max_install_names -Wl,-search_paths_first'
+  CFLAGS='-O2 -DALLOW_EMPTY_EXPAND -arch x86_64 -arch i386 -pipe -fvisibility=hidden   -isysroot /Developer/SDKs/MacOSX10.6.sdk -mmacosx-version-min=10.5'
+  export LDFLAGS CFLAGS
+  exec ./kitcreator "$@" --enable-aqua --enable-64bit --enable-corefoundation=yes --enable-framework=no
+fi

@@ -204,7 +204,7 @@ fi
 	case "${KC_CROSSCOMPILE_HOST_OS}" in
 		*-*-darwin*)
 			# Cross-compiling for Mac OS X -- try to build macosx directory first
-			tryfirstdir='macosx'
+			tryfirstdir='unix'
 			;;
 		*-*-*)
 			# Cross-compiling, do not assume based on build platform
@@ -213,12 +213,12 @@ fi
 			# Not cross-compiling, assume based on build platform
 			if [ "$(uname -s)" = "Darwin" ]; then
 				# Compiling for Mac OS X, build in that directory first
-				tryfirstdir='macosx'
+				tryfirstdir='unix'
 			fi
 			;;
 	esac
 		
-	for dir in "${tryfirstdir}" unix win macosx __fail__; do
+	for dir in "${tryfirstdir}" unix win __fail__; do
 		if [ -z "${dir}" ]; then
 			continue
 		fi
