@@ -227,12 +227,12 @@ static char *preInitCmd =
 "tclKitInit";
 
 static const char initScript[] =
-"if {[file isfile [file join [info nameofexe] main.tcl]]} {\n"
+"if {[file isfile [file join " TCLKIT_VFSSOURCE " main.tcl]]} {\n"
 	"if {[info commands console] != {}} { console hide }\n"
 	"set tcl_interactive 0\n"
 	"incr argc\n"
 	"set argv [linsert $argv 0 $argv0]\n"
-	"set argv0 [file join [info nameofexe] main.tcl]\n"
+	"set argv0 [file join " TCLKIT_VFSSOURCE " main.tcl]\n"
 "} else continue\n";
 
 /* SetExecName --
