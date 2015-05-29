@@ -92,8 +92,10 @@ foreach line [split $data "\n"] {
 				lappend args "--enable-kit-storage=$value"
 			}
 			"dynamictk" {
-				if {[lsearch -exact $buildinfo(packages) "tk"] != -1} {
-					set ::env(STATICTK) -1
+				if {$value} {
+					if {[lsearch -exact $buildinfo(packages) "tk"] != -1} {
+						set ::env(STATICTK) -1
+					}
 				}
 			}
 			"minbuild" {
