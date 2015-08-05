@@ -2,7 +2,7 @@
 
 TCLLIB_VERS='1.16'
 SRC="src/tcllib-${TCLLIB_VERS}.tar.bz2"
-SRCURL="http://sourceforge.net/projects/tcllib/files/tcllib/${TCLLIB_VERS}/Tcllib-${TCLLIB_VERS}.tar.bz2"
+SRCURL="http://sourceforge.net/projects/tcllib/files/tcllib/${TCLLIB_VERS}/tcllib-${TCLLIB_VERS}.tar.bz2"
 BUILDDIR="$(pwd)/build/Tcllib-${TCLLIB_VERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
