@@ -497,30 +497,15 @@ for kit in $kits; do
 			testscppre="$(dirname "${testscp}")/${testscp_tag}.sh"
 			scplogfile="${outputname}-${testscp_tag}.log"
 
-			# If a command is required to start the kit, prepare to kill it
-			# in case of timeout.
-			## Temporarily disabled since currently it is causing
-			## more problems in the form of tests being killed
-			## prematurely than we are having issues with tests
-			## hanging
-			kitrunkillpid=""
-			if [ "1" = "0" -a -n "${kitruncmd}" ]; then
-				(
-					sleep 120
-					killall "$(basename "${outputname}")" >/dev/null 2>/dev/null
-				) >/dev/null 2>/dev/null &
-				kitrunkillpid="$!"
-			fi
-
 			(
 				if [ -f "${testscppre}" ]; then
 					. "${testscppre}"
 				fi
 
 				if [ "${kitdll}" = "1" ]; then
-					${kitruncmd} "${outputname}-tclsh" "${testscp}" "${outputname}" "${kit}" "${version}"
+					timeout -k 10 600 ${kitruncmd} "${outputname}-tclsh" "${testscp}" "${outputname}" "${kit}" "${version}"
 				else
-					${kitruncmd} "${outputname}" "${testscp}" "${outputname}" "${kit}" "${version}"
+					timeout -k 10 600 ${kitruncmd} "${outputname}" "${testscp}" "${outputname}" "${kit}" "${version}"
 				fi
 			) > "${scplogfile}" 2>&1
 
@@ -532,11 +517,6 @@ for kit in $kits; do
 				echo "${testscp_tag}: FAIL" >>  "${testresultslog}"
 
 				continue
-			fi
-
-			# Kill the watchdog for this iteration
-			if [ -n "${kitrunkillpid}" ]; then
-				kill -9 "${kitrunkillpid}" >/dev/null 2>/dev/null
 			fi
 
 			echo "${testscp_tag}: PASS" >>  "${testresultslog}"
