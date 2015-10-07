@@ -172,7 +172,7 @@ mkdir 'out' 'inst' || exit 1
 				continue
 			fi
 
-			KITTARGET_NAME="${chkkittarget}"
+			KITTARGET_NAME="./${chkkittarget}"
 
 			break
 		done
@@ -187,9 +187,9 @@ mkdir 'out' 'inst' || exit 1
 	else
 		## The executable is always named "kit"
 		if [ -f 'kit.exe' -a ! -f 'kit' ]; then
-			KITTARGET_NAME='kit.exe'
+			KITTARGET_NAME='./kit.exe'
 		else
-			KITTARGET_NAME='kit'
+			KITTARGET_NAME='./kit'
 		fi
 	fi
 	export KITTARGET_NAME
@@ -209,15 +209,15 @@ mkdir 'out' 'inst' || exit 1
 		echo "Running: \"${TCLKIT}\" installvfs.tcl \"${KITTARGET_NAME}\" starpack.vfs \"${ENABLECOMPRESSION}\" \"${KITTARGET_NAME}.new\""
 		"${TCLKIT}" installvfs.tcl "${KITTARGET_NAME}" starpack.vfs "${ENABLECOMPRESSION}" "${KITTARGET_NAME}.new" || exit 1
 	else
-		if echo 'exit 0' | ./kit >/dev/null 2>/dev/null; then
+		if echo 'exit 0' | "${KITTARGET_NAME}" >/dev/null 2>/dev/null; then
 			## Bootstrap (cannot cross-compile)
 			### Call installer
 			echo "set argv [list {${KITTARGET_NAME}} starpack.vfs {${ENABLECOMPRESSION}} {${KITTARGET_NAME}.new}]" > setup.tcl
 			echo 'if {[catch { clock seconds }]} { proc clock args { return 0 } }' >> setup.tcl
 			echo 'source installvfs.tcl' >> setup.tcl
 
-			echo 'Running: echo | ./kit setup.tcl'
-			echo | ./kit setup.tcl || exit 1
+			echo 'Running: echo | \"${KITTARGET_NAME}\" setup.tcl'
+			echo | "${KITTARGET_NAME}" setup.tcl || exit 1
 		else
 			## Install using Tclsh, which may work if we're not using Metakit
 			### Call installer
@@ -233,7 +233,7 @@ mkdir 'out' 'inst' || exit 1
 	if [ "${KITTARGET}" = "kitdll" ]; then
 		## Remove built interpreters if we are building KitDLL --
 		## they're just tiny stubs anyway
-		rm -f kit
+		rm -f "${KITTARGET_NAME}"
 	fi
 
 	exit 0
