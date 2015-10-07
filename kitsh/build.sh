@@ -186,7 +186,7 @@ mkdir 'out' 'inst' || exit 1
 		fi
 	else
 		## The executable is always named "kit"
-		if [ -f 'kit.exe' -a ! -f 'kit' ]; then
+		if [ -f 'kit.exe' ]; then
 			KITTARGET_NAME='./kit.exe'
 		else
 			KITTARGET_NAME='./kit'
@@ -226,7 +226,7 @@ mkdir 'out' 'inst' || exit 1
 		fi
 	fi
 
-	cat "${KITTARGET_NAME}.new" > "${KITTARGET_NAME}" || exit 1
+	cp "${KITTARGET_NAME}.new" "${KITTARGET_NAME}"
 	rm -f "${KITTARGET_NAME}.new"
 
 	# Cleanup
