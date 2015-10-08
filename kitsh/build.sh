@@ -233,7 +233,7 @@ mkdir 'out' 'inst' || exit 1
 	if [ "${KITTARGET}" = "kitdll" ]; then
 		## Remove built interpreters if we are building KitDLL --
 		## they're just tiny stubs anyway
-		rm -f kit kit.exe tclsh tclsh.exe
+		rm -f kit kit.exe
 	fi
 
 	exit 0
