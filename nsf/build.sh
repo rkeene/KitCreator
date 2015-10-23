@@ -99,21 +99,26 @@ fi
 	fi
 	cat configure.new > configure
 	rm -f configure.new
-	
+
+	# Fix mkIndex.tcl for TCLSH_NATIVE being 8.4 (till next NSF release)
+	cat library/lib/mkIndex.tcl > library/lib/mkIndex.tcl.orig
+	cat << _EOF_ > library/lib/mkIndex.tcl
+if {[info commands ::tcl::tm::roots] eq ""} {
+	namespace eval ::tcl::tm { proc roots args {;}} 
+}
+source [file join [file dirname [info script]] mkIndex.tcl.orig]
+_EOF_
 	(
 	    # Build
 	    echo "Running: ./configure $tryopt --disable-symbols --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 	    ./configure $tryopt --disable-symbols --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
 
-	    echo "Running: ${MAKE:-make}"
-	    ${MAKE:-make} || exit 1
+	    echo "Running: ${MAKE:-make} TCLSH=${TCLSH_NATIVE}"
+	    ${MAKE:-make} TCLSH=${TCLSH_NATIVE} || exit 1
 
-	    echo "Running: ${MAKE:-make} install"
-	    ${MAKE:-make} install || (
-		## cross-compiling? use TCLSH_NATIVE
-		echo "Running: ${MAKE:-make} install TCLSH=${TCLSH_NATIVE}"
-		${MAKE:-make} install TCLSH=${TCLSH_NATIVE} || exit 1
-	    ) || exit 1
+	    echo "Running: ${MAKE:-make} install TCLSH=${TCLSH_NATIVE}"
+	    ${MAKE:-make} install TCLSH=${TCLSH_NATIVE} || exit 1
+	    
 	) || continue
 	
 	break
