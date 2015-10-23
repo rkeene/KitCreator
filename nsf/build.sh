@@ -104,12 +104,21 @@ fi
 	    # Build
 	    echo "Running: ./configure $tryopt --disable-symbols --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 	    ./configure $tryopt --disable-symbols --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
-	    
-	    echo "Running: ${MAKE:-make} TCLSH=${TCLSH_NATIVE}"
-	    ${MAKE:-make} TCLSH=${TCLSH_NATIVE} || exit 1
-	    
-	    echo "Running: ${MAKE:-make} install TCLSH=${TCLSH_NATIVE}"
-	    ${MAKE:-make} install TCLSH=${TCLSH_NATIVE}
+
+	    if [ "${KC_CROSSCOMPILE}" = '1' ]; then
+                ## Cross-compiling, use TCLSH_NATIVE
+		echo "Running: ${MAKE:-make} TCLSH=${TCLSH_NATIVE}"
+		${MAKE:-make} TCLSH=${TCLSH_NATIVE} || exit 1
+		
+		echo "Running: ${MAKE:-make} install TCLSH=${TCLSH_NATIVE}"
+		${MAKE:-make} install TCLSH=${TCLSH_NATIVE} || exit 1
+	    else
+		echo "Running: ${MAKE:-make}"
+		${MAKE:-make} || exit 1
+		
+		echo "Running: ${MAKE:-make} install"
+		${MAKE:-make} install || exit 1
+            fi
 	    
 	) || continue
 	
