@@ -57,6 +57,7 @@
 	set packages(tcllib) "Tcllib"
 	set packages(yajltcl) "YAJL-TCL"
 	set packages(udp) "TclUDP"
+	set packages(nsf) "Next Scripting Framework"
 
 	set disable {
 		platform linux-mipsel {package_tk package_tcc4tcl package_tclx kitdll}
