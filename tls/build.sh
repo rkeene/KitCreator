@@ -11,7 +11,7 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-TLSVERS="1.6"
+TLSVERS="1.6.7"
 SRC="src/tls-${TLSVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/tls/files/tls/${TLSVERS}/tls${TLSVERS}-src.tar.gz"
 BUILDDIR="$(pwd)/build/tls${TLSVERS}"
@@ -59,7 +59,17 @@ fi
 	if [ -z "${CPP}" ]; then
 		CPP="${CC} -E"
 	fi
-	SSLDIR="$(echo '#include <openssl/ssl.h>' 2>/dev/null | ${CPP} - | awk '/# 1 "\/.*\/ssl\.h/{ print $3; exit }' | sed 's@^"@@;s@"$@@;s@/include/openssl/ssl\.h$@@')"
+
+	if [ -n "${KC_TLS_SSLDIR}" ]; then
+		SSLDIR="${KC_TLS_SSLDIR}"
+	else
+		SSLDIR="$(echo '#include <openssl/ssl.h>' 2>/dev/null | ${CPP} - | awk '/# 1 "\/.*\/ssl\.h/{ print $3; exit }' | sed 's@^"@@;s@"$@@;s@/include/openssl/ssl\.h$@@')"
+		if [ -z "${SSLDIR}" ]; then
+			echo "Unable to find OpenSSL, aborting." >&2
+
+			exit 1
+		fi
+	fi
 
 	# Apply required patches
 	cd "${BUILDDIR}" || exit 1
@@ -131,6 +141,11 @@ fi
 			${MAKE:-make} tcllibdir="${INSTDIR}/lib" AR="${AR:-ar}" RANLIB="${RANLIB:-ranlib}" install || exit 1
 		) || continue
 
+		# Determine SSL library directory
+		SSL_LIB_DIR="$(${MAKE:-make} --print-data-base | awk '/^SSL_LIB_DIR = /{ print }' | sed 's@^SSL_LIB_DIR = *@@')"
+
+		echo "SSL_LIB_DIR = ${SSL_LIB_DIR}"
+
 		break
 	done
 
@@ -143,13 +158,17 @@ package ifneeded tls ${TLSVERS} \
 _EOF_
 	fi
 
+	# Determine name of static object
+	LINKADDFILE="$(find "${INSTDIR}" -name '*.a' | head -n 1).linkadd"
+
 	## XXX: TODO: Determine what we actually need to link against
-	addlibs="-lssl -lcrypto"
+	addlibs="-L${SSL_LIB_DIR:-/lib} -lssl -lcrypto ${KC_TLS_LINKADD}"
+	addlibs_staticOnly=""
 	if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
-		echo "-Wl,-Bstatic ${addlibs} -Wl,-Bdynamic"
+		echo "-Wl,-Bstatic ${addlibs} ${addlibs_staticOnly} -Wl,-Bdynamic"
 	else
 		echo "${addlibs}"
-	fi > "${INSTDIR}/lib/tls${TLSVERS}/libtls${TLSVERS}.a.linkadd"
+	fi > "${LINKADDFILE}"
 
 	# Install files needed by installation
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1

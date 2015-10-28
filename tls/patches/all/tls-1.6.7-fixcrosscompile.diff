@@ -1,0 +1,45 @@
+diff -uNr tls1.6.7.orig/configure tls1.6.7-fixcrosscompile/configure
+--- tls1.6.7.orig/configure	2015-07-07 12:16:02.000000000 -0500
++++ tls1.6.7-fixcrosscompile/configure	2015-10-28 09:59:25.414214000 -0500
+@@ -1387,7 +1387,9 @@
+ fi
+ 
+ 	    EXEEXT=".exe"
+-	    TEA_PLATFORM="windows"
++		if [ -z "${TEA_PLATFORM}" ]; then
++			TEA_PLATFORM="windows"
++		fi
+ 	    ;;
+ 	*CYGWIN_*)
+ 	    CYGPATH=echo
+@@ -1397,7 +1399,9 @@
+ 	*)
+ 	    CYGPATH=echo
+ 	    EXEEXT=""
+-	    TEA_PLATFORM="unix"
++		if [ -z "${TEA_PLATFORM}" ]; then
++			TEA_PLATFORM="unix"
++		fi
+ 	    ;;
+     esac
+ 
+@@ -1682,13 +1686,17 @@
+ echo $ECHO_N "checking for cygwin variant... $ECHO_C" >&6
+ 	    case ${TCL_EXTRA_CFLAGS} in
+ 		*-mwin32*|*-mno-cygwin*)
+-		    TEA_PLATFORM="windows"
++			if [ -z "${TEA_PLATFORM}" ]; then
++				TEA_PLATFORM="windows"
++			fi
+ 		    CFLAGS="$CFLAGS -mwin32"
+ 		    echo "$as_me:$LINENO: result: win32" >&5
+ echo "${ECHO_T}win32" >&6
+ 		    ;;
+ 		*)
+-		    TEA_PLATFORM="unix"
++			if [ -z "${TEA_PLATFORM}" ]; then
++				TEA_PLATFORM="unix"
++			fi
+ 		    echo "$as_me:$LINENO: result: unix" >&5
+ echo "${ECHO_T}unix" >&6
+ 		    ;;
