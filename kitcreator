@@ -64,7 +64,10 @@ CONFIGUREEXTRA="$@"
 export CONFIGUREEXTRA
 
 if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads' >/dev/null 2>/dev/null; then
+	KITCREATOR_ADD_ENABLE_THREADS='0'
 	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
+elif echo " ${CONFIGUREEXTRA} " | grep ' --disable-threads' >/dev/null 2>/dev/null; then
+	KITCREATOR_ADD_ENABLE_THREADS='0'
 fi
 
 # Determine cross-compile status
@@ -188,6 +191,13 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 			TCLCONFIGDIR=$(find "$(pwd)/tcl/build" -name tclConfig.sh | head -1 | sed 's@/[^/]*$@@')
 			TCLCONFIGDIRTAIL="$(basename "${TCLCONFIGDIR}")"
 			export TCLCONFIGDIR TCLCONFIGDIRTAIL
+
+			# If Tcl was compiled with threads enabled pass --enable-threads to all sub-projects
+			if [ "${KITCREATOR_ADD_ENABLE_THREADS:-1}" != '0' ]; then
+				if [ "$( . "${TCLCONFIGDIR}/tclConfig.sh" && echo "${TCL_THREADS:-0}" )" = '1' ]; then
+					CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-threads"
+				fi
+			fi
 			;;
 	esac
 
