@@ -97,7 +97,12 @@ fi
 	CFLAGS="${CFLAGS} -DNO_SSL2=1"
 
 	SAVE_CFLAGS="${CFLAGS}"
+	SAVE_LIBS="${LIBS}"
 	for tryopt in $tryopts __fail__; do
+		CFLAGS="${SAVE_CFLAGS}"
+		LIBS="${SAVE_LIBS}"
+		export CFLAGS LIBS
+
 		# Clean up, if needed
 		make distclean >/dev/null 2>/dev/null
 		rm -rf "${INSTDIR}"
@@ -113,14 +118,16 @@ fi
 			isshared="0"
 		fi
 
+		# If building a shared TLS, add the LINKADD libraries here
+		if [ "${isshared}" = '1' ]; then
+			LIBS="${LIBS} ${KC_TLS_LINKADD}"
+		fi
+
 		# If build a static TLS for KitDLL, ensure that we use PIC
 		# so that it can be linked into the shared object
 		if [ "${isshared}" = "0" -a "${KITTARGET}" = "kitdll" ]; then
-			CFLAGS="${SAVE_CFLAGS} -fPIC"
-		else
-			CFLAGS="${SAVE_CFLAGS}"
+			CFLAGS="${CFLAGS} -fPIC"
 		fi
-		export CFLAGS
 
 		if [ "${isshared}" = '0' ]; then
 			sed 's@USE_TCL_STUBS@XXX_TCL_STUBS@g' configure > configure.new
@@ -159,16 +166,19 @@ _EOF_
 	fi
 
 	# Determine name of static object
-	LINKADDFILE="$(find "${INSTDIR}" -name '*.a' | head -n 1).linkadd"
+	LINKADDFILE="$(find "${INSTDIR}" -name '*.a' | head -n 1)"
+	if [ -n "${LINKADDFILE}" ]; then
+		LINKADDFILE="${LINKADDFILE}.linkadd"
 
-	## XXX: TODO: Determine what we actually need to link against
-	addlibs="-L${SSL_LIB_DIR:-/lib} -lssl -lcrypto ${KC_TLS_LINKADD}"
-	addlibs_staticOnly=""
-	if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
-		echo "-Wl,-Bstatic ${addlibs} ${addlibs_staticOnly} -Wl,-Bdynamic"
-	else
-		echo "${addlibs}"
-	fi > "${LINKADDFILE}"
+		## XXX: TODO: Determine what we actually need to link against
+		addlibs="-L${SSL_LIB_DIR:-/lib} -lssl -lcrypto ${KC_TLS_LINKADD}"
+		addlibs_staticOnly=""
+		if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
+			echo "-Wl,-Bstatic ${addlibs} ${addlibs_staticOnly} -Wl,-Bdynamic"
+		else
+			echo "${addlibs}"
+		fi > "${LINKADDFILE}"
+	fi
 
 	# Install files needed by installation
 	cp -r "${INSTDIR}/lib" "${OUTDIR}" || exit 1

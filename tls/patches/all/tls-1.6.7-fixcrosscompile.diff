@@ -1,6 +1,18 @@
+diff -uNr tls1.6.7.orig/Makefile.in tls1.6.7-fixcrosscompile/Makefile.in
+--- tls1.6.7.orig/Makefile.in	2010-08-11 20:28:06.000000000 -0500
++++ tls1.6.7-fixcrosscompile/Makefile.in	2015-10-28 10:47:10.714214000 -0500
+@@ -229,7 +229,7 @@
+ $(PKG_LIB_FILE): $(PKG_OBJECTS)
+ 	-rm -f $(PKG_LIB_FILE)
+ 	${MAKE_LIB}
+-	$(RANLIB) $(PKG_LIB_FILE)
++	-$(RANLIB) $(PKG_LIB_FILE)
+ 
+ #========================================================================
+ # We need to enumerate the list of .c to .o lines here.
 diff -uNr tls1.6.7.orig/configure tls1.6.7-fixcrosscompile/configure
 --- tls1.6.7.orig/configure	2015-07-07 12:16:02.000000000 -0500
-+++ tls1.6.7-fixcrosscompile/configure	2015-10-28 09:59:25.414214000 -0500
++++ tls1.6.7-fixcrosscompile/configure	2015-10-28 10:42:09.324214000 -0500
 @@ -1387,7 +1387,9 @@
  fi
  
@@ -43,3 +55,12 @@ diff -uNr tls1.6.7.orig/configure tls1.6.7-fixcrosscompile/configure
  		    echo "$as_me:$LINENO: result: unix" >&5
  echo "${ECHO_T}unix" >&6
  		    ;;
+@@ -10316,7 +10324,7 @@
+     fi
+     if test -n "${OPENSSL}"; then
+ 
+-    vars="ssleay32.lib libeay32.lib"
++    vars="ssl.lib crypto.lib"
+     for i in $vars; do
+ 	if test "${TEA_PLATFORM}" = "windows" -a "$GCC" = "yes" ; then
+ 	    # Convert foo.lib to -lfoo for GCC.  No-op if not *.lib
