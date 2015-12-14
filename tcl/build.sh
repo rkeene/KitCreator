@@ -241,16 +241,16 @@ fi
 		echo "Running: ./configure --disable-shared --with-encoding=utf-8 --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" ${CONFIGUREEXTRA}"
 		./configure --disable-shared --with-encoding=utf-8 --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" ${CONFIGUREEXTRA}
 
-		echo "Running: ${MAKE:-make}"
-		${MAKE:-make} || continue
+		echo "Running: ${MAKE:-make} binaries"
+		${MAKE:-make} binaries || continue
 
-		echo "Running: ${MAKE:-make} install"
-		${MAKE:-make} install || (
+		echo "Running: ${MAKE:-make} install-binaries install-libraries"
+		${MAKE:-make} install-binaries install-libraries || (
 			# Work with Tcl 8.6.x's TCLSH_NATIVE solution for
 			# cross-compile installs
 
-			echo "Running: ${MAKE:-make} install TCLSH_NATIVE=\"${TCLSH_NATIVE}\""
-			${MAKE:-make} install TCLSH_NATIVE="${TCLSH_NATIVE}"
+			echo "Running: ${MAKE:-make} install-binaries install-libraries TCLSH_NATIVE=\"${TCLSH_NATIVE}\""
+			${MAKE:-make} install-binaries install-libraries TCLSH_NATIVE="${TCLSH_NATIVE}"
 		) || (
 			# Make install can fail if cross-compiling using Tcl 8.5.x
 			# because the Makefile calls "$(TCLSH)".  We can't simply
@@ -259,8 +259,8 @@ fi
 			cat Makefile.new > Makefile
 			rm -f Makefile.new
 
-			echo "Running: ${MAKE:-make} install TCLSH=\"../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")\""
-			${MAKE:-make} install TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")"
+			echo "Running: ${MAKE:-make} install-binaries install-libraries TCLSH=\"../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")\""
+			${MAKE:-make} install-binaries install-libraries TCLSH="../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")"
 		) || (
 			# Make install can fail if cross-compiling using Tcl 8.5.9
 			# because the Makefile calls "${TCL_EXE}".  We can't simply
@@ -269,8 +269,8 @@ fi
 			cat Makefile.new > Makefile
 			rm -f Makefile.new
 
-			echo "Running: ${MAKE:-make} install TCL_EXE=\"../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")\""
-			${MAKE:-make} install TCL_EXE="../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")"
+			echo "Running: ${MAKE:-make} install-binaries install-libraries TCL_EXE=\"../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")\""
+			${MAKE:-make} install-binaries install-libraries TCL_EXE="../../../../../../../../../../../../../../../../../$(which "${TCLSH_NATIVE}")"
 		) || exit 1
 
 		mkdir "${OUTDIR}/lib" || exit 1
