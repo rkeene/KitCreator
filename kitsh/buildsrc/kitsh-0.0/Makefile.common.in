@@ -16,6 +16,8 @@ EXTRA_VFS_OBJS = @EXTRA_VFS_OBJS@
 TCLSH_NATIVE = tclsh
 LDFLAGS_ADD = @LDFLAGS_ADD@
 DIR2C_FLAGS = @DIR2C_FLAGS@
+AR = @AR@
+RANLIB = @RANLIB@
 
 # Build targets
 ## VFS Build
@@ -45,6 +47,7 @@ kit.res.o: kit.rc tclkit.ico
 
 # Cleanup routines
 clean:
+	rm -rf __TMP__
 	rm -f kit kit.res.o
 	rm -f libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
 	rm -f $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS)

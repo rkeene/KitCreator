@@ -571,9 +571,27 @@ void __attribute__((constructor)) _Tclkit_Init(void) {
 #else
 static void _Tclkit_Init(void) {
 #endif
+	static int called = 0;
+
+	if (called) {
+		return;
+	}
+
+	called = 1;
+
 	Tcl_StaticPackage(0, "tclkit::init", Tclkit_init_Init, NULL);
 
 	_Tclkit_Generic_Init();
 
 	return;
 }
+
+#if defined(TCLKIT_DLL) && defined(TCLKIT_DLL_STATIC)
+int Tcl_InitReal(Tcl_Interp *interp);
+
+int Tcl_Init(Tcl_Interp *interp) {
+	_Tclkit_Init();
+
+	return(Tcl_InitReal(interp));
+}
+#endif
