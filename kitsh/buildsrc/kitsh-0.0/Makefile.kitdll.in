@@ -19,19 +19,19 @@ libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@: $(OBJS) $(EXTRA_KIT_DEPS) $(EXTRA_OBJS
 
 ## Static archive build
 libtclkit@KITDLL_LIB_VERSION@.a: $(OBJS) $(EXTRA_KIT_DEPS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS)
-        rm -f libtclkit@KITDLL_LIB_VERSION@.a.new
-        rm -rf __TMP__
-        mkdir __TMP__
-        for arch in $(ARCHS); do ( cd __TMP__ && ar x ../$${arch} ); done
-        $(OBJCOPY) --redefine-sym Tcl_Init=Tcl_InitReal __TMP__/tclInterp.o
-        $(AR) cr libtclkit@KITDLL_LIB_VERSION@.a.new $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS) __TMP__/*.o
-        rm -rf __TMP__
-        $(RANLIB) libtclkit@KITDLL_LIB_VERSION@.a.new
-        mv libtclkit@KITDLL_LIB_VERSION@.a.new libtclkit@KITDLL_LIB_VERSION@.a
+	rm -f libtclkit@KITDLL_LIB_VERSION@.a.new
+	rm -rf __TMP__
+	mkdir __TMP__
+	for arch in $(ARCHS); do ( cd __TMP__ && ar x ../$${arch} ); done
+	$(OBJCOPY) --redefine-sym Tcl_Init=Tcl_InitReal __TMP__/tclInterp.o
+	$(AR) cr libtclkit@KITDLL_LIB_VERSION@.a.new $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS) __TMP__/*.o
+	rm -rf __TMP__
+	$(RANLIB) libtclkit@KITDLL_LIB_VERSION@.a.new
+	mv libtclkit@KITDLL_LIB_VERSION@.a.new libtclkit@KITDLL_LIB_VERSION@.a
 
 # Test driver
 tclsh.o: tclsh.c
-tclsh: tclsh.o $(EXTRA_OBJS) libtclkit@KITDLL_LIB_VERSION@.@SHOBJEXT@
+tclsh: tclsh.o $(EXTRA_OBJS) @TARGET@
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o tclsh tclsh.o $(EXTRA_OBJS) -L. -ltclkit@KITDLL_LIB_VERSION@ $(LDRUNPATH)
 
 wish.o: wish.c

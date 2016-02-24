@@ -19,7 +19,7 @@ AC_ARG_ENABLE(kitdll, AC_HELP_STRING([--enable-kitdll], [Enable building KitDLL 
 		],
 		static, [
 			TARGET="kitdll-static"
-		]
+		],
 		no, [
 			true
 		], [
@@ -38,11 +38,14 @@ AC_SEARCH_LIBS(dlsym, dl,, [ AC_MSG_WARN([Couldn't find dlsym (normally in libdl
 
 AS_IF([test "$TARGET" = "tclkit"], [
 	dnl We have Tclkit
+	TARGET_BASE='tclkit'
 
 	dnl Specify local Appinit function
 	AC_DEFINE(TK_LOCAL_APPINIT, [TclKit_AppInit], [Tclkit appinit function])
+
 ], [
 	dnl We have KitDLL
+	TARGET_BASE='kitdll'
 
 	dnl Determine system information
 	DC_CHK_OS_INFO
@@ -58,8 +61,10 @@ AS_IF([test "$TARGET" = "tclkit"], [
 
 	dnl Define a static KitDLL
 	AS_IF([test "$TARGET" = "kitdll-static"], [
+		AC_CHECK_TOOL(RANLIB, [ranlib], [:])
+		AC_CHECK_TOOL(AR, [ar], [false MISSING AR])
+
 		AC_DEFINE([TCLKIT_DLL_STATIC], [1], [Define if you are building a static KitDLL])
-		SHOBJE
 	])
 ])
 
@@ -211,7 +216,7 @@ AC_SUBST(LDFLAGS_ADD)
 
 dnl Put correct Makefile template in place
 rm -f Makefile.in
-cp Makefile.${TARGET}.in Makefile.in
+cp Makefile.${TARGET_BASE}.in Makefile.in
 
 dnl Produce output
 AC_OUTPUT(Makefile Makefile.common)
