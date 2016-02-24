@@ -81,11 +81,11 @@ if [ ! -f "${SRC}" ]; then
 			mkdir "${workdir}" || exit 1
 			cd "${workdir}" || exit 1
 
-			wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-tk.tar.gz'
+			download "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILTAG}" "tmp-tk.tar.gz" - || rm -f 'tmp-tk.tar.gz'
 			gzip -dc "tmp-tk.tar.gz" | tar -xf - || rm -f 'tmp-tk.tar.gz'
 
 			if [ ! -s 'tmp-tk.tar.gz' ]; then
-				wget -O "tmp-tk.tar.gz" "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f 'tmp-tk.tar.gz'
+				download "http://core.tcl.tk/tk/tarball/tk-fossil.tar.gz?uuid=${FOSSILDATE}" "tmp-tk.tar.gz" - || rm -f 'tmp-tk.tar.gz'
 				gzip -dc "tmp-tk.tar.gz" | tar -xf -
 			fi
 
@@ -98,9 +98,7 @@ if [ ! -f "${SRC}" ]; then
 		)
 	else
 		if [ ! -d 'buildsrc' ]; then
-			rm -f "${SRC}.tmp"
-			wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-			mv "${SRC}.tmp" "${SRC}"
+			download "${SRCURL}" "${SRC}" - || exit 1
 		fi
 	fi
 fi

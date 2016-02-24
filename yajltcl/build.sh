@@ -38,15 +38,11 @@ if [ ! -d 'buildsrc' ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -f "${SRC}" ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" - || exit 1
 	fi
 
 	if [ ! -f "${YAJLSRC}" ]; then
-		rm -f "${YAJLSRC}.tmp"
-		wget -O "${YAJLSRC}.tmp" "${YAJLSRCURL}" || exit 1
-		mv "${YAJLSRC}.tmp" "${YAJLSRC}"
+		download "${YAJLSRCURL}" "${YAJLSRC}" - || exit 1
 	fi
 fi
 
