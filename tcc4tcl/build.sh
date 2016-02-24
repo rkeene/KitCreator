@@ -14,6 +14,7 @@ fi
 TCC4TCLVERS="0.23"
 SRC="src/tcc4tcl-${TCC4TCLVERS}.tar.gz"
 SRCURL="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${TCC4TCLVERS}.tar.gz"
+SRCHASH='-'
 BUILDDIR="$(pwd)/build/tcc4tcl-${TCC4TCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -40,7 +41,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		download "${SRCURL}" "${SRC}.tmp" - || exit 1
+		download "${SRCURL}" "${SRC}.tmp" "${SRCHASH}" || exit 1
 	fi
 fi
 

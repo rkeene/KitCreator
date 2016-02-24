@@ -3,6 +3,7 @@
 TCLLIB_VERS='1.16'
 SRC="src/tcllib-${TCLLIB_VERS}.tar.bz2"
 SRCURL="http://sourceforge.net/projects/tcllib/files/tcllib/${TCLLIB_VERS}/tcllib-${TCLLIB_VERS}.tar.bz2"
+SRCHASH='-'
 BUILDDIR="$(pwd)/build/Tcllib-${TCLLIB_VERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -16,7 +17,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		download "${SRCURL}" "${SRC}" - || exit 1
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 

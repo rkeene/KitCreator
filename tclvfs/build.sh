@@ -14,6 +14,7 @@ fi
 TCLVFSVERS="20080503"
 SRC="src/tclvfs-${TCLVFSVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/tclvfs/files/tclvfs/tclvfs-${TCLVFSVERS}/tclvfs-${TCLVFSVERS}.tar.gz/download"
+SRCHASH='0d90362078c8f59347b14be377e9306336b6d25d147397f845e705a6fa1d38f2'
 BUILDDIR="$(pwd)/build/tclvfs-${TCLVFSVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -40,7 +41,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		download "${SRCURL}" "${SRC}" - || exit 1
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 

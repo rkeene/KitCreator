@@ -15,6 +15,7 @@ ITCLVERS="3.4.2"
 ITCLVERSEXTRA=""
 SRC="src/itcl-${ITCLVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/incrtcl/files/%5BIncr%20Tcl_Tk%5D-source/${ITCLVERS}/itcl${ITCLVERS}${ITCLVERSEXTRA}.tar.gz/download"
+SRCHASH='-'
 BUILDDIR="$(pwd)/build/itcl${ITCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -59,7 +60,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		download "${SRCURL}" "${SRC}" - || exit 1
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 

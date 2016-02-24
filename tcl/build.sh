@@ -13,12 +13,19 @@ fi
 
 SRC="src/tcl${TCLVERS}.tar.gz"
 SRCURL="http://prdownloads.sourceforge.net/tcl/tcl${TCLVERS}-src.tar.gz"
+SRCHASH='-'
 BUILDDIR="$(pwd)/build/tcl${TCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
 PATCHSCRIPTDIR="$(pwd)/patchscripts"
 PATCHDIR="$(pwd)/patches"
 export SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
+
+case "${TCLVERS}" in
+	8.6.4)
+		SRCHASH='9e6ed94c981c1d0c5f5fefb8112d06c6bf4d050a7327e95e71d417c416519c8d'
+		;;
+esac
 
 # Set configure options for this sub-project
 LDFLAGS="${LDFLAGS} ${KC_TCL_LDFLAGS}"
@@ -151,7 +158,7 @@ if [ ! -f "${SRC}" ]; then
 		) || exit 1
 	else
 		if [ ! -d 'buildsrc' ]; then
-			download "${SRCURL}" "${SRC}" - || (
+			download "${SRCURL}" "${SRC}" "${SRCHASH}" || (
 				echo '  Unable to download source code for Tcl.' >&4
 				echo '  Aborting Tcl -- further packages will likely also fail.' >&4
 
