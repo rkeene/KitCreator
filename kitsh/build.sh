@@ -115,7 +115,11 @@ mkdir 'out' 'inst' || exit 1
 
 	# Determine if target is KitDLL or KitSH
 	if [ "${KITTARGET}" = "kitdll" ]; then
-		CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll=static"
+		if [ "${KITCREATOR_STATIC_KITDLL}" = '1' ]; then
+			CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll=static"
+		else
+			CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll"
+		fi
 	fi
 
 	# Compile Kit
