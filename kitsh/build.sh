@@ -115,7 +115,7 @@ mkdir 'out' 'inst' || exit 1
 
 	# Determine if target is KitDLL or KitSH
 	if [ "${KITTARGET}" = "kitdll" ]; then
-		CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll"
+		CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll=static"
 	fi
 
 	# Compile Kit
@@ -168,7 +168,7 @@ mkdir 'out' 'inst' || exit 1
 				continue
 			fi
 
-			if echo "${chkkittarget}" | egrep '\.(lib|def|a)$'; then
+			if echo "${chkkittarget}" | egrep '\..*\.(lib|def|a)$'; then
 				continue
 			fi
 

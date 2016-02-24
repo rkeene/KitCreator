@@ -17,6 +17,9 @@ AC_ARG_ENABLE(kitdll, AC_HELP_STRING([--enable-kitdll], [Enable building KitDLL 
 		[yes|kitdll], [
 			TARGET="kitdll"
 		],
+		static, [
+			TARGET="kitdll-static"
+		]
 		no, [
 			true
 		], [
@@ -27,6 +30,7 @@ AC_ARG_ENABLE(kitdll, AC_HELP_STRING([--enable-kitdll], [Enable building KitDLL 
 	)
 ])
 AC_MSG_RESULT([$TARGET])
+AC_SUBST(TARGET)
 
 dnl Find the appropriate libraries to link to
 AC_SEARCH_LIBS(acos, m,, [ AC_MSG_WARN([Couldn't find acos (normally in libm)!]) ])
@@ -51,6 +55,12 @@ AS_IF([test "$TARGET" = "tclkit"], [
 
 	dnl Define KitDLL usage
 	AC_DEFINE([TCLKIT_DLL], [1], [Define if you are using a KitDLL rather than a Tclkit])
+
+	dnl Define a static KitDLL
+	AS_IF([test "$TARGET" = "kitdll-static"], [
+		AC_DEFINE([TCLKIT_DLL_STATIC], [1], [Define if you are building a static KitDLL])
+		SHOBJE
+	])
 ])
 
 dnl Figure out how to statically link to libgcc, if needed
