@@ -19,6 +19,7 @@
 	set tcl_versions(8.5.16) 8.5.16
 	set tcl_versions(8.5.17) 8.5.17
 	set tcl_versions(8.5.18) 8.5.18
+	set tcl_versions(8.5.19) 8.5.19
 	set tcl_versions(8.6.1) 8.6.1
 	set tcl_versions(8.6.2) 8.6.2
 	set tcl_versions(8.6.3) 8.6.3
