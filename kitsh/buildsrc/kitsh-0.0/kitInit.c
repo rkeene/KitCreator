@@ -209,7 +209,7 @@ static char *preInitCmd =
 	"set ::TCLKIT_TYPE \"tclkit\"\n"
 #endif /* TCLKIT_DLL */
 	"set ::TCLKIT_MOUNTPOINT " TCLKIT_MOUNTPOINT "\n"
-	"set ::TCLKIT_VFSSOURCE " TCLKIT_VFSSOURCE "\n"
+	"catch { set ::TCLKIT_VFSSOURCE " TCLKIT_VFSSOURCE " }\n"
 	"set ::TCLKIT_MOUNTPOINT_VAR {" TCLKIT_MOUNTPOINT "}\n"
 	"set ::TCLKIT_VFSSOURCE_VAR {" TCLKIT_VFSSOURCE "}\n"
 	"uplevel #0 $s\n"
