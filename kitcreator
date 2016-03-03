@@ -22,7 +22,7 @@ fi
 export TCLVERS
 
 # Add the helpers directory to the path
-PATH="$(dirname "$(which "$0")")"/common/helpers:"${PATH}"
+PATH="$(cd "$(dirname "$(which "$0")")" && pwd)"/common/helpers:"${PATH}"
 export PATH
 
 # Verify that "pre.sh" has been run if this is a development snapshot of

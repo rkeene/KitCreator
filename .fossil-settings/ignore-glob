@@ -146,4 +146,4 @@ kitdll/buildsrc/kitdll-0.0/vfs_kitdll.tcl.h
 kitdll/build/kitdll-*
 kitdll/build/kitdll-*/*
 kitdll/build.log
-libtclkit-*.*
+libtclkit*.*

@@ -4,4 +4,4 @@ CC='gcc -arch x86_64'
 CXX='g++ -arch x86_64'
 export CC CXX
 
-./build/make-kit-powermacg5 "$@" --enable-aqua --host=x86_64-apple-darwin9
+./build/make-kit-remote buildb.wu.ac.at "$@" --enable-aqua --host=x86_64-apple-darwin9
