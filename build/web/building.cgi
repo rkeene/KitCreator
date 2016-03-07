@@ -74,6 +74,11 @@ if {[info exists buildinfo]} {
 					append description ", Statically linked to LibSSL"
 				}
 			}
+			"staticpkgs" {
+				if {$value} {
+					append description ", With Tcl 8.6+ pkgs/ directory all packages statically linked in"
+				}
+			}
 			"storage" {
 				switch -- $value {
 					"mk4" {
