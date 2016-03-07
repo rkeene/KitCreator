@@ -366,8 +366,8 @@
             <input type="checkbox" name="option_kitdll" id="option_kitdll">Kit: Build Library (KitDLL)<br>
             <input type="checkbox" name="option_dynamictk" id="option_dynamictk">Kit: Always link Tk dynamically (if Tk is built)<br>
             <input type="checkbox" name="option_minbuild">Kit: "Minimal" build (remove extra packages shipped as part of Tcl and reduce encodings)<br>
-            <input type="checkbox" name="option_staticlibssl">TLS: Statically link to LibSSL<br>
-            <input type="checkbox" name="option_staticpkgs">Kit: Statically link packages in pkgs directory
+            <input type="checkbox" name="option_staticpkgs">Kit: Statically link packages in pkgs directory<br>
+            <input type="checkbox" name="option_staticlibssl">TLS: Statically link to LibSSL
           </td>
         </tr>
 	<tr>
