@@ -1,5 +1,5 @@
 #!/usr/bin/env tclsh
-# KitCreator downloader v0.2.0 -- download Tclkits created with the KitCreator
+# KitCreator downloader v0.2.1 -- download Tclkits created with the KitCreator
 # Web Interface. Works with Tcl 8.5+ and Jim Tcl v0.75+.
 # Copyright (C) 2016, dbohdan.
 # License: MIT.
@@ -37,6 +37,7 @@ proc download url {
 
     puts "Downloading $tclkit to $filename..."
     exec curl -o $filename $tclkit >@ stdout 2>@ stderr
+    file attributes $filename -permissions +x
 }
 
 set url [lindex $argv 0]
