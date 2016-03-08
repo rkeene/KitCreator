@@ -1,5 +1,5 @@
 #!/usr/bin/env tclsh
-# KitCreator downloader v0.2.2 -- download Tclkits created with the KitCreator
+# Tclkit Downloader v0.2.2 -- download Tclkits created with the KitCreator
 # Web Interface. Works with Tcl 8.5+ and Jim Tcl v0.75+. This script requires
 # that cURL be available through [exec curl].
 # Copyright (C) 2016, dbohdan.
