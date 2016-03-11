@@ -56,7 +56,7 @@ fi
 
 	# Determine SSL directory
 	if [ -z "${CPP}" ]; then
-		CPP="${CC} -E"
+		CPP="${CC:-cc} -E"
 	fi
 
 	if [ -n "${KC_TLS_SSLDIR}" ]; then
