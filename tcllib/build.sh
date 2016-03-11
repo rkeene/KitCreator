@@ -3,7 +3,7 @@
 TCLLIB_VERS='1.16'
 SRC="src/tcllib-${TCLLIB_VERS}.tar.bz2"
 SRCURL="http://sourceforge.net/projects/tcllib/files/tcllib/${TCLLIB_VERS}/tcllib-${TCLLIB_VERS}.tar.bz2"
-SRCHASH='-'
+SRCHASH='033334306d3ffc499c8830d393bf7528227e49c68077b3e9247c4171b15be012'
 BUILDDIR="$(pwd)/build/Tcllib-${TCLLIB_VERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"

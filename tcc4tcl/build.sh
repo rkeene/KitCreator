@@ -14,7 +14,7 @@ fi
 TCC4TCLVERS="0.23"
 SRC="src/tcc4tcl-${TCC4TCLVERS}.tar.gz"
 SRCURL="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${TCC4TCLVERS}.tar.gz"
-SRCHASH='-'
+SRCHASH='0fe767391f16af59a81c0401adcad957d92155cfca38084157a939e0d62521dd'
 BUILDDIR="$(pwd)/build/tcc4tcl-${TCC4TCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"

@@ -14,7 +14,7 @@ fi
 TLSVERS="1.6.7"
 SRC="src/tls-${TLSVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/tls/files/tls/${TLSVERS}/tls${TLSVERS}-src.tar.gz"
-SRCHASH='-'
+SRCHASH='5119de3e5470359b97a8a00d861c9c48433571ee0167af0a952de66c99d3a3b8'
 BUILDDIR="$(pwd)/build/tls${TLSVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
