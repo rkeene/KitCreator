@@ -11,10 +11,10 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-TCC4TCLVERS="0.23"
+TCC4TCLVERS="0.24"
 SRC="src/tcc4tcl-${TCC4TCLVERS}.tar.gz"
 SRCURL="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${TCC4TCLVERS}.tar.gz"
-SRCHASH='0fe767391f16af59a81c0401adcad957d92155cfca38084157a939e0d62521dd'
+SRCHASH='abaed0ef9bd4825d3b6c96e1d1d795f45b264ccbe1f5df1e8ef6ef8346b12eb5'
 BUILDDIR="$(pwd)/build/tcc4tcl-${TCC4TCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
