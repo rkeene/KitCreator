@@ -23,7 +23,7 @@ libtclkit@KITDLL_LIB_VERSION@.a: $(OBJS) $(EXTRA_KIT_DEPS) $(EXTRA_OBJS) $(EXTRA
 	rm -rf __TMP__
 	mkdir __TMP__
 	for arch in $(ARCHS); do ( cd __TMP__ && ar x ../$${arch} ); done
-	$(OBJCOPY) --redefine-sym Tcl_Init=Tcl_InitReal __TMP__/tclInterp.o
+	$(OBJCOPY) --redefine-sym Tcl_Init=Tcl_InitReal --redefine-sym _Tcl_Init=_Tcl_InitReal __TMP__/tclInterp.o
 	$(AR) cr libtclkit@KITDLL_LIB_VERSION@.a.new $(OBJS) $(EXTRA_OBJS) $(EXTRA_VFS_OBJS) __TMP__/*.o
 	rm -rf __TMP__
 	$(RANLIB) libtclkit@KITDLL_LIB_VERSION@.a.new
