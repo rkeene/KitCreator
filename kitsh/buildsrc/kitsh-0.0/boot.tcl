@@ -165,19 +165,26 @@ proc tclInit {} {
 		# Now that the initialization is complete, mount the user VFS if needed
 		## Mount the VFS from the Shared Object
 		if {[info exists ::TCLKIT_INITVFS] && [info exists ::tclKitFilename]} {
-			catch {
+			if {![catch {
 				vfs::zip::Mount $::tclKitFilename "/.KITDLL_USER"
+			}]} {
+				if {[file exists "/.KITDLL_USER"]} {
+					lappend auto_path [file normalize "/.KITDLL_USER/lib"]
+				}
 			}
 		}
-		lappend auto_path "/.KITDLL_USER/lib"
+
 
 		## Mount the VFS from executable
 		if {[info exists ::TCLKIT_INITVFS]} {
-			catch {
+			if {![catch {
 				vfs::zip::Mount [info nameofexecutable] "/.KITDLL_APP"
+			}]} {
+				if {[file exists "/.KITDLL_APP"]} {
+					lappend auto_path [file normalize "/.KITDLL_APP/lib"]
+				}
 			}
 		}
-		lappend auto_path "/.KITDLL_APP/lib"
 	}
 
 	# Clean up
