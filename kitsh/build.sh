@@ -36,7 +36,7 @@ mkdir 'out' 'inst' || exit 1
 
 
 (
-	cp -r 'buildsrc' 'build'
+	cp -rp 'buildsrc' 'build'
 	cd "${BUILDDIR}" || exit 1
 
 	# Fix up archives that Tcl gets wrong
