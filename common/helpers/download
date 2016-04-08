@@ -89,7 +89,7 @@ function verifyHash() {
 		return 0
 	fi
 
-	checkHash="$(openssl "${hashMethod}" "${file}" | sed 's@.*= *@@')"
+	checkHash="$(openssl dgst "-${hashMethod}" "${file}" | sed 's@.*= *@@')"
 
 	if [ "${checkHash}" = "${hash}" ]; then
 		return 0
