@@ -1,8 +1,9 @@
 #! /usr/bin/env bash
 
-if [ ! -x "$(which patch 2>/dev/null)" ]; then
-	echo "No \"patch\" command."
-	echo "No \"patch\" command." >&4
+PATCH="${PATCH:-patch}"
+if [ ! -x "$(which "${PATCH}" 2>/dev/null)" ]; then
+	echo "No \"${PATCH}\" command (for patch)."
+	echo "No \"${PATCH}\" command (for patch)." >&4
 
 	exit 1
 fi
