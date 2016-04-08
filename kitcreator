@@ -162,6 +162,33 @@ for testsh in "${TCLSH_NATIVE}" tclsh tclsh8.4 tclsh8.5 tclsh8.6 "${TCLKIT:-tclk
 done
 export TCLSH_NATIVE
 
+# Verify that each component is happy with the environment
+validatefailed="0"
+for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
+	failed='0'
+	if [ -f "${pkg}/.success" ]; then
+		continue
+	fi
+
+	if [ -x "${pkg}/validate.sh" ]; then
+		(
+			cd "${pkg}" >/dev/null 2>/dev/null || exit 1
+
+			./validate.sh 3>&1 4>&2 > build.log 2>&1 || exit 1
+		) || failed="1"
+
+		if [ "${failed}" = '1' ]; then
+			echo "Failed pre-requisite check for ${pkg}" >&2
+
+			validatefailed='1'
+		fi
+	fi
+done
+
+if [ "${validatefailed}" = '1' ]; then
+	exit 1
+fi
+
 # Do build
 failedpkgs=""
 buildfailed="0"
