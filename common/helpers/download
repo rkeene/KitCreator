@@ -46,21 +46,21 @@ function downloadFile() {
 	local file urls
 	local downloadProgramArgs
 	local url
-	local finalURL
+	local authoritativeURL
 
 	file="$1"
 	shift
 
 	urls=("$@")
 
-	finalURL="${urls[-1]}"
+	authoritativeURL="${urls[@]: -1}"
 
 	case "${downloadProgram}" in
 		curl)
-			downloadProgramArgs=(--header "X-Cache-URL: ${finalURL}" --location --insecure --fail --output "${file}")
+			downloadProgramArgs=(--header "X-Cache-URL: ${authoritativeURL}" --location --insecure --fail --output "${file}")
 			;;
 		wget)
-			downloadProgramArgs=(--header="X-Cache-URL: ${finalURL}" --no-check-certificate --output-document="${file}")
+			downloadProgramArgs=(--header="X-Cache-URL: ${authoritativeURL}" --no-check-certificate --output-document="${file}")
 			;;
 	esac
 
