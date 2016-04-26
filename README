@@ -151,6 +151,12 @@ Environment variables:
 		This only has an affect when KITCREATOR_PKGS specifies that
 		"kitdll" is to be built (e.g., KITCREATOR_PKGS='kitdll')
 
+	12. KITCREATOR_ITCL3_FORCE
+		Set this variable to the value "1" to build [incr Tcl] version
+		3.x even with Tcl 8.6+.  Note that [incr Tcl] 4.x will still
+		be built as part of Tcl 8.6+ (unless excluded using
+		KITCREATOR_MINBUILD).
+
 
 Cross compiling Environment Variables:
 

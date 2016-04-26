@@ -11,11 +11,11 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
-ITCLVERS="3.4.2"
+ITCLVERS="3.4.3"
 ITCLVERSEXTRA=""
 SRC="src/itcl-${ITCLVERS}.tar.gz"
-SRCURL="http://sourceforge.net/projects/incrtcl/files/%5BIncr%20Tcl_Tk%5D-source/${ITCLVERS}/itcl${ITCLVERS}${ITCLVERSEXTRA}.tar.gz/download"
-SRCHASH='-'
+SRCURL="http://sourceforge.net/projects/incrtcl/files/%5BIncr%20Tcl_Tk%5D-source/Itcl%20${ITCLVERS}/itcl${ITCLVERS}${ITCLVERSEXTRA}.tar.gz/download"
+SRCHASH='28b55f44a2fd450862a6f12982c00c1d03d767f62a834d83945a616e06068887'
 BUILDDIR="$(pwd)/build/itcl${ITCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -33,6 +33,11 @@ mkdir 'build' 'out' 'inst' || exit 1
 
 # Determine if Itcl is even needed
 (
+	# Always build if we are being forced to build
+	if [ "${KITCREATOR_ITCL3_FORCE}" = '1' ]; then
+		exit 0
+	fi
+
 	TCL_VERSION="unknown"
 	if [ -f "${TCLCONFIGDIR}/tclConfig.sh" ]; then
 		source "${TCLCONFIGDIR}/tclConfig.sh"
