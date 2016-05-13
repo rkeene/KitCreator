@@ -114,6 +114,11 @@ foreach line [split $data "\n"] {
 					set ::env(KC_TCL_STATICPKGS) 1
 				}
 			}
+			"tclutfmax6" {
+				if {$value} {
+					set ::env(KC_TCL_UTF_MAX) 6
+				}
+			}
 			"staticmk4" {
 			}
 		}
@@ -132,7 +137,7 @@ foreach line [split $data "\n"] {
 		set fd [open "${outfile}.log" w+]
 		puts $fd "Running: export KITCREATOR_PKGS=\"$::env(KITCREATOR_PKGS)\""
 
-		foreach variable [list STRIP STATICTK KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD KC_TLS_LINKSSLSTATIC KC_TCL_STATICPKGS] {
+		foreach variable [list STRIP STATICTK KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD KC_TLS_LINKSSLSTATIC KC_TCL_STATICPKGS KC_TCL_UTF_MAX] {
 			if {[info exists ::env($variable)]} {
 				puts $fd "Running: export $variable=\"$::env($variable)\""
 			}

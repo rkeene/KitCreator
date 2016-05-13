@@ -127,6 +127,9 @@
 				"option_staticpkgs" {
 					set build_options(staticpkgs) 1
 				}
+				"option_tclutfmax6" {
+					set build_options(tclutfmax6) 1
+				}
 				"option_storage" {
 					switch -- $args($arg) {
 						"mk4" - "zip" - "cvfs" {
@@ -367,6 +370,7 @@
             <input type="checkbox" name="option_dynamictk" id="option_dynamictk">Kit: Always link Tk dynamically (if Tk is built)<br>
             <input type="checkbox" name="option_minbuild">Kit: "Minimal" build (remove extra packages shipped as part of Tcl and reduce encodings)<br>
             <input type="checkbox" name="option_staticpkgs">Kit: Statically link packages in pkgs directory<br>
+            <input type="checkbox" name="option_tclutfmax6">Kit: TCL_UTF_MAX=6 (incompatibility with standard Tcl)<br>
             <input type="checkbox" name="option_staticlibssl">TLS: Statically link to LibSSL
           </td>
         </tr>
