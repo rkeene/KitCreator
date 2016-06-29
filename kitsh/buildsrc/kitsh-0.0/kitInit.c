@@ -209,7 +209,7 @@ static char *preInitCmd =
 	"set ::TCLKIT_TYPE \"tclkit\"\n"
 #endif /* TCLKIT_DLL */
 	"set ::TCLKIT_MOUNTPOINT " TCLKIT_MOUNTPOINT "\n"
-	"set ::TCLKIT_VFSSOURCE " TCLKIT_VFSSOURCE "\n"
+	"catch { set ::TCLKIT_VFSSOURCE " TCLKIT_VFSSOURCE " }\n"
 	"set ::TCLKIT_MOUNTPOINT_VAR {" TCLKIT_MOUNTPOINT "}\n"
 	"set ::TCLKIT_VFSSOURCE_VAR {" TCLKIT_VFSSOURCE "}\n"
 	"uplevel #0 $s\n"
@@ -571,9 +571,27 @@ void __attribute__((constructor)) _Tclkit_Init(void) {
 #else
 static void _Tclkit_Init(void) {
 #endif
+	static int called = 0;
+
+	if (called) {
+		return;
+	}
+
+	called = 1;
+
 	Tcl_StaticPackage(0, "tclkit::init", Tclkit_init_Init, NULL);
 
 	_Tclkit_Generic_Init();
 
 	return;
 }
+
+#if defined(TCLKIT_DLL) && defined(TCLKIT_DLL_STATIC)
+int Tcl_InitReal(Tcl_Interp *interp);
+
+int Tcl_Init(Tcl_Interp *interp) {
+	_Tclkit_Init();
+
+	return(Tcl_InitReal(interp));
+}
+#endif

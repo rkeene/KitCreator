@@ -36,7 +36,7 @@ mkdir 'out' 'inst' || exit 1
 
 
 (
-	cp -r 'buildsrc' 'build'
+	cp -rp 'buildsrc' 'build'
 	cd "${BUILDDIR}" || exit 1
 
 	# Fix up archives that Tcl gets wrong
@@ -115,7 +115,11 @@ mkdir 'out' 'inst' || exit 1
 
 	# Determine if target is KitDLL or KitSH
 	if [ "${KITTARGET}" = "kitdll" ]; then
-		CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll"
+		if [ "${KITCREATOR_STATIC_KITDLL}" = '1' ]; then
+			CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll=static"
+		else
+			CONFIGUREEXTRA="${CONFIGUREEXTRA} --enable-kitdll"
+		fi
 	fi
 
 	# Compile Kit
@@ -168,7 +172,7 @@ mkdir 'out' 'inst' || exit 1
 				continue
 			fi
 
-			if echo "${chkkittarget}" | egrep '\.(lib|def|a)$'; then
+			if echo "${chkkittarget}" | egrep '\..*\.(lib|def|a)$'; then
 				continue
 			fi
 

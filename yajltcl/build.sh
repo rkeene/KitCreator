@@ -16,7 +16,9 @@ YAJLVERS='2.1.0'
 SRC="src/yajltcl-${YAJLTCLVERS}.tar.gz"
 YAJLSRC="src/yajl-${YAJLVERS}.tar.gz"
 SRCURL="https://github.com/flightaware/yajl-tcl/archive/v${YAJLTCLVERS}.tar.gz"
+SRCHASH='-'
 YAJLSRCURL="http://github.com/lloyd/yajl/tarball/${YAJLVERS}"
+YAJLSRCHASH='-'
 BUILDDIR="$(pwd)/build/yajl-tcl-${YAJLTCLVERS}"
 YAJLBUILDDIR="$(pwd)/build/lloyd-yajl-66cb08c"
 OUTDIR="$(pwd)/out"
@@ -38,15 +40,11 @@ if [ ! -d 'buildsrc' ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -f "${SRC}" ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 
 	if [ ! -f "${YAJLSRC}" ]; then
-		rm -f "${YAJLSRC}.tmp"
-		wget -O "${YAJLSRC}.tmp" "${YAJLSRCURL}" || exit 1
-		mv "${YAJLSRC}.tmp" "${YAJLSRC}"
+		download "${YAJLSRCURL}" "${YAJLSRC}" "${YAJLSRCHASH}" || exit 1
 	fi
 fi
 

@@ -14,6 +14,7 @@ fi
 TCLXVERS="8.4.1"
 SRC="src/tclx${TCLXVERS}.tar.bz2"
 SRCURL="http://sourceforge.net/projects/tclx/files/TclX/${TCLXVERS}/tclx${TCLXVERS}.tar.bz2/download"
+SRCHASH='-'
 BUILDDIR="$(pwd)/build/tclx8.4"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -40,9 +41,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 

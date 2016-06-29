@@ -14,6 +14,7 @@ fi
 ZLIBVERS="1.2.8"
 SRC="src/zlib-${ZLIBVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERS}/zlib-${ZLIBVERS}.tar.gz/download"
+SRCHASH='36658cb768a54c1d4dec43c3116c27ed893e88b02ecfcb44f2166f9c0b7f2a0d'
 BUILDDIR="$(pwd)/build/zlib-${ZLIBVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -33,9 +34,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 

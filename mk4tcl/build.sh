@@ -15,6 +15,7 @@ MK4VERS="2.4.9.7"
 SRC="src/metakit-${MK4VERS}.tar.gz"
 SRCURL="http://www.equi4.com/pub/mk/metakit-${MK4VERS}.tar.gz"
 SRCURL="http://pkgs.fedoraproject.org/repo/pkgs/metakit/metakit-${MK4VERS}.tar.gz/17330257376eea657827ed632ea62c9e/metakit-${MK4VERS}.tar.gz"
+SRCHASH='d1ba361d2d8517925cff5c23e8602822da9c8c347a75a15c225ec656ff7ca94d'
 BUILDDIR="$(pwd)/build/metakit-${MK4VERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -42,9 +43,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 

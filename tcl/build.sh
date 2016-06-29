@@ -13,12 +13,19 @@ fi
 
 SRC="src/tcl${TCLVERS}.tar.gz"
 SRCURL="http://prdownloads.sourceforge.net/tcl/tcl${TCLVERS}-src.tar.gz"
+SRCHASH='-'
 BUILDDIR="$(pwd)/build/tcl${TCLVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
 PATCHSCRIPTDIR="$(pwd)/patchscripts"
 PATCHDIR="$(pwd)/patches"
 export SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHSCRIPTDIR PATCHDIR
+
+case "${TCLVERS}" in
+	8.6.4)
+		SRCHASH='9e6ed94c981c1d0c5f5fefb8112d06c6bf4d050a7327e95e71d417c416519c8d'
+		;;
+esac
 
 # Set configure options for this sub-project
 LDFLAGS="${LDFLAGS} ${KC_TCL_LDFLAGS}"
@@ -65,7 +72,7 @@ if [ ! -f "${SRC}" ]; then
 			cd "${workdir}" || exit 1
 
 			# Handle Tcl first, since it will be used to base other packages on
-			wget -O "tmp-tcl.tar.gz" "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${FOSSILTAG}" || rm -f 'tmp-tcl.tar.gz'
+			download "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${FOSSILTAG}" "tmp-tcl.tar.gz" - || rm -f 'tmp-tcl.tar.gz'
 			gzip -dc 'tmp-tcl.tar.gz' | tar -xf -
 			mv "tcl-fossil" "tcl${TCLVERS}"
 
@@ -83,9 +90,9 @@ if [ ! -f "${SRC}" ]; then
 			fi
 
 			# Handle other packages
-			wget -O "tmp-itcl.tar.gz" "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f 'tmp-itcl.tar.gz'
-			wget -O "tmp-thread.tar.gz" "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-thread.tar.gz"
-			wget -O "tmp-tclconfig.tar.gz" "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-tclconfig.tar.gz"
+			download "http://core.tcl.tk/itcl/tarball/itcl-fossil.tar.gz?uuid=${FOSSILDATE}" "tmp-itcl.tar.gz" - || rm -f 'tmp-itcl.tar.gz'
+			download "http://core.tcl.tk/thread/tarball/thread-fossil.tar.gz?uuid=${FOSSILDATE}" "tmp-thread.tar.gz" - || rm -f "tmp-thread.tar.gz"
+			download "http://core.tcl.tk/tclconfig/tarball/tclconfig-fossil.tar.gz?uuid=${FOSSILDATE}" "tmp-tclconfig.tar.gz" - || rm -f "tmp-tclconfig.tar.gz"
 			if [ "${FOSSILDATE}" = "trunk" ] || [ "$(echo "${FOSSILDATE}" | cut -f 1 -d '-')" -ge '2012' ]; then
 				_USE_TDBC='1'
 				_USE_SQLITE='1'
@@ -93,11 +100,11 @@ if [ ! -f "${SRC}" ]; then
 			fi
 
 			if [ "${_USE_TDBC}" = '1' ]; then
-				wget -O "tmp-tdbc.tar.gz" "http://core.tcl.tk/tdbc/tarball/tdbc-fossil.tar.gz?uuid=${FOSSILDATE}" || rm -f "tmp-tdbc.tar.gz"
+				download "http://core.tcl.tk/tdbc/tarball/tdbc-fossil.tar.gz?uuid=${FOSSILDATE}" "tmp-tdbc.tar.gz" - || rm -f "tmp-tdbc.tar.gz"
 			fi
 
 			if [ "${_USE_SQLITE}" = '1' ]; then
-				wget -O "tmp-sqlite3.tar.gz" "http://www.sqlite.org/sqlite-autoconf-${SQLITEVERS}.tar.gz" || rm -f "tmp-sqlite3.tar.gz"
+				download "http://www.sqlite.org/sqlite-autoconf-${SQLITEVERS}.tar.gz" "tmp-sqlite3.tar.gz" - || rm -f "tmp-sqlite3.tar.gz"
 			fi
 
 			gzip -dc "tmp-itcl.tar.gz" | tar -xf -
@@ -151,18 +158,12 @@ if [ ! -f "${SRC}" ]; then
 		) || exit 1
 	else
 		if [ ! -d 'buildsrc' ]; then
-			rm -f "${SRC}.tmp"
-			wget -O "${SRC}.tmp" "${SRCURL}" || (
+			download "${SRCURL}" "${SRC}" "${SRCHASH}" || (
 				echo '  Unable to download source code for Tcl.' >&4
-				echo "  Attempted to run:  wget -O \"${SRC}.tmp\" \"${SRCURL}\"" >&4
-				echo "  Got:"
-				wget -O "${SRC}.tmp" "${SRCURL}" 2>&1 | sed 's@^@    @' >&4
-
 				echo '  Aborting Tcl -- further packages will likely also fail.' >&4
 
 				exit 1
 			) || exit 1
-			mv "${SRC}.tmp" "${SRC}"
 		fi
 	fi
 fi

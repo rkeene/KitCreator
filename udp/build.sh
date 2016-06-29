@@ -14,6 +14,7 @@ fi
 TCLUDPVERS="1.0.11"
 SRC="src/tcludp-${TCLUDPVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/tcludp/files/tcludp/${TCLUDPVERS}/tcludp-${TCLUDPVERS}.tar.gz"
+SRCHASH='a8a29d55a718eb90aada643841b3e0715216d27cea2e2df243e184edb780aa9d'
 BUILDDIR="$(pwd)/build/tcludp"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -40,9 +41,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 

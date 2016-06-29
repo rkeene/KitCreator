@@ -13,13 +13,17 @@ case "$1" in
 esac
 
 # Determine which Tcl version to build
-TCLVERS="8.6.4"
+TCLVERS="8.6.5"
 if echo "$1" | grep '^[0-9][0-9]*\.' >/dev/null || echo "$1" | egrep '^(cvs|fossil)_' >/dev/null; then
 	TCLVERS="$1"
 
 	shift
 fi
 export TCLVERS
+
+# Add the helpers directory to the path
+PATH="$(cd "$(dirname "$(which "$0")")" && pwd)"/common/helpers:"${PATH}"
+export PATH
 
 # Verify that "pre.sh" has been run if this is a development snapshot of
 # KitCreator
@@ -157,6 +161,33 @@ for testsh in "${TCLSH_NATIVE}" tclsh tclsh8.4 tclsh8.5 tclsh8.6 "${TCLKIT:-tclk
 	fi
 done
 export TCLSH_NATIVE
+
+# Verify that each component is happy with the environment
+validatefailed="0"
+for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
+	failed='0'
+	if [ -f "${pkg}/.success" ]; then
+		continue
+	fi
+
+	if [ -x "${pkg}/validate.sh" ]; then
+		(
+			cd "${pkg}" >/dev/null 2>/dev/null || exit 1
+
+			./validate.sh 3>&1 4>&2 > build.log 2>&1 || exit 1
+		) || failed="1"
+
+		if [ "${failed}" = '1' ]; then
+			echo "Failed pre-requisite check for ${pkg}" >&2
+
+			validatefailed='1'
+		fi
+	fi
+done
+
+if [ "${validatefailed}" = '1' ]; then
+	exit 1
+fi
 
 # Do build
 failedpkgs=""

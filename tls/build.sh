@@ -14,6 +14,7 @@ fi
 TLSVERS="1.6.7"
 SRC="src/tls-${TLSVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/tls/files/tls/${TLSVERS}/tls${TLSVERS}-src.tar.gz"
+SRCHASH='5119de3e5470359b97a8a00d861c9c48433571ee0167af0a952de66c99d3a3b8'
 BUILDDIR="$(pwd)/build/tls${TLSVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -40,9 +41,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 
@@ -57,7 +56,7 @@ fi
 
 	# Determine SSL directory
 	if [ -z "${CPP}" ]; then
-		CPP="${CC} -E"
+		CPP="${CC:-cc} -E"
 	fi
 
 	if [ -n "${KC_TLS_SSLDIR}" ]; then

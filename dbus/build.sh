@@ -21,6 +21,7 @@ mkdir 'build' 'out' 'inst' || exit 1
 DBUSVERS="2.0"
 SRC="src/dbus-${DBUSVERS}.tar.gz"
 SRCURL="http://sourceforge.net/projects/dbus-tcl/files/dbus/${DBUSVERS}/dbus-${DBUSVERS}.tar.gz/download"
+SRCHASH='-'
 BUILDDIR="$(pwd)/build/dbus-${DBUSVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -37,9 +38,7 @@ if [ ! -f "${SRC}" ]; then
 	mkdir 'src' >/dev/null 2>/dev/null
 
 	if [ ! -d 'buildsrc' ]; then
-		rm -f "${SRC}.tmp"
-		wget -O "${SRC}.tmp" "${SRCURL}" || exit 1
-		mv "${SRC}.tmp" "${SRC}"
+		download "${SRCURL}" "${SRC}" "${SRCHASH}" || exit 1
 	fi
 fi
 
