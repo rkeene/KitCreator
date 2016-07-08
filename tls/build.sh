@@ -140,6 +140,9 @@ function buildSSLLibrary() {
 	# Disable SSLv2, newer SSL libraries drop support for it entirely
 	CFLAGS="${CFLAGS} -DNO_SSL2=1"
 
+	# Disable SSLv3, newer SSL libraries drop support for it entirely
+	CFLAGS="${CFLAGS} -DNO_SSL3=1"
+
 	SAVE_CFLAGS="${CFLAGS}"
 	SAVE_LIBS="${LIBS}"
 	for tryopt in $tryopts __fail__; do
