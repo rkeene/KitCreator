@@ -79,6 +79,7 @@ function buildSSLLibrary() {
 	) || return 1
 
 	SSLDIR="$(pwd)/libressl-${version}/INST"
+	addlibs="$(PKG_CONFIG_PATH="$(pwd)/libressl-${version}/INST/lib/pkgconfig" "${PKG_CONFIG:-pkg-config}" libssl libcrypto --libs --static)"
 }
 
 (
@@ -218,8 +219,21 @@ _EOF_
 		LINKADDFILE="${LINKADDFILE}.linkadd"
 
 		## XXX: TODO: Determine what we actually need to link against
-		addlibs="-L${SSL_LIB_DIR:-/lib} -lssl -lcrypto ${KC_TLS_LINKADD}"
-		addlibs_staticOnly=""
+		if [ -z "${addlibs}" ]; then
+			if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
+				addlibs="$("${PKG_CONFIG:-pkg-config}" libssl libcrypto --libs --static)"
+			else
+				addlibs="$("${PKG_CONFIG:-pkg-config}" libssl libcrypto --libs)"
+			fi
+		fi
+
+		if [ -z "${addlibs}" ]; then
+			addlibs="-L${SSL_LIB_DIR:-/lib} -lssl -lcrypto"
+			addlibs_staticOnly=""
+		fi
+
+		addlibs="${addlibs} ${KC_TLS_LINKADD}"
+
 		if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
 			echo "-Wl,-Bstatic ${addlibs} ${addlibs_staticOnly} -Wl,-Bdynamic"
 		else
