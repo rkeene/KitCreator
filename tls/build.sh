@@ -45,6 +45,42 @@ if [ ! -f "${SRC}" ]; then
 	fi
 fi
 
+function buildSSLLibrary() {
+	local version url hash
+	local archive
+
+	version='2.4.1'
+	url="http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${version}.tar.gz"
+	hash='121922b13169cd47a85e3e77f0bc129f8d04247193b42491cb1fab9074e80477'
+
+	archive="src/libressl-${version}.tar.gz"
+
+	echo " *** Building LibreSSL v${version}" >&2
+
+	if [ ! -e "../${archive}" ]; then
+		download "${url}" "../${archive}" "${hash}" || return 1
+	fi
+
+	(
+		rm -rf libressl-*
+
+		gzip -dc "../${archive}" | tar -xf - || exit 1
+
+		cd "libressl-${version}" || exit 1
+
+		echo "Running: ./configure ${CONFIGUREEXTRA} --disable-shared --enable-static --prefix=\"$(pwd)/INST\""
+		./configure ${CONFIGUREEXTRA} --disable-shared --enable-static --prefix="$(pwd)/INST" || exit 1
+
+		echo "Running: ${MAKE:-make} V=1"
+		${MAKE:-make} V=1 || exit 1
+
+		echo "Running: ${MAKE:-make} V=1 install" 
+		${MAKE:-make} V=1 install || exit 1
+	) || return 1
+
+	SSLDIR="$(pwd)/libressl-${version}/INST"
+}
+
 (
 	cd 'build' || exit 1
 
@@ -62,7 +98,16 @@ fi
 	if [ -n "${KC_TLS_SSLDIR}" ]; then
 		SSLDIR="${KC_TLS_SSLDIR}"
 	else
-		SSLDIR="$(echo '#include <openssl/ssl.h>' 2>/dev/null | ${CPP} - | awk '/# 1 "\/.*\/ssl\.h/{ print $3; exit }' | sed 's@^"@@;s@"$@@;s@/include/openssl/ssl\.h$@@')"
+		SSLDIR=''
+
+		if [ -z "${KC_TLS_BUILDSSL}" ]; then
+			SSLDIR="$(echo '#include <openssl/ssl.h>' 2>/dev/null | ${CPP} - 2> /dev/null | awk '/# 1 "\/.*\/ssl\.h/{ print $3; exit }' | sed 's@^"@@;s@"$@@;s@/include/openssl/ssl\.h$@@')"
+		fi
+
+		if [ -z "${SSLDIR}" ]; then
+			buildSSLLibrary || SSLDIR=''
+		fi
+
 		if [ -z "${SSLDIR}" ]; then
 			echo "Unable to find OpenSSL, aborting." >&2
 
