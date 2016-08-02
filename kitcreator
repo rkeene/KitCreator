@@ -67,10 +67,10 @@ fi
 CONFIGUREEXTRA="$@"
 export CONFIGUREEXTRA
 
-if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads' >/dev/null 2>/dev/null; then
-	KITCREATOR_ADD_ENABLE_THREADS='0'
+if echo " ${CONFIGUREEXTRA} " | grep ' --enable-threads ' >/dev/null 2>/dev/null; then
+	KITCREATOR_ADD_ENABLE_THREADS='1'
 	KITCREATOR_PKGS="${KITCREATOR_PKGS} thread"
-elif echo " ${CONFIGUREEXTRA} " | grep ' --disable-threads' >/dev/null 2>/dev/null; then
+elif echo " ${CONFIGUREEXTRA} " | grep ' --disable-threads ' >/dev/null 2>/dev/null; then
 	KITCREATOR_ADD_ENABLE_THREADS='0'
 fi
 
