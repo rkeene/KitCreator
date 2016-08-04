@@ -29,14 +29,11 @@ cvfs_data_tcl.c: dir2c.tcl starpack.vfs cvfs_data.c
 cvfs.tcl.h: cvfs.tcl
 	"$(TCLSH_NATIVE)" ./stringify.tcl cvfs.tcl > cvfs.tcl.h
 
-boot.tcl.h: boot.tcl
-	"$(TCLSH_NATIVE)" ./stringify.tcl boot.tcl > boot.tcl.h
-
 zipvfs.tcl.h: zipvfs.tcl
 	"$(TCLSH_NATIVE)" ./stringify.tcl zipvfs.tcl > zipvfs.tcl.h
 
 ## Objects
-kitInit.o: kitInit.c boot.tcl.h $(EXTRA_KIT_DEPS)
+kitInit.o: kitInit.c $(EXTRA_KIT_DEPS)
 rechan.o: rechan.c
 pwb.o: pwb.c
 zlib.o: zlib.c
@@ -65,6 +62,6 @@ distclean: clean
 	rm -rf autom4te.cache
 
 mrproper: distclean
-	rm -f configure config.h boot.tcl.h zipvfs.tcl.h
+	rm -f configure config.h zipvfs.tcl.h
 
 .PHONY: all clean distclean mrproper
