@@ -70,17 +70,17 @@ mkdir 'out' 'inst' || exit 1
 	mkdir "starpack.vfs"
 	mkdir "starpack.vfs/lib"
 
-	## Copy in all built directories
-	cp -r "${OTHERPKGSDIR}"/*/out/* 'starpack.vfs/'
-
-	## Rename the "vfs" package directory to what "boot.tcl" expects
-	mv 'starpack.vfs/lib'/vfs* 'starpack.vfs/lib/vfs'
-
 	## Install "boot.tcl"
 	cp 'boot.tcl' 'starpack.vfs/'
 
 	## Install "tclkit.ico"
 	cp 'tclkit.ico' 'starpack.vfs/'
+
+	## Copy in all built directories
+	cp -r "${OTHERPKGSDIR}"/*/out/* 'starpack.vfs/'
+
+	## Rename the "vfs" package directory to what "boot.tcl" expects
+	mv 'starpack.vfs/lib'/vfs* 'starpack.vfs/lib/vfs'
 
 	# Figure out if zlib compiled (if not, the system zlib will be used and we
 	# will need to have that present)
