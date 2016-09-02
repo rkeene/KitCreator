@@ -29,4 +29,22 @@ tcl_cv_strtod_unbroken=ok
 tcl_cv_strtod_buggy=ok
 export ac_cv_func_memcmp_working tcl_cv_strstr_unbroken tcl_cv_strtoul_unbroken tcl_cv_strtod_unbroken tcl_cv_strtod_buggy
 
-./kitcreator "$@" --host="${CROSS}"
+CROSS_HOST="${CROSS}"
+case "${CROSS}" in
+	x86_64-*)
+		case " ${CC_ADD} " in
+			*' -m32 '*)
+				CROSS_HOST="$(echo "${CROSS_HOST}" | sed 's@^x86_64-@i386-@')"
+				;;
+		esac
+		;;
+	i?86-*)
+		case " ${CC_ADD} " in
+			*' -m64 '*)
+				CROSS_HOST="$(echo "${CROSS_HOST}" | sed 's@^i.86-@x86_64-@')"
+				;;
+		esac
+		;;
+esac
+
+./kitcreator "$@" --host="${CROSS_HOST}"
