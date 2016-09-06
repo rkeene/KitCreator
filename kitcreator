@@ -226,46 +226,59 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 				build_script='./kitcreator-build.sh'
 			fi
 
-			if useCommonBuildSystem "${build_script}"; then
-				(
-					. ../common/common.sh
-					. "${build_script}"
-
-					set -x
-
-					init || die 'init failed'
-
-					predownload || die 'predownload failed'
-					download || die 'download failed'
-					postdownload || die 'postdownload failed'
-
-					extract || die 'extract failed'
-
-					apply_patches || die 'apply patches failed'
-
-					cd "${workdir}" || exit 1
-
-					preconfigure || die 'preconfigure failed'
-					configure || die 'configure failed'
-					postconfigure || die 'postconfigure failed'
-
-					prebuild || die 'prebuild failed'
-					build || die 'build failed'
-					postbuild || die 'postbuild failed'
-
-					preinstall || die 'preinstall failed'
-					install || die 'install failed'
-					postinstall || die 'postinstall failed'
-
-					createruntime || die 'createruntime failed'
-
-					set +x
-
-					rm -rf "${workdir}"
-				) 3>&1 4>&2 > build.log 2>&1 || exit 1
+			if [ -f "${build_script}" ]; then
+				build_scripts=("${build_script}")
 			else
-				"${build_script}" 3>&1 4>&2 >> build.log 2>&1 || exit 1
+				build_scripts=($(echo build-kitcreator-*.sh))
 			fi
+
+			call_pkg_init='1'
+			for build_script in "${build_scripts[@]}"; do
+				if useCommonBuildSystem "${build_script}"; then
+					(
+						. ../common/common.sh
+						. "${build_script}"
+
+						set -x
+
+						if [ "${call_pkg_init}" = '1' ]; then
+							init || die 'init failed'
+						fi
+
+						predownload || die 'predownload failed'
+						download || die 'download failed'
+						postdownload || die 'postdownload failed'
+
+						extract || die 'extract failed'
+
+						apply_patches || die 'apply patches failed'
+
+						cd "${workdir}" || exit 1
+
+						preconfigure || die 'preconfigure failed'
+						configure || die 'configure failed'
+						postconfigure || die 'postconfigure failed'
+
+						prebuild || die 'prebuild failed'
+						build || die 'build failed'
+						postbuild || die 'postbuild failed'
+
+						preinstall || die 'preinstall failed'
+						install || die 'install failed'
+						postinstall || die 'postinstall failed'
+
+						createruntime || die 'createruntime failed'
+
+						set +x
+
+						rm -rf "${workdir}"
+					) 3>&1 4>&2 >> build.log 2>&1 || exit 1
+				else
+					"${build_script}" 3>&1 4>&2 >> build.log 2>&1 || exit 1
+				fi
+
+				call_pkg_init='0'
+			done
 		) || failed="1"
 	fi
 

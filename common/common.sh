@@ -215,6 +215,7 @@ function preinstall() {
 }
 
 function install() {
+	local installlibdir
 	local installpkgdir
 	local pkglibfile
 
@@ -230,24 +231,24 @@ function install() {
 		tclpkgversion="${version}"
 	fi
 
-	installpkgdir="$(echo "${installdir}/lib"/*)"
+	installlibdir="${installdir}/lib"
 
-	if [ -d "${installpkgdir}" ]; then
-		if [ ! -e "${installpkgdir}/pkgIndex.tcl" ]; then
-			case "${pkg_configure_shared_build}" in
-				0)
-					cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
+	if [ "${pkg_configure_shared_build}" = '0' ]; then
+		find "${installlibdir}" -name '*.a' | sed 's@/[^/]*\.a$@@' | head -n 1 | while IFS='' read -r installpkgdir; do
+			if [ ! -e "${installpkgdir}/pkgIndex.tcl" ]; then
+				cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
 package ifneeded ${tclpkg} ${tclpkgversion} [list load {} ${tclpkg}]
 _EOF_
-					;;
-				1)
-					pkglibfile="$(find "${installpkgdir}" -name '*.so' -o -name '*.dylib' -o -name '*.dll' -o -name '*.shlib' | head -n 1 | sed 's@^.*/@@')"
-					cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
+			fi
+		done
+	elif [ "${pkg_configure_shared_build}" = '1' ]; then
+		find "${installlibdir}" -name '*.so' -o -name '*.dylib' -o -name '*.dll' -o -name '*.shlib' | sed 's@/[^/]*$@@' | head -n 1 | while IFS='' read -r installpkgdir; do
+			if [ ! -e "${installpkgdir}/pkgIndex.tcl" ]; then
+				cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
 package ifneeded ${tclpkg} ${tclpkgversion} [list load [file join \$dir ${pkglibfile}]]
 _EOF_
-					;;
-			esac
-		fi
+			fi
+		done
 	fi
 }
 
@@ -261,7 +262,7 @@ function createruntime() {
 	# Install files needed by installation
 	cp -r "${installdir}/lib" "${runtimedir}" || return 1
 
-	find "${runtimedir}" -name '*.a' -type f | while IFS='' read -r file; do
+	find "${runtimedir}" '(' -name '*.a' -o -name '*.a.linkadd' ')' -type f | while IFS='' read -r file; do
 		rm -f "${file}"
 	done
 
