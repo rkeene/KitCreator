@@ -27,7 +27,59 @@ function buildYAJL() {
 		gzip -dc "${archive}" | tar -xf - || exit 1
 		cd "${yajlbuilddir}" || exit 1
 
-		./configure -p "$(pwd)/INST" || exit 1
+		if [ "${KC_CROSSCOMPILE}" = '1' ]; then
+			case "${KC_CROSSCOMPILE_HOST_OS}" in
+				*-mingw32|*-mingw32msvc|*-mingw64)
+					cmake_system_name='Windows'
+					;;
+				*)
+					cmake_system_name="$(
+						echo "${KC_CROSSCOMPILE_HOST_OS}" | \
+						cut -f 3 -d - | \
+						sed 's@[0-9\.]*$@@' | \
+						awk '{ f = substr($1, 1, 1); r = substr($1, 2); print toupper(f) tolower(r) }' | \
+						sed 's@bsd$@BSD@;s@^Aix@AIX@;s@^Hpux@HPUX@'
+					)"
+					;;
+			esac
+
+			cmake_extra=(
+				-DCMAKE_SYSTEM_NAME="${cmake_system_name}"
+				-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER
+				-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY
+				-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+				-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY
+				-DCMAKE_CROSSCOMPILING=1
+			)
+		else
+			cmake_extra=()
+		fi
+
+		if [ -n "${CC}" ]; then
+			CC_path="$(echo "${CC}" | cut -f 1 -d ' ')"
+			CC_flags="$(echo "${CC}" | cut -f 2- -d ' ')"
+
+			cmake_extra=("${cmake_extra[@]}" -DCMAKE_C_COMPILER="${CC_path}")
+			if [ -n "${CC_flags}" ]; then
+				cmake_extra=("${cmake_extra[@]}" -DCMAKE_C_FLAGS="${CC_flags}")
+			fi
+		fi
+
+		if [ -n "${CXX}" ]; then
+			CXX_path="$(echo "${CXX}" | cut -f 1 -d ' ')"
+			CXX_flags="$(echo "${CXX}" | cut -f 2- -d ' ')"
+
+			cmake_extra=("${cmake_extra[@]}" -DCMAKE_CXX_COMPILER="${CXX_path}")
+			if [ -n "${CXX_flags}" ]; then
+				cmake_extra=("${cmake_extra[@]}" -DCMAKE_CXX_FLAGS="${CXX_flags}")
+			fi
+		fi
+
+		cmake \
+			-DCMAKE_INSTALL_PREFIX="${yajlbuilddir}/INST" \
+			-DBUILD_SHARED_LIBS=OFF \
+			-DBUILD_STATIC_LIBS=ON \
+			"${cmake_extra[@]}" . || exit 1
 
 		${MAKE:-make} || exit 1
 
