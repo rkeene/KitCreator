@@ -31,6 +31,7 @@ function init() {
 	mkdir -p "${installdir}" "${runtimedir}"
 
 	export TCL_VERSION
+
 }
 
 function predownload() {
@@ -221,6 +222,14 @@ function install() {
 	${MAKE:-make} tcllibdir="${installdir}/lib" "${make_extra[@]}" install || return 1
 
 	# Create pkgIndex if needed
+	if [ -z "${tclpkg}" ]; then
+		tclpkg="${pkg}"
+	fi
+
+	if [ -z "${tclpkgversion}" ]; then
+		tclpkgversion="${version}"
+	fi
+
 	installpkgdir="$(echo "${installdir}/lib"/*)"
 
 	if [ -d "${installpkgdir}" ]; then
@@ -228,13 +237,13 @@ function install() {
 			case "${pkg_configure_shared_build}" in
 				0)
 					cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
-package ifneeded ${pkg} ${version} [list load {} ${pkg}]
+package ifneeded ${tclpkg} ${tclpkgversion} [list load {} ${tclpkg}]
 _EOF_
 					;;
 				1)
 					pkglibfile="$(find "${installpkgdir}" -name '*.so' -o -name '*.dylib' -o -name '*.dll' -o -name '*.shlib' | head -n 1 | sed 's@^.*/@@')"
 					cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
-package ifneeded ${pkg} ${version} [list load [file join \$dir ${pkglibfile}]]
+package ifneeded ${tclpkg} ${tclpkgversion} [list load [file join \$dir ${pkglibfile}]]
 _EOF_
 					;;
 			esac
