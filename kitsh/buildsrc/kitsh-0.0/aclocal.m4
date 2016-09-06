@@ -229,7 +229,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 
 		AC_MSG_RESULT([${projlibfilesnostub} ${projlibextra}])
 
-		if [ -n "${projlibextra_static}" ]; then
+		if test -n "${projlibextra_static}"; then
 			DC_DO_STATIC_LINK_LIB([Additional libraries for ${proj}], ${projlibextra_static})
 		fi
 
