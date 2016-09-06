@@ -29,6 +29,10 @@ function buildSSLLibrary() {
 
 		cd "libressl-${version}" || exit 1
 
+		# This defeats hardening attempts that break on various platforms
+		CFLAGS=' -g -O0 '
+		export CFLAGS
+
 		./configure ${CONFIGUREEXTRA} --disable-shared --enable-static --prefix="$(pwd)/INST" || exit 1
 
 		# Disable building the apps -- they do not get used
@@ -49,12 +53,6 @@ _EOF_
 }
 
 function preconfigure() {
-	# Disable SSLv2, newer SSL libraries drop support for it entirely
-	CFLAGS="${CFLAGS} -DNO_SSL2=1"
-
-	# Disable SSLv3, newer SSL libraries drop support for it entirely
-	CFLAGS="${CFLAGS} -DNO_SSL3=1"
-
 	# Determine SSL directory
 	if [ -z "${CPP}" ]; then
 		CPP="${CC:-cc} -E"
@@ -82,6 +80,13 @@ function preconfigure() {
 
 	# Add SSL library to configure options
 	configure_extra=(--with-ssl-dir="${SSLDIR}")
+
+	# Disable SSLv2, newer SSL libraries drop support for it entirely
+	CFLAGS="${CFLAGS} -DNO_SSL2=1"
+
+	# Disable SSLv3, newer SSL libraries drop support for it entirely
+	CFLAGS="${CFLAGS} -DNO_SSL3=1"
+	export CFLAGS
 }
 
 function postconfigure() {
