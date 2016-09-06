@@ -29,13 +29,18 @@ function buildSSLLibrary() {
 
 		cd "libressl-${version}" || exit 1
 
-		echo "Running: ./configure ${CONFIGUREEXTRA} --disable-shared --enable-static --prefix=\"$(pwd)/INST\""
 		./configure ${CONFIGUREEXTRA} --disable-shared --enable-static --prefix="$(pwd)/INST" || exit 1
 
-		echo "Running: ${MAKE:-make} V=1"
+		# Disable building the apps -- they do not get used
+		rm -rf apps
+		mkdir apps
+		cat << \_EOF_ > apps/Makefile
+%:
+	@echo Nothing to do
+_EOF_
+
 		${MAKE:-make} V=1 || exit 1
 
-		echo "Running: ${MAKE:-make} V=1 install" 
 		${MAKE:-make} V=1 install || exit 1
 	) || return 1
 
