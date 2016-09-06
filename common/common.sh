@@ -73,7 +73,7 @@ function postdownload() {
 
 function extract() {
 	if [ -d "${buildsrcdir}" ]; then
-		mkdir "${workdir}" || return 1
+		mkdir -p "${workdir}" || return 1
 
 		cp -rp "${buildsrcdir}"/* "${workdir}" || return 1
 
@@ -82,7 +82,7 @@ function extract() {
 
 	if [ -n "${pkgarchive}" ]; then
 		(
-			mkdir "${workdir}" || exit 1
+			mkdir -p "${workdir}" || exit 1
 
 			cd "${workdir}" || exit 1
 
