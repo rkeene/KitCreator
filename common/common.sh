@@ -215,14 +215,24 @@ function preinstall() {
 }
 
 function install() {
-	local installlibdir
-	local installpkgdir
-	local pkglibfile
-
 	mkdir -p "${installdir}/lib" || return 1
 	${MAKE:-make} tcllibdir="${installdir}/lib" "${make_extra[@]}" install || return 1
+}
 
-	# Create pkgIndex if needed
+function postinstall() {
+	:
+}
+
+function createruntime() {
+	local runtimelibdir
+	local runtimepkgdir
+	local pkglibfile
+	local file
+
+	# Install files needed by installation
+	cp -r "${installdir}/lib" "${runtimedir}" || return 1
+
+	# Create pkgIndex files if needed
 	if [ -z "${tclpkg}" ]; then
 		tclpkg="${pkg}"
 	fi
@@ -231,37 +241,29 @@ function install() {
 		tclpkgversion="${version}"
 	fi
 
-	installlibdir="${installdir}/lib"
+	runtimelibdir="${runtimedir}/lib"
 
 	if [ "${pkg_configure_shared_build}" = '0' ]; then
-		find "${installlibdir}" -name '*.a' | sed 's@/[^/]*\.a$@@' | head -n 1 | while IFS='' read -r installpkgdir; do
-			if [ ! -e "${installpkgdir}/pkgIndex.tcl" ]; then
-				cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
+		find "${runtimelibdir}" -name '*.a' | sed 's@/[^/]*\.a$@@' | head -n 1 | while IFS='' read -r runtimepkgdir; do
+			if [ ! -e "${runtimepkgdir}/pkgIndex.tcl" ]; then
+				cat << _EOF_ > "${runtimepkgdir}/pkgIndex.tcl"
 package ifneeded ${tclpkg} ${tclpkgversion} [list load {} ${tclpkg}]
 _EOF_
 			fi
 		done
 	elif [ "${pkg_configure_shared_build}" = '1' ]; then
-		find "${installlibdir}" -name '*.so' -o -name '*.dylib' -o -name '*.dll' -o -name '*.shlib' | sed 's@/[^/]*$@@' | head -n 1 | while IFS='' read -r installpkgdir; do
-			if [ ! -e "${installpkgdir}/pkgIndex.tcl" ]; then
-				cat << _EOF_ > "${installpkgdir}/pkgIndex.tcl"
+		find "${runtimelibdir}" -name '*.so' -o -name '*.dylib' -o -name '*.dll' -o -name '*.shlib' | head -n 1 | while IFS='' read -r pkglibfile; do
+			runtimepkgdir="$(echo "${pkglibfile}" | sed 's@/[^/]*$@@')"
+			pkglibfile="$(echo "${pkglibfile}" | sed 's@^.*/@@')"
+			if [ ! -e "${runtimepkgdir}/pkgIndex.tcl" ]; then
+				cat << _EOF_ > "${runtimepkgdir}/pkgIndex.tcl"
 package ifneeded ${tclpkg} ${tclpkgversion} [list load [file join \$dir ${pkglibfile}]]
 _EOF_
 			fi
 		done
 	fi
-}
 
-function postinstall() {
-	:
-}
-
-function createruntime() {
-	local file
-
-	# Install files needed by installation
-	cp -r "${installdir}/lib" "${runtimedir}" || return 1
-
+	# Remove link-only files from the runtime directory
 	find "${runtimedir}" '(' -name '*.a' -o -name '*.a.linkadd' ')' -type f | while IFS='' read -r file; do
 		rm -f "${file}"
 	done
