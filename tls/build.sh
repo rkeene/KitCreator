@@ -10,22 +10,22 @@ function buildSSLLibrary() {
 	local version url hash
 	local archive
 
-	version='2.4.1'
+	version='2.4.2'
 	url="http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${version}.tar.gz"
-	hash='121922b13169cd47a85e3e77f0bc129f8d04247193b42491cb1fab9074e80477'
+	hash='5f87d778e5d62822d60e38fa9621c1c5648fc559d198ba314bd9d89cbf67d9e3'
 
 	archive="src/libressl-${version}.tar.gz"
 
 	echo " *** Building LibreSSL v${version}" >&2
 
-	if [ ! -e "../${archive}" ]; then
-		"${_download}" "${url}" "../${archive}" "${hash}" || return 1
+	if [ ! -e "${pkgdir}/${archive}" ]; then
+		"${_download}" "${url}" "${pkgdir}/${archive}" "${hash}" || return 1
 	fi
 
 	(
 		rm -rf libressl-*
 
-		gzip -dc "../${archive}" | tar -xf - || exit 1
+		gzip -dc "${pkgdir}/${archive}" | tar -xf - || exit 1
 
 		cd "libressl-${version}" || exit 1
 
