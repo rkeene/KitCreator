@@ -49,6 +49,12 @@ _EOF_
 }
 
 function preconfigure() {
+	# Disable SSLv2, newer SSL libraries drop support for it entirely
+	CFLAGS="${CFLAGS} -DNO_SSL2=1"
+
+	# Disable SSLv3, newer SSL libraries drop support for it entirely
+	CFLAGS="${CFLAGS} -DNO_SSL3=1"
+
 	# Determine SSL directory
 	if [ -z "${CPP}" ]; then
 		CPP="${CC:-cc} -E"
@@ -74,12 +80,8 @@ function preconfigure() {
 		fi
 	fi
 
-	# Disable SSLv2, newer SSL libraries drop support for it entirely
-	CFLAGS="${CFLAGS} -DNO_SSL2=1"
-
-	# Disable SSLv3, newer SSL libraries drop support for it entirely
-	CFLAGS="${CFLAGS} -DNO_SSL3=1"
-
+	# Add SSL library to configure options
+	configure_extra=(--with-ssl-dir="${SSLDIR}")
 }
 
 function postconfigure() {
