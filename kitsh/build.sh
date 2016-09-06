@@ -100,14 +100,16 @@ mkdir 'out' 'inst' || exit 1
 	export EXTRA_OBJS
 
 	## Tk Resources (needed for Win32 support) -- remove kit-found resources to prevent the symbols from being in conflict
-	TKDIR="$(cd "${OTHERPKGSDIR}/tk/inst" && pwd)"
-	TKRSRC="${TKDIR}/lib/tkbase.res.o"
-	if [ -n "${TKDIR}" -a -f "${TKRSRC}" ]; then
-		EXTRA_OBJS="${EXTRA_OBJS} ${TKRSRC}"
+	TKDIR="$(cd "${OTHERPKGSDIR}/tk/inst" 2>/dev/null && pwd)"
+	if [ -n "${TKDIR}" ]; then
+		TKRSRC="${TKDIR}/lib/tkbase.res.o"
+		if [ -f "${TKRSRC}" ]; then
+			EXTRA_OBJS="${EXTRA_OBJS} ${TKRSRC}"
 
-		echo ' *** Removing "kit.rc" since we have Tk with its own resource file'
+			echo ' *** Removing "kit.rc" since we have Tk with its own resource file'
 
-		rm -f "${BUILDDIR}/kit.rc"
+			rm -f "${BUILDDIR}/kit.rc"
+		fi
 	fi
 
 	# Cleanup
