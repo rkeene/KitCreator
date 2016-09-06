@@ -42,6 +42,7 @@ for pkg in ${KITCREATOR_ALLPKGS} ${KITCREATOR_PKGS}; do
 	if [ "${mode}" != "retry" -o ! -f "${pkg}/.success" ]; then
 		rm -f "${pkg}/build.log" "${pkg}/.success"
 		rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
+		rm -rf "${pkg}"/workdir-*
 
 		rm -rf "${pkg}/src"/tmp-*
 	fi
@@ -162,6 +163,24 @@ for testsh in "${TCLSH_NATIVE}" tclsh tclsh8.4 tclsh8.5 tclsh8.6 "${TCLKIT:-tclk
 done
 export TCLSH_NATIVE
 
+# Function to determine what build mode is being used
+function useCommonBuildSystem() {
+	local script
+
+	script="$1"
+
+	if head "${script}" 2>/dev/null | grep -i '^# *BuildCompatible: *KitCreator *$' >/dev/null 2>/dev/null; then
+		return 0
+	fi
+
+	return 1
+}
+
+# Cleanup build logs
+for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
+	rm -f "${pkg}/build.log"
+done
+
 # Verify that each component is happy with the environment
 validatefailed="0"
 for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
@@ -174,7 +193,7 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 		(
 			cd "${pkg}" >/dev/null 2>/dev/null || exit 1
 
-			./validate.sh 3>&1 4>&2 > build.log 2>&1 || exit 1
+			./validate.sh 3>&1 4>&2 >> build.log 2>&1 || exit 1
 		) || failed="1"
 
 		if [ "${failed}" = '1' ]; then
@@ -206,7 +225,47 @@ for pkg in tcl tclvfs zlib ${KITCREATOR_PKGS} kitsh; do
 			if [ -x 'kitcreator-build.sh' ]; then
 				build_script='./kitcreator-build.sh'
 			fi
-			"${build_script}" 3>&1 4>&2 > build.log 2>&1 || exit 1
+
+			if useCommonBuildSystem "${build_script}"; then
+				(
+					. ../common/common.sh
+					. "${build_script}"
+
+					set -x
+
+					init || die 'init failed'
+
+					predownload || die 'predownload failed'
+					download || die 'download failed'
+					postdownload || die 'postdownload failed'
+
+					extract || die 'extract failed'
+
+					apply_patches || die 'apply patches failed'
+
+					cd "${workdir}" || exit 1
+
+					preconfigure || die 'preconfigure failed'
+					configure || die 'configure failed'
+					postconfigure || die 'postconfigure failed'
+
+					prebuild || die 'prebuild failed'
+					build || die 'build failed'
+					postbuild || die 'postbuild failed'
+
+					preinstall || die 'preinstall failed'
+					install || die 'install failed'
+					postinstall || die 'postinstall failed'
+
+					createruntime || die 'createruntime failed'
+
+					set +x
+
+					rm -rf "${workdir}"
+				) 3>&1 4>&2 > build.log 2>&1 || exit 1
+			else
+				"${build_script}" 3>&1 4>&2 >> build.log 2>&1 || exit 1
+			fi
 		) || failed="1"
 	fi
 
