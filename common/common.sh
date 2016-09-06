@@ -7,6 +7,7 @@ archivedir="${pkgdir}/src"
 buildsrcdir="${pkgdir}/buildsrc"
 installdir="${pkgdir}/inst"
 runtimedir="${pkgdir}/out"
+patchdir="${pkgdir}/patches"
 workdir="${pkgdir}/workdir-$$${RANDOM}${RANDOM}${RANDOM}${RANDOM}.work"
 
 _download="$(which download)"
@@ -116,7 +117,18 @@ function extract() {
 }
 
 function apply_patches() {
-	:
+	local patch
+
+	for patch in "${patchdir}/all"/${pkg}-${version}-*.diff "${patchdir}/${TCL_VERSION}"/${pkg}-${version}-*.diff; do
+		if [ ! -f "${patch}" ]; then
+			continue
+		fi
+
+		echo "Applying: ${patch}"
+		( cd "${workdir}" && ${PATCH:-patch} -p1 ) < "${patch}" || return 1
+	done
+
+	return 0
 }
 
 function preconfigure() {
