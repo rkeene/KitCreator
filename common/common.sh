@@ -27,6 +27,9 @@ function init() {
 	if [ -f "${TCLCONFIGDIR}/tclConfig.sh" ]; then
 		source "${TCLCONFIGDIR}/tclConfig.sh"
 	fi
+
+	mkdir -p "${installdir}" "${runtimedir}"
+
 	export TCL_VERSION
 }
 
@@ -247,7 +250,6 @@ function createruntime() {
 	local file
 
 	# Install files needed by installation
-	mkdir -p "${runtimedir}" || return 1
 	cp -r "${installdir}/lib" "${runtimedir}" || return 1
 
 	find "${runtimedir}" -name '*.a' -type f | while IFS='' read -r file; do
