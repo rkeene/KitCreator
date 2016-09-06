@@ -132,6 +132,16 @@ yajltcl/out
 yajltcl/out/*
 yajltcl/src
 yajltcl/src/*
+dbus/build
+dbus/build.log
+dbus/inst
+dbus/out
+dbus/src
+tclx/build
+tclx/build.log
+tclx/inst
+tclx/out
+tclx/src
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
