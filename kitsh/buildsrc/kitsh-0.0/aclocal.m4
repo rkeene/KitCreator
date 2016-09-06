@@ -214,13 +214,24 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			projlibfiles=''
 		fi
 
+		projlibextra_static=''
 		for libfile in ${projlibfilesnostub}; do
 			if test -f "${libfile}.linkadd"; then
 				projlibextra="`cat "${libfile}.linkadd"`"
+
+				dnl Replace static linking requests with the appropriate values
+				if echo "${projlibextra}" | grep '^#STATIC ' >/dev/null; then
+					projlibextra_static="${projlibextra_static} `echo "${projlibextra}" | sed 's@^#STATIC @@'`"
+					projlibextra=''
+				fi
 			fi
 		done
 
 		AC_MSG_RESULT([${projlibfilesnostub} ${projlibextra}])
+
+		if [ -n "${projlibextra_static}" ]; then
+			DC_DO_STATIC_LINK_LIB([Additional libraries for ${proj}], ${projlibextra_static})
+		fi
 
 		hide_symbols="1"
 

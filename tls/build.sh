@@ -134,7 +134,7 @@ _EOF_
 		addlibs="${addlibs} ${KC_TLS_LINKADD}"
 
 		if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
-			echo "-Wl,-Bstatic ${addlibs} ${addlibs_staticOnly} -Wl,-Bdynamic"
+			echo "#STATIC ${addlibs} ${addlibs_staticOnly}"
 		else
 			echo "${addlibs}"
 		fi > "${linkaddfile}"
