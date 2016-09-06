@@ -42,7 +42,6 @@ for pkg in ${KITCREATOR_ALLPKGS} ${KITCREATOR_PKGS}; do
 	if [ "${mode}" != "retry" -o ! -f "${pkg}/.success" ]; then
 		rm -f "${pkg}/build.log" "${pkg}/.success"
 		rm -rf "${pkg}/out" "${pkg}/inst" "${pkg}/build"
-		rm -rf "${pkg}"/workdir-*
 
 		rm -rf "${pkg}/src"/tmp-*
 	fi

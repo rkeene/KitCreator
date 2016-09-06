@@ -8,7 +8,7 @@ buildsrcdir="${pkgdir}/buildsrc"
 installdir="${pkgdir}/inst"
 runtimedir="${pkgdir}/out"
 patchdir="${pkgdir}/patches"
-workdir="${pkgdir}/workdir-$$${RANDOM}${RANDOM}${RANDOM}${RANDOM}.work"
+workdir="${pkgdir}/build/workdir-$$${RANDOM}${RANDOM}${RANDOM}${RANDOM}.work"
 
 _download="$(which download)"
 
@@ -18,7 +18,7 @@ function clean() {
 
 function distclean() {
 	rm -rf "${archivedir}"
-	rm -rf "${pkgdir}"/workdir-*
+	rm -rf "${pkgdir}"/build
 }
 
 function init() {
