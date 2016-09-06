@@ -61,22 +61,28 @@
 	set packages(yajltcl) "YAJL-TCL"
 	set packages(udp) "TclUDP"
 	set packages(nsf) "Next Scripting Framework"
+	set packages(tdom) "tDOM"
+	set packages(tuapi) "Tcl UNIX API"
 
 	set disable {
 		platform linux-mipsel {package_tk package_tcc4tcl package_tclx kitdll}
 		platform android-arm {package_tk package_tclx}
-		platform netbsd-amd64 {package_tk package_tcc4tcl package_tclx}
-		platform netbsd-i386 {package_tk package_tcc4tcl package_tclx}
-		platform solaris-sparc {package_tcc4tcl package_tclx}
-		platform solaris-sparc64 {package_tcc4tcl package_tclx}
-		platform hpux-hppa64 {package_tcc4tcl package_tclx}
+		platform freebsd-amd64 {package_tuapi}
+		platform hpux-hppa64 {package_tuapi}
+		platform netbsd-amd64 {package_tk package_tcc4tcl package_tclx package_tuapi}
+		platform netbsd-i386 {package_tk package_tcc4tcl package_tclx package_tuapi}
+		platform solaris-sparc {package_tcc4tcl package_tclx package_tuapi}
+		platform solaris-sparc64 {package_tcc4tcl package_tclx package_tuapi}
+		platform hpux-hppa64 {package_tcc4tcl package_tclx package_tuapi}
 		platform linux-arm {package_tk package_tclx}
 		platform linux-amd64-static {package_tk package_dbus kitdll}
 		platform linux-i386-static {package_tk package_dbus kitdll}
-		platform macosx-ppc {package_dbus package_tcc4tcl}
-		platform macosx-ppc64 {package_dbus package_tcc4tcl}
-		platform macosx-i386 {package_dbus}
-		platform macosx-amd64 {package_dbus}
+		platform macosx-ppc {package_dbus package_tcc4tcl package_tuapi}
+		platform macosx-ppc64 {package_dbus package_tcc4tcl package_tuapi}
+		platform macosx-i386 {package_dbus package_tuapi}
+		platform macosx-amd64 {package_dbus package_tuapi}
+		platform win32 {package_tuapi}
+		platform win64 {package_tuapi}
 	}
 
 	set specific {

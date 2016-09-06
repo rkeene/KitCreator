@@ -142,6 +142,16 @@ tclx/build.log
 tclx/inst
 tclx/out
 tclx/src
+tuapi/build
+tuapi/build.log
+tuapi/inst
+tuapi/out
+tuapi/src
+tdom/build
+tdom/build.log
+tdom/inst
+tdom/out
+tdom/src
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
