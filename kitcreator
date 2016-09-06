@@ -169,7 +169,7 @@ function useCommonBuildSystem() {
 
 	script="$1"
 
-	if head "${script}" 2>/dev/null | grep -i '^# *BuildCompatible: *KitCreator *$' >/dev/null 2>/dev/null; then
+	if grep -i '^# *BuildCompatible: *KitCreator *$' "${script}" >/dev/null 2>/dev/null; then
 		return 0
 	fi
 
