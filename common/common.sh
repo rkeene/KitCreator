@@ -21,18 +21,23 @@ function distclean() {
 	rm -rf "${pkgdir}"/build
 }
 
+function init_kitcreator() {
+	:
+}
+
 function init() {
 	clean || return 1
 
 	TCL_VERSION="unknown"
 	if [ -f "${TCLCONFIGDIR}/tclConfig.sh" ]; then
-		source "${TCLCONFIGDIR}/tclConfig.sh"
+		source "${TCLCONFIGDIR}/tclConfig.sh" || return 1
 	fi
 
-	mkdir -p "${installdir}" "${runtimedir}"
+	mkdir -p "${installdir}" "${runtimedir}" || return 1
 
 	export TCL_VERSION
 
+	init_kitcreator || return 1
 }
 
 function predownload() {
@@ -142,8 +147,14 @@ function configure() {
 	local save_cflags
 	local base_var kc_var
 
+	# Determine if the user decided this should be static or not
 	staticpkgvar="$(echo "STATIC${internalpkgname}" | dd conv=ucase 2>/dev/null)"
 	staticpkg="$(eval "echo \"\$${staticpkgvar}\"")"
+
+	# Determine if the build script overrides this
+	if [ "${pkg_always_static}" = '1' ]; then
+		staticpkg='1'
+	fi
 
 	# Set configure options for this sub-project
 	for base_var in LDFLAGS CFLAGS CPPFLAGS LIBS; do
