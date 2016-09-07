@@ -124,9 +124,15 @@ function extract() {
 function apply_patches() {
 	local patch
 
-	for patch in "${patchdir}/all"/${pkg}-${version}-*.diff "${patchdir}/${TCL_VERSION}"/${pkg}-${version}-*.diff; do
+	for patch in "${patchdir}/all"/${pkg}-${version}-*.diff "${patchdir}/${TCL_VERSION}"/${pkg}-${version}-*.diff "${patchdir}"/*.diff; do
 		if [ ! -f "${patch}" ]; then
 			continue
+		fi
+
+		if [ -x "${patch}.sh" ]; then
+			if ! "${patch}.sh" "${TCL_VERSION}" "${pkg}" "${version}"; then
+				continue
+			fi
 		fi
 
 		echo "Applying: ${patch}"
