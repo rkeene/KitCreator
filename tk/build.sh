@@ -208,10 +208,10 @@ fi
 
 		if [ "${STATICTK}" = "1" ]; then
 			echo "Running: ./configure --disable-shared --disable-symbols --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
-			./configure --disable-shared --disable-symbols --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+			./configure --disable-shared --disable-symbols --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA} || continue
 		else
 			echo "Running: ./configure --enable-shared --disable-symbols --prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
-			./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA}
+			./configure --enable-shared --disable-symbols --prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA} || continue
 		fi
 
 		echo "Running: ${MAKE:-make}"
