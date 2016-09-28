@@ -11,10 +11,19 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
+case "${TCLVERS}" in
+	*:*)
+		TCLVERS_CLEAN="$(echo "${TCLVERS}" | sed 's@:@_@g')"
+		;;
+	*)
+		TCLVERS_CLEAN="${TCLVERS}"
+		;;
+esac
+
 SRC="src/tk${TCLVERS}.tar.gz"
 SRCURL="http://prdownloads.sourceforge.net/tcl/tk${TCLVERS}-src.tar.gz"
 SRCHASH='-'
-BUILDDIR="$(pwd)/build/tk${TCLVERS}"
+BUILDDIR="$(pwd)/build/tk${TCLVERS_CLEAN}"
 PATCHDIR="$(pwd)/patches"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -102,9 +111,9 @@ if [ ! -f "${SRC}" ]; then
 				gzip -dc "tmp-tk.tar.gz" | tar -xf -
 			fi
 
-			mv "tk-fossil" "tk${TCLVERS}"
+			mv "tk-fossil" "tk${TCLVERS_CLEAN}"
                         
-			tar -cf - "tk${TCLVERS}" | gzip -c > "../../${SRC}"
+			tar -cf - "tk${TCLVERS_CLEAN}" | gzip -c > "../../${SRC}"
 
 			cd ..
 			rm -rf "${workdir}"

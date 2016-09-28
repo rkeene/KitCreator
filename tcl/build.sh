@@ -11,10 +11,19 @@ if [ -z "${TCLVERS}" ]; then
 	exit 1
 fi
 
+case "${TCLVERS}" in
+	*:*)
+		TCLVERS_CLEAN="$(echo "${TCLVERS}" | sed 's@:@_@g')"
+		;;
+	*)
+		TCLVERS_CLEAN="${TCLVERS}"
+		;;
+esac
+
 SRC="src/tcl${TCLVERS}.tar.gz"
 SRCURL="http://prdownloads.sourceforge.net/tcl/tcl${TCLVERS}-src.tar.gz"
 SRCHASH='-'
-BUILDDIR="$(pwd)/build/tcl${TCLVERS}"
+BUILDDIR="$(pwd)/build/tcl${TCLVERS_CLEAN}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
 PATCHSCRIPTDIR="$(pwd)/patchscripts"
@@ -80,14 +89,14 @@ if [ ! -f "${SRC}" ]; then
 			# Handle Tcl first, since it will be used to base other packages on
 			download "http://core.tcl.tk/tcl/tarball/tcl-fossil.tar.gz?uuid=${FOSSILTAG}" "tmp-tcl.tar.gz" - || rm -f 'tmp-tcl.tar.gz'
 			gzip -dc 'tmp-tcl.tar.gz' | tar -xf -
-			mv "tcl-fossil" "tcl${TCLVERS}"
+			mv "tcl-fossil" "tcl${TCLVERS_CLEAN}"
 
 			# Determine date of this Tcl release and use that date for all other dependent packages
 			## Unless the release we are talking about is "trunk", in which case we use that everywhere
 			if [ "${FOSSILTAG}" = "trunk" ]; then
 				FOSSILDATE="${FOSSILTAG}"
 			else
-				FOSSILDATE="$(echo 'cd "tcl'"${TCLVERS}"'"; set file [lindex [glob *] 0]; file stat $file finfo; set date $finfo(mtime); set date [expr {$date + 1}]; puts [clock format $date -format {%Y-%m-%dT%H:%M:%S}]' | TZ='UTC' "${TCLSH_NATIVE}")"
+				FOSSILDATE="$(echo 'cd "tcl'"${TCLVERS_CLEAN}"'"; set file [lindex [glob *] 0]; file stat $file finfo; set date $finfo(mtime); set date [expr {$date + 1}]; puts [clock format $date -format {%Y-%m-%dT%H:%M:%S}]' | TZ='UTC' "${TCLSH_NATIVE}")"
 			fi
 
 			## If we are unable to determine the modification date, fall-back to the tag and hope for the best
@@ -117,17 +126,17 @@ if [ ! -f "${SRC}" ]; then
 			gzip -dc "tmp-thread.tar.gz" | tar -xf -
 			gzip -dc "tmp-tclconfig.tar.gz" | tar -xf -
 
-			mkdir -p "tcl${TCLVERS}/pkgs/" >/dev/null 2>/dev/null
-			mv "itcl-fossil" "tcl${TCLVERS}/pkgs/itcl"
-			mv "thread-fossil" "tcl${TCLVERS}/pkgs/thread"
-			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/itcl/tclconfig"
-			cp -r "tclconfig-fossil" "tcl${TCLVERS}/pkgs/thread/tclconfig"
-			mv "tclconfig-fossil" "tcl${TCLVERS}/tclconfig"
+			mkdir -p "tcl${TCLVERS_CLEAN}/pkgs/" >/dev/null 2>/dev/null
+			mv "itcl-fossil" "tcl${TCLVERS_CLEAN}/pkgs/itcl"
+			mv "thread-fossil" "tcl${TCLVERS_CLEAN}/pkgs/thread"
+			cp -r "tclconfig-fossil" "tcl${TCLVERS_CLEAN}/pkgs/itcl/tclconfig"
+			cp -r "tclconfig-fossil" "tcl${TCLVERS_CLEAN}/pkgs/thread/tclconfig"
+			mv "tclconfig-fossil" "tcl${TCLVERS_CLEAN}/tclconfig"
 
 			if [ "${_USE_TDBC}" = '1' ]; then
 				gzip -dc "tmp-tdbc.tar.gz" | tar -xf -
-				mv "tdbc-fossil/tdbc" "tcl${TCLVERS}/pkgs/tdbc"
-				mv "tdbc-fossil/tdbcsqlite3" "tcl${TCLVERS}/pkgs/tdbcsqlite3"
+				mv "tdbc-fossil/tdbc" "tcl${TCLVERS_CLEAN}/pkgs/tdbc"
+				mv "tdbc-fossil/tdbcsqlite3" "tcl${TCLVERS_CLEAN}/pkgs/tdbcsqlite3"
 			fi
 
 			if [ "${_USE_SQLITE}" = '1' ]; then
@@ -152,10 +161,10 @@ if [ ! -f "${SRC}" ]; then
 					cat generic/tclsqlite3.c.new > generic/tclsqlite3.c
 					rm -f generic/tclsqlite3.c.new
 				)
-				mv sqlite-fossil "tcl${TCLVERS}/pkgs/sqlite3" >/dev/null 2>/dev/null
+				mv sqlite-fossil "tcl${TCLVERS_CLEAN}/pkgs/sqlite3" >/dev/null 2>/dev/null
 			fi
 
-			tar -cf - "tcl${TCLVERS}" | gzip -c > "../../${SRC}"
+			tar -cf - "tcl${TCLVERS_CLEAN}" | gzip -c > "../../${SRC}"
 			echo "${FOSSILDATE}" > "../../${SRC}.date"
 
 			cd ..
