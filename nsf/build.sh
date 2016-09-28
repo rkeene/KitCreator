@@ -11,11 +11,25 @@ if [ -z "${TCLVERS}" ]; then
     exit 1
 fi
 
-NSFVERS="2.0.0"
-NSFVERSEXTRA=""
-SRC="src/nsf${NSFVERS}.tar.gz"
-SRCURL="http://sourceforge.net/projects/next-scripting/files/${NSFVERS}/nsf${NSFVERS}.tar.gz/download"
-SRCHASH='-'
+
+use_git='0'
+
+if echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
+    use_git='1'
+    GITTAG='master'
+    NSFVERS="${GITTAG}"
+    NSFVERSEXTRA=""
+    SRC="src/nsf${GITTAG}.zip"
+    SRCURL="http://fisheye.openacs.org/browse/~tarball=zip,br=${GITTAG}/nsf/nsf.zip"
+    SRCHASH='-'
+else
+    NSFVERS="2.0.0"
+    NSFVERSEXTRA=""
+    SRC="src/nsf${NSFVERS}.tar.gz"
+    SRCURL="http://sourceforge.net/projects/next-scripting/files/${NSFVERS}/nsf${NSFVERS}.tar.gz/download"
+    SRCHASH='-'
+fi
+
 BUILDDIR="$(pwd)/build/nsf${NSFVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
@@ -43,12 +57,23 @@ fi
     cd 'build' || exit 1
     
     if [ ! -d '../buildsrc' ]; then
-	gzip -dc "../${SRC}" | tar -xf -
+	if [ "${use_git}" = "1" ]; then
+	    unzip "../${SRC}" -d nsf${NSFVERS}
+	else
+	    gzip -dc "../${SRC}" | tar -xf -
+	fi
     else    
 	cp -rp ../buildsrc/* './'
     fi
     
     cd "${BUILDDIR}" || exit 1
+
+    if [ "${use_git}" = "1" ]; then
+	## the GIT zip tarball does not preserve file permissions (configure)
+	rm -rf configure
+	autoconf || exit 1
+    fi
+
 
     # There's a STATIC<packageInAllUpperCase>=-1,0,1
     # ... where -1 means no (i.e., shared),
@@ -122,6 +147,12 @@ _EOF_
 	
 	break
     done
+
+    if [ "${use_git}" = "1" ]; then
+	NSFVERS="$(source nsfConfig.sh && echo ${NSF_PATCH_LEVEL})"
+	echo "GITNSFVERS=${NSFVERS}"
+    fi
+
     
     mkdir "${OUTDIR}/lib" || exit 1
     cp -r "${INSTDIR}/lib"/nsf*/serialize "${OUTDIR}/lib/nsf${NSFVERS}-serialize"
