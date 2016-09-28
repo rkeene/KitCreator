@@ -1,3 +1,3 @@
 #! /bin/sh
 
-./build/make-kit-remote powermacg5.vpn.oc9.org "$@" --enable-aqua
+./build/make-kit-remote macosx-ppc.build.kitcreator.rkeene.org "$@" --enable-aqua

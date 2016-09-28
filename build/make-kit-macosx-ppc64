@@ -4,4 +4,4 @@ CC='gcc -arch ppc64'
 CXX='g++ -arch ppc64'
 export CC CXX
 
-./build/make-kit-remote powermacg5.vpn.oc9.org "$@" --enable-aqua
+./build/make-kit-remote macosx-ppc64.build.kitcreator.rkeene.org "$@" --enable-aqua
