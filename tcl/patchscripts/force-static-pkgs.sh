@@ -5,6 +5,10 @@ if [ "${KC_TCL_STATICPKGS}" != '1' ]; then
 fi
 
 for makefile in {unix,win,macosx}/Makefile.in; do
+	if [ ! -f "${makefile}" ]; then
+		continue
+	fi
+
 	sed 's@--enable-shared@--disable-shared CFLAGS="-fPIC" @g' "${makefile}" > "${makefile}.new"
 	cat "${makefile}.new" > "${makefile}"
 	rm -f "${makefile}.new"
