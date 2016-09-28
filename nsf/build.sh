@@ -150,9 +150,7 @@ _EOF_
 
     if [ "${use_git}" = "1" ]; then
 	NSFVERS="$(source nsfConfig.sh && echo ${NSF_PATCH_LEVEL})"
-	echo "GITNSFVERS=${NSFVERS}"
     fi
-
     
     mkdir "${OUTDIR}/lib" || exit 1
     cp -r "${INSTDIR}/lib"/nsf*/serialize "${OUTDIR}/lib/nsf${NSFVERS}-serialize"
