@@ -274,7 +274,7 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 
 	Tcl_IncrRefCount(ret_list);
 
-	children = malloc(sizeof(*children) * num_children);
+	children = (void *) Tcl_Alloc(sizeof(*children) * num_children);
 
 	num_children = cmd_getChildren(file, children, num_children);
 
@@ -296,7 +296,7 @@ static int getChildren(ClientData cd, Tcl_Interp *interp, int objc, Tcl_Obj *CON
 		Tcl_DecrRefCount(ret_curr_obj);
 	}
 
-	free(children);
+	Tcl_Free((void *) children);
 
 	Tcl_SetObjResult(interp, ret_list);
 

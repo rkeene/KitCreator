@@ -237,6 +237,7 @@ puts {
 #  ifdef HAVE_STDLIB_H
 #    include <stdlib.h>
 #  endif
+#  include <tcl.h>
 
 #  ifndef LOADED_CVFS_COMMON
 #    define LOADED_CVFS_COMMON 1
@@ -512,10 +513,10 @@ if {$obsfucate} {
 	puts "\tunsigned char *new_data, *old_data;"
 	puts "\tint decrypt_ret, free_old_data;"
 	puts ""
-	puts "\tnew_data = malloc(finfo->size);"
+	puts "\tnew_data = (void *) Tcl_Alloc(finfo->size);"
 	puts "\tdecrypt_ret = cvfs_decrypt(new_data, finfo->data, finfo->size, &key);"
 	puts "\tif (decrypt_ret != 0) {"
-	puts "\t\tfree(new_data);"
+	puts "\t\tTcl_Free((void *) new_data);"
 	puts ""
 	puts "\t\treturn;"
 	puts "\t}"
@@ -528,7 +529,7 @@ if {$obsfucate} {
 	puts "\tfinfo->type = CVFS_FILETYPE_FILE;"
 	puts ""
 	puts "\tif (free_old_data) {"
-	puts "\t\tfree(old_data);"
+	puts "\t\tTcl_Free((void *) old_data);"
 	puts "\t}"
 	puts "\treturn;"
 	puts "}"
