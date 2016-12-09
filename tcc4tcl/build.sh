@@ -2,9 +2,9 @@
 
 # BuildCompatible: KitCreator
 
-version="0.26"
+version="0.28"
 url="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${version}.tar.gz"
-sha256='8116d2ab94cc611c4e0be81e34bd8cc11a6f3e1fd49d02d7e894bbadcfffde0b'
+sha256='7062bd924b91d2ce8efc5d1983f8bd900514b7a674c9b567f564ee977ef3512e'
 
 function preconfigure() {
 	if echo " ${CONFIGUREEXTRA} " | grep ' --disable-load ' >/dev/null; then
