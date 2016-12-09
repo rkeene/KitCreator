@@ -287,12 +287,12 @@ static unsigned long cvfs_hash(const unsigned char *path) {
         return(h);
 }
 
-static int cvfs_decrypt(unsigned char *out, const unsigned char *in, unsigned long in_out_length, struct cvfs_key *key) {
+static int cvfs_decrypt(unsigned char *out, const unsigned char *in, unsigned long offset, unsigned long in_out_length, struct cvfs_key *key) {
 	unsigned long i;
 	unsigned char in_ch, out_ch;
 	int ch_idx;
 
-	for (i = 0; i < in_out_length; i++) {
+	for (i = offset; i < in_out_length; i++) {
 		in_ch = in[i];
 
 		ch_idx = (in_ch + (i / key->typedata.rotate_subst.rotate_length)) % 256;
@@ -514,7 +514,7 @@ if {$obsfucate} {
 	puts "\tint decrypt_ret, free_old_data;"
 	puts ""
 	puts "\tnew_data = (void *) Tcl_Alloc(finfo->size);"
-	puts "\tdecrypt_ret = cvfs_decrypt(new_data, finfo->data, finfo->size, &key);"
+	puts "\tdecrypt_ret = cvfs_decrypt(new_data, finfo->data, 0, finfo->size, &key);"
 	puts "\tif (decrypt_ret != 0) {"
 	puts "\t\tTcl_Free((void *) new_data);"
 	puts ""
