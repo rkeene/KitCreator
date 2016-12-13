@@ -2,9 +2,10 @@
 
 # BuildCompatible: KitCreator
 
-version="1.6.7"
-url="http://sourceforge.net/projects/tls/files/tls/${TLSVERS}/tls${TLSVERS}-src.tar.gz"
-sha256='5119de3e5470359b97a8a00d861c9c48433571ee0167af0a952de66c99d3a3b8'
+version="1.7.8"
+url="http://tcltls.rkeene.org/uv/tcltls-${version}.tar.gz"
+sha256='30ee49330db795f86bc850487421ea923fba7d95d4758b2a61eef3baf0fe0f9e'
+configure_extra=('--enable-deterministic')
 
 function buildSSLLibrary() {
 	local version url hash
@@ -48,8 +49,12 @@ _EOF_
 		${MAKE:-make} V=1 install || exit 1
 	) || return 1
 
+	PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:${SSLDIR}/lib/pkgconfig"
+	export PKG_CONFIG_PATH
+
 	SSLDIR="$(pwd)/libressl-${version}/INST"
-	addlibs_LOCALSSL="$(PKG_CONFIG_PATH="${SSLDIR}/lib/pkgconfig" "${PKG_CONFIG:-pkg-config}" libssl libcrypto --libs --static)"
+
+	return 0
 }
 
 function preconfigure() {
@@ -79,64 +84,15 @@ function preconfigure() {
 	fi
 
 	# Add SSL library to configure options
-	configure_extra=(--with-ssl-dir="${SSLDIR}")
-
-	# Disable SSLv2, newer SSL libraries drop support for it entirely
-	CFLAGS="${CFLAGS} -DNO_SSL2=1"
-
-	# Disable SSLv3, newer SSL libraries drop support for it entirely
-	CFLAGS="${CFLAGS} -DNO_SSL3=1"
-	export CFLAGS
-}
-
-function postconfigure() {
-	local linkaddfile
-	local addlibs
-
-	# Determine SSL library directory
-	SSL_LIB_DIR="$(${MAKE:-make} --print-data-base | awk '/^SSL_LIB_DIR = /{ print }' | sed 's@^SSL_LIB_DIR = *@@')"
-
-	echo "SSL_LIB_DIR = ${SSL_LIB_DIR}"
+	configure_extra=("${configure_extra[@]}" --with-openssl-dir="${SSLDIR}")
 }
 
 function postinstall() {
-	# Create pkgIndex if needed
-	if [ ! -e "${installdir}/lib/tls${version}/pkgIndex.tcl" ]; then
-		cat << _EOF_ > "${installdir}/lib/tls${version}/pkgIndex.tcl"
-package ifneeded tls ${version} \
-    "[list source [file join \$dir tls.tcl]] ; \
-     [list load {} tls]"
-_EOF_
-	fi
-
-	# Determine name of static object
-	linkaddfile="$(find "${installdir}" -name '*.a' | head -n 1)"
-	if [ -n "${linkaddfile}" ]; then
-		linkaddfile="${linkaddfile}.linkadd"
-
-		if [ -n "${addlibs_LOCALSSL}" ]; then
-			addlibs="${addlibs_LOCALSSL}"
+	for file in *.linkadd; do
+		if [ ! -e "${file}" ]; then
+			continue
 		fi
 
-		if [ -z "${addlibs}" ]; then
-			if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
-				addlibs="$("${PKG_CONFIG:-pkg-config}" libssl libcrypto --libs --static)"
-			else
-				addlibs="$("${PKG_CONFIG:-pkg-config}" libssl libcrypto --libs)"
-			fi
-		fi
-
-		if [ -z "${addlibs}" ]; then
-			addlibs="-L${SSL_LIB_DIR:-/lib} -lssl -lcrypto"
-			addlibs_staticOnly=""
-		fi
-
-		addlibs="${addlibs} ${KC_TLS_LINKADD}"
-
-		if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
-			echo "#STATIC ${addlibs} ${addlibs_staticOnly}"
-		else
-			echo "${addlibs}"
-		fi > "${linkaddfile}"
-	fi
+		cp "${file}" "${installdir}/lib"/*/
+	done
 }

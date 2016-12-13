@@ -205,17 +205,25 @@ function configure() {
 		export CFLAGS
 
 		if [ "${isshared}" = '0' ]; then
-			sed 's@USE_TCL_STUBS@XXX_TCL_STUBS@g' configure > configure.new
-
 			pkg_configure_shared_build='0'
 		else
-			sed 's@XXX_TCL_STUBS@USE_TCL_STUBS@g' configure > configure.new
-
 			pkg_configure_shared_build='1'
 		fi
 
-		cat configure.new > configure
-		rm -f configure.new
+		if [ "${isshared}" = '0' ]; then
+			tryopt="${tryopt} --disable-stubs --enable-static"
+		fi
+
+		if ! grep '[-]-disable-stubs' configure >/dev/null 2>/dev/null; then
+			if [ "${isshared}" = '0' ]; then
+				sed 's@USE_TCL_STUBS@XXX_TCL_STUBS@g' configure > configure.new
+			else
+				sed 's@XXX_TCL_STUBS@USE_TCL_STUBS@g' configure > configure.new
+			fi
+
+			cat configure.new > configure
+			rm -f configure.new
+		fi
 
 		./configure $tryopt --prefix="${installdir}" --exec-prefix="${installdir}" --libdir="${installdir}/lib" --with-tcl="${TCLCONFIGDIR}" "${configure_extra[@]}" ${CONFIGUREEXTRA} && break
 	done
