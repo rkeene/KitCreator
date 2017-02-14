@@ -49,10 +49,13 @@ _EOF_
 		${MAKE:-make} V=1 install || exit 1
 	) || return 1
 
-	PKG_CONFIG_PATH="${PKG_CONFIG_PATH}:${SSLDIR}/lib/pkgconfig"
-	export PKG_CONFIG_PATH
+	# We always statically link
+	KC_TLS_LINKSSLSTATIC='1'
 
 	SSLDIR="$(pwd)/libressl-${version}/INST"
+
+	PKG_CONFIG_PATH="${SSLDIR}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+	export PKG_CONFIG_PATH
 
 	return 0
 }
@@ -85,6 +88,12 @@ function preconfigure() {
 
 	# Add SSL library to configure options
 	configure_extra=("${configure_extra[@]}" --with-openssl-dir="${SSLDIR}")
+
+	# If we are statically linking to libssl, let tcltls know so it asks for the right
+	# packages
+	if [ "${KC_TLS_LINKSSLSTATIC}" = '1' ]; then
+		configure_extra=("${configure_extra[@]}" --enable-static-ssl)
+	fi
 }
 
 function postinstall() {
