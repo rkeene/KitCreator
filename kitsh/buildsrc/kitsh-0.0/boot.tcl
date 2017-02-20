@@ -154,6 +154,12 @@ proc tclInit {} {
 	# reset auto_path, so that init.tcl's search outside of tclkit is cancelled
 	set auto_path $tcl_libPath
 
+	# Update Tcl Module system as well
+	if {[info command ::tcl::tm::path] ne ""} {
+		tcl::tm::path remove {*}[tcl::tm::path list]
+		tcl::tm::roots [file join $::starkit::tclkitroot lib]
+	}
+
 	if {$::TCLKIT_TYPE == "kitdll"} {
 		# Set a maximum seek to avoid reading the entire file looking for a
 		# zip header
