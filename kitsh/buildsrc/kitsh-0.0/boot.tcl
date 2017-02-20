@@ -155,8 +155,10 @@ proc tclInit {} {
 	set auto_path $tcl_libPath
 
 	# Update Tcl Module system as well
-	tcl::tm::path remove {*}[tcl::tm::path list]
-	tcl::tm::roots [file join $::starkit::tclkitroot lib]
+	if {[info command ::tcl::tm::path] ne ""} {
+		tcl::tm::path remove {*}[tcl::tm::path list]
+		tcl::tm::roots [file join $::starkit::tclkitroot lib]
+	}
 
 	if {$::TCLKIT_TYPE == "kitdll"} {
 		# Set a maximum seek to avoid reading the entire file looking for a
