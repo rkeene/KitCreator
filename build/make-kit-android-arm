@@ -3,7 +3,7 @@
 CROSS="arm-android9-linux-androideabi"
 export CROSS
 
-KC_KITSH_LDFLAGS_ADD='-fPIE'
+KC_KITSH_LDFLAGS_ADD='-fPIC -fPIE -pie'
 export KC_KITSH_LDFLAGS_ADD
 
-./build/make-kit-crosscompile "$@" LDFLAGS=-static-libgcc CFLAGS=-fPIC
+./build/make-kit-crosscompile "$@" LDFLAGS=-static-libgcc CFLAGS=-fPIE
