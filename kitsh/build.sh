@@ -184,7 +184,9 @@ mkdir 'out' 'inst' || exit 1
 		done
 
 		## Also create an executable named "kit" so that we can run it later
-		${MAKE:-make} tclsh
+		eval tclshExtraMakeArgs=(${KC_KITSH_TCLSH_EXTRA_MAKE_ARGS})
+		echo "Running: ${MAKE:-make} tclsh ${tclshExtraMakeArgs[@]}"
+		${MAKE:-make} tclsh "${tclshExtraMakeArgs[@]}"
 		if [ -f "tclsh.exe" ]; then
 			cp tclsh.exe kit.exe
 		else
