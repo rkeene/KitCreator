@@ -144,7 +144,7 @@ _EOF_
 
 	mkdir "libtclkit-sdk-${TCLVERS}"
 
-	mv 'bin' 'lib' 'include' 'doc' "libtclkit-sdk-${TCLVERS}/"
+	mv 'bin' 'lib' 'include' 'doc' "libtclkit-sdk-${TCLVERS}/" >/dev/null 2>/dev/null
 
 	if [ -e 'Android.mk' ]; then
 		mv 'Android.mk' "libtclkit-sdk-${TCLVERS}/"
