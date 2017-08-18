@@ -186,9 +186,9 @@ mkdir 'out' 'inst' || exit 1
 		## Also create an executable named "kit" so that we can run it later
 		${MAKE:-make} tclsh
 		if [ -f "tclsh.exe" ]; then
-			mv tclsh.exe kit.exe
+			cp tclsh.exe kit.exe
 		else
-			mv tclsh kit
+			cp tclsh kit
 		fi
 	else
 		## The executable is always named "kit"

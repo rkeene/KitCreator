@@ -14,6 +14,7 @@ rm -rf '__tmp__'
 mkdir '__tmp__'
 mkdir '__tmp__/include'
 mkdir '__tmp__/lib'
+mkdir '__tmp__/bin'
 mkdir '__tmp__/doc'
 
 cp 'tcl/inst/lib/tclConfig.sh' '__tmp__/lib/'
@@ -27,6 +28,9 @@ if [ -f 'tk/inst/lib/tkConfig.sh' ]; then
 fi
 
 cp 'kitsh/build'/kitsh-*/libtclkit* '__tmp__/lib/'
+cp 'kitsh/build'/kitsh-*/tclsh '__tmp__/bin/' >/dev/null 2>/dev/null
+cp 'kitsh/build'/kitsh-*/tclsh.exe '__tmp__/bin/' >/dev/null 2>/dev/null
+rmdir '__tmp__/bin' >/dev/null 2>/dev/null
 
 for dir in */; do
 	if [ ! -d "${dir}/build" ]; then
@@ -140,7 +144,7 @@ _EOF_
 
 	mkdir "libtclkit-sdk-${TCLVERS}"
 
-	mv 'lib' 'include' 'doc' "libtclkit-sdk-${TCLVERS}/"
+	mv 'bin' 'lib' 'include' 'doc' "libtclkit-sdk-${TCLVERS}/"
 
 	if [ -e 'Android.mk' ]; then
 		mv 'Android.mk' "libtclkit-sdk-${TCLVERS}/"
