@@ -5,12 +5,14 @@
 version="0.28"
 url="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${version}.tar.gz"
 sha256='7062bd924b91d2ce8efc5d1983f8bd900514b7a674c9b567f564ee977ef3512e'
+configure_extra=()
 
 function preconfigure() {
+	configure_extra=("${configure_extra[@]}" "--enable-stubs")
 	if echo " ${CONFIGUREEXTRA} " | grep ' --disable-load ' >/dev/null; then
-		configure_extra=("--with-dlopen")
+		configure_extra=("${configure_extra[@]}" "--with-dlopen")
 	else
-		configure_extra=("--without-dlopen")
+		configure_extra=("${configure_extra[@]}" "--without-dlopen")
 	fi
 }
 
