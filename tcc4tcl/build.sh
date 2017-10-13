@@ -2,9 +2,9 @@
 
 # BuildCompatible: KitCreator
 
-version="0.28"
+version="0.30"
 url="http://rkeene.org/devel/tcc4tcl/tcc4tcl-${version}.tar.gz"
-sha256='7062bd924b91d2ce8efc5d1983f8bd900514b7a674c9b567f564ee977ef3512e'
+sha256='f120e8e0d87c87c1775215dbede1de4633bdfce61a354fb7976da8870a311937'
 configure_extra=()
 
 function preconfigure() {
