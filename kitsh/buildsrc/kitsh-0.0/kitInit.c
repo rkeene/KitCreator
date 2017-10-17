@@ -87,8 +87,13 @@ Tcl_AppInitProc	Dde_Init, Registry_Init;
 #  define TCLKIT_MOUNTPOINT "/.KITDLL_TCL"
 #  define TCLKIT_VFSSOURCE "$::tclKitFilename"
 #else
-#  define TCLKIT_MOUNTPOINT "[info nameofexecutable]"
-#  define TCLKIT_VFSSOURCE "[info nameofexecutable]"
+#  if 0
+#    define TCLKIT_MOUNTPOINT "[info nameofexecutable]"
+#    define TCLKIT_VFSSOURCE "[info nameofexecutable]"
+#  else
+#    define TCLKIT_MOUNTPOINT "/.TCLKIT"
+#    define TCLKIT_VFSSOURCE "[info nameofexecutable]"
+#  endif
 #endif /* TCLKIT_DLL */
 
 #ifndef TCLKIT_DLL
