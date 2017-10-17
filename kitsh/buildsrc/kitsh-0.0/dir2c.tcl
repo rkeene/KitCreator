@@ -63,21 +63,28 @@ proc recursive_glob {dir} {
 
 # Convert a string into a C-style binary string
 ## XXX: This function needs to be optimized
-proc stringify {data} {
-	set ret "\""
+proc stringify_putsOrAppend {var fd data} {
+	if {$fd eq ""} {
+		uplevel 1 [list append $var $data]
+	} else {
+		puts -nonewline $fd $data
+	}
+}
+
+proc stringify {data {outfd ""}} {
+	stringify_putsOrAppend ret $outfd "\""
+
 	for {set idx 0} {$idx < [string length $data]} {incr idx} {
 		binary scan [string index $data $idx] H* char
 
-		append ret "\\x${char}"
+		stringify_putsOrAppend ret $outfd "\\x${char}"
 
 		if {($idx % 20) == 0 && $idx != 0} {
-			append ret "\"\n\""
+			stringify_putsOrAppend ret $outfd "\"\n\""
 		}
 	}
 
-	set ret [string trim $ret "\n\""]
-
-	set ret "\"$ret\""
+	stringify_putsOrAppend ret $outfd "\""
 
 	return $ret
 }
