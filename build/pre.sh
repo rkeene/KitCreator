@@ -11,7 +11,7 @@ export KITSHROOTDIR
 	rm -rf autom4te.cache
 	rm -f *~
 
-	make -f Makefile.common.in boot.tcl.h zipvfs.tcl.h cvfs.tcl.h
+	make -f Makefile.common.in zipvfs.tcl.h cvfs.tcl.h
 
 	make distclean >/dev/null 2>/dev/null
 
