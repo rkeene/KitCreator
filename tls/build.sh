@@ -34,7 +34,7 @@ function buildSSLLibrary() {
 		CFLAGS=' -g -O0 '
 		export CFLAGS
 
-		./configure ${CONFIGUREEXTRA} --disable-shared --enable-static --prefix="$(pwd)/INST" || exit 1
+		./configure ${CONFIGUREEXTRA} --with-pic --disable-shared --enable-static --prefix="$(pwd)/INST" || exit 1
 
 		# Disable building the apps -- they do not get used
 		rm -rf apps
