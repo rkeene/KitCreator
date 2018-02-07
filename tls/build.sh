@@ -2,18 +2,18 @@
 
 # BuildCompatible: KitCreator
 
-version="1.7.13"
+version="1.7.16"
 url="http://tcltls.rkeene.org/uv/tcltls-${version}.tar.gz"
-sha256='40f874140f5f2210593a14dd22bdfee3b61fa46cb2edb662b25ec60653853eed'
+sha256='6845000732bedf764e78c234cee646f95bb68df34e590c39434ab8edd6f5b9af'
 configure_extra=('--enable-deterministic')
 
 function buildSSLLibrary() {
 	local version url hash
 	local archive
 
-	version='2.5.0'
+	version='2.6.4'
 	url="http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${version}.tar.gz"
-	hash='8652bf6b55ab51fb37b686a3f604a2643e0e8fde2c56e6a936027d12afda6eae'
+	hash='638a20c2f9e99ee283a841cd787ab4d846d1880e180c4e96904fc327d419d11f'
 
 	archive="src/libressl-${version}.tar.gz"
 
