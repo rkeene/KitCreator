@@ -37,6 +37,7 @@
 	set platforms(linux-amd64) "Linux/amd64"
 	set platforms(linux-amd64-static) "Linux/amd64 (static)"
 	set platforms(linux-arm) "Linux/ARM"
+	set platforms(linux-aarch64) "Linux/AArch64"
 	set platforms(linux-i386) "Linux/i386"
 	set platforms(linux-i386-static) "Linux/i386 (static)"
 	set platforms(linux-mipsel) "Linux/MIPS (static)"
@@ -79,6 +80,7 @@
 		platform solaris-sparc64 {package_tcc4tcl package_tclx package_tuapi}
 		platform hpux-hppa64 {package_tcc4tcl package_tclx package_tuapi}
 		platform linux-arm {package_tk package_tclx}
+		platform linux-aarch64 {package_tk package_tclx}
 		platform linux-amd64-static {package_tk package_dbus kitdll}
 		platform linux-i386-static {package_tk package_dbus kitdll}
 		platform macosx-ppc {package_dbus package_tcc4tcl package_tuapi}

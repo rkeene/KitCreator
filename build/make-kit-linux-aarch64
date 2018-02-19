@@ -1,0 +1,6 @@
+#! /bin/sh
+
+CROSS="aarch64-generic-linux-gnu"
+export CROSS
+
+./build/make-kit-crosscompile "$@" --enable-64bit
