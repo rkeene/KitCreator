@@ -1,0 +1,14 @@
+diff --no-dereference -uNr lmdb-0.3.6.orig/generic/tclmdb.c lmdb-0.3.6-1fixbytearray/generic/tclmdb.c
+--- lmdb-0.3.6.orig/generic/tclmdb.c	2017-11-23 11:47:39.000000000 -0600
++++ lmdb-0.3.6-1fixbytearray/generic/tclmdb.c	2018-06-03 12:12:08.650738083 -0500
+@@ -259,8 +259,8 @@
+       }
+ 
+       pResultStr = Tcl_NewListObj(0, NULL);
+-      Tcl_ListObjAppendElement(interp, pResultStr, Tcl_NewStringObj(mkey.mv_data, mkey.mv_size));
+-      Tcl_ListObjAppendElement(interp, pResultStr, Tcl_NewStringObj(mdata.mv_data, mdata.mv_size));
++      Tcl_ListObjAppendElement(interp, pResultStr, Tcl_NewByteArrayObj(mkey.mv_data, mkey.mv_size));
++      Tcl_ListObjAppendElement(interp, pResultStr, Tcl_NewByteArrayObj(mdata.mv_data, mdata.mv_size));
+ 
+       Tcl_SetObjResult(interp, pResultStr);
+ 
