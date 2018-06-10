@@ -152,6 +152,11 @@ tdom/build.log
 tdom/inst
 tdom/out
 tdom/src
+lmdb/build
+lmdb/build.log
+lmdb/inst
+lmdb/out
+lmdb/src
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
