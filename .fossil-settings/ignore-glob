@@ -157,6 +157,11 @@ lmdb/build.log
 lmdb/inst
 lmdb/out
 lmdb/src
+tclcurl/build
+tclcurl/build.log
+tclcurl/inst
+tclcurl/out
+tclcurl/src
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test

@@ -68,6 +68,7 @@
 	set packages(tdom) "tDOM"
 	set packages(tuapi) "Tcl UNIX API"
 	set packages(lmdb) "LMDB"
+	set packages(tclcurl) "cURL"
 
 	set disable {
 		platform linux-mipsel {package_tk package_tcc4tcl package_tclx kitdll}
