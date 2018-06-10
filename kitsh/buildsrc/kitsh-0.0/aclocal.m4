@@ -306,6 +306,9 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 					subprojucase="`echo ${subproj} | dd conv=ucase 2>/dev/null`"
 					subprojtcase="`echo ${subprojucase} | cut -c 1``echo ${subproj} | cut -c 2-`"
 					lib_init_func="${subprojtcase}_Init"
+					if test -f "${projdir}/inst/tcl-init-func"; then
+						lib_init_func="`cat "${projdir}/inst/tcl-init-func"`"
+					fi
 
 					echo "#define KIT_INCLUDES_${subprojucase}" >> kitInit-libs.h
 					echo "Tcl_AppInitProc ${lib_init_func};" >> kitInit-libs.h
@@ -323,6 +326,9 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 	echo 'static void _Tclkit_GenericLib_Init(void) {' >> kitInit-libs.h
 	for lib_init_func in ${libs_init_funcs}; do
 		proj="`echo ${lib_init_func} | sed 's@_Init$$@@@' | dd conv=lcase 2>/dev/null`"
+		if test -f "${projdir}/inst/tcl-pkg-name"; then
+			proj="`cat "${projdir}/inst/tcl-pkg-name"`"
+		fi
 		echo "	Tcl_StaticPackage(0, \"${proj}\", ${lib_init_func}, NULL);" >> kitInit-libs.h
 	done
 	echo '	return;' >> kitInit-libs.h
