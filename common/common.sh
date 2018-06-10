@@ -273,6 +273,10 @@ function createruntime() {
 	if [ -z "${tclpkg}" ]; then
 		tclpkg="${pkg}"
 	fi
+	echo "${tclpkg}" > "${installdir}/tcl-pkg-name"
+	if [ -n "${tclpkg_initfunc}" ]; then
+		echo "${tclpkg_initfunc}" > "${installdir}/tcl-init-func"
+	fi
 
 	if [ -z "${tclpkgversion}" ]; then
 		tclpkgversion="${version}"
