@@ -84,8 +84,10 @@ foreach line [split $data "\n"] {
 			}
 			"debug" {
 				if {$value} {
-					lappend args "--enable-symbols"
+					lappend args "--enable-symbols" 
 					set ::env(STRIP) true
+					set ::env(KC_TCL_CFLAGS) -DPURIFY=1
+					set ::env(KC_TK_CFLAGS) -DPURIFY=1
 				}
 			}
 			"storage" {
@@ -142,7 +144,7 @@ foreach line [split $data "\n"] {
 		set fd [open "${outfile}.log" w+]
 		puts $fd "Running: export KITCREATOR_PKGS=\"$::env(KITCREATOR_PKGS)\""
 
-		foreach variable [list STRIP STATICTK KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD KC_TLS_LINKSSLSTATIC KC_TLS_BUILDSSL KC_TCL_STATICPKGS KC_TCL_UTF_MAX] {
+		foreach variable [list STRIP STATICTK KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD KC_TLS_LINKSSLSTATIC KC_TLS_BUILDSSL KC_TCL_STATICPKGS KC_TCL_UTF_MAX KC_TCL_CFLAGS KC_TK_CFLAGS] {
 			if {[info exists ::env($variable)]} {
 				puts $fd "Running: export $variable=\"$::env($variable)\""
 			}
