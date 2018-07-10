@@ -162,6 +162,11 @@ tclcurl/build.log
 tclcurl/inst
 tclcurl/out
 tclcurl/src
+nano/build
+nano/build.log
+nano/inst
+nano/out
+nano/src
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
