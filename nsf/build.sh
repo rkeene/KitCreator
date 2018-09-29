@@ -27,7 +27,7 @@ else
     NSFVERSEXTRA=""
     SRC="src/nsf${NSFVERS}.tar.gz"
     SRCURL="http://sourceforge.net/projects/next-scripting/files/${NSFVERS}/nsf${NSFVERS}.tar.gz/download"
-    SRCHASH='cf52da3621a59ce71da1584578d488b45cf13f2a'
+    SRCHASH='ee50e594837ad241dc8012e88af7b878f5437607'
 fi
 
 BUILDDIR="$(pwd)/build/nsf${NSFVERS}"
