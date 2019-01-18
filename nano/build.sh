@@ -2,9 +2,9 @@
 
 # BuildCompatible: KitCreator
 
-version="1.0"
+version="1.2"
 url="https://chiselapp.com/user/rkeene/repository/tcl-nano/uv/releases/tcl-nano-${version}.tar.gz"
-sha256='16b599cf12b1dd2e1c74eb0a4382b933a5e1519144158360ff78bf161e14bca5'
+sha256='84465093c491ab8ae7cf3db2c330e010691ac558ab830f096ca8cb7fe0222338'
 configure_extra=(--enable-stubs)
 
 function preconfigure() {
