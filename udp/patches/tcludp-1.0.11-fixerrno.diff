@@ -1,0 +1,21 @@
+diff --no-dereference -uNr tcludp-1.0.11.orig/generic/udp_tcl.c tcludp-1.0.11-fixerrno/generic/udp_tcl.c
+--- tcludp-1.0.11.orig/generic/udp_tcl.c	2014-08-24 02:17:21.000000000 -0500
++++ tcludp-1.0.11-fixerrno/generic/udp_tcl.c	2019-01-18 09:57:47.320471347 -0600
+@@ -31,6 +31,9 @@
+ #error "Neither sys/ioctl.h nor sys/filio.h found. We need ioctl()"
+ #endif
+ #endif /* WIN32 */
++#if defined(HAVE_STRERROR)
++#include <string.h>
++#endif
+ 
+ #if HAVE_FCNTL_H
+ #  include <fcntl.h>
+@@ -1833,7 +1836,6 @@
+     Tcl_AppendUnicodeToObj(errObj, (LPWSTR)sMsg, len - 1);
+     LocalFree(sMsg);
+ #elif defined(HAVE_STRERROR)
+-    extern int errno;
+     errObj = Tcl_NewStringObj(prefix, -1);
+     Tcl_AppendStringsToObj(errObj, ": ", strerror(errno), NULL);
+ #endif
