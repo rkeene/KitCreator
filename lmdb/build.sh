@@ -12,19 +12,11 @@ function postinstall() {
 
 	# Windows-only
 	isWindows='false'
-	if [ "${KC_CROSSCOMPILE}" = '1' ]; then
-		case "${KC_CROSSCOMPILE_HOST_OS}" in
-			*-cygwin|*-mingw32|*-mingw32-*|*-cygwin-*)
-				isWindows='true'
-				;;
-		esac
-	else
-		case "${OSTYPE}" in
-			msys|win*|cygwin)
-				isWindows='true'
-				;;
-		esac
-	fi
+	case "${KC_CROSSCOMPILE_HOST_OS}" in
+		*-cygwin|*-mingw32|*-mingw32-*|*-cygwin-*)
+			isWindows='true'
+			;;
+	esac
 
 	if [ "${isWindows}" = 'true' ]; then
 		find "${installdir}" -type -f -name '*.a' | while IFS='' read -r name; do

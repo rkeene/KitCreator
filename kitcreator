@@ -75,6 +75,7 @@ elif echo " ${CONFIGUREEXTRA} " | grep ' --disable-threads ' >/dev/null 2>/dev/n
 fi
 
 # Determine cross-compile status
+kitsh_dir="$(cd kitsh/buildsrc/kitsh-* && pwd)" || exit 1
 host_os="$(echo " ${CONFIGUREEXTRA} " | sed 's@^.* --host=\([^ ]*\) .*$@\1@
 t x
 d
@@ -84,14 +85,25 @@ t x
 d
 :x')"
 
+if [ -z "${build_os}" ]; then
+	build_os="$("${kitsh_dir}/config.guess")"
+else
+	build_os="$("${kitsh_dir}/config.sub" "${build_os}")"
+fi
+if [ -z "${host_os}" ]; then
+	host_os="$("${kitsh_dir}/config.guess")"
+else
+	host_os="$("${kitsh_dir}/config.sub" "${host_os}")"
+fi
+
 if [ "${host_os}" != "${build_os}" -a -n "${host_os}" ]; then
 	KC_CROSSCOMPILE='1'
-	KC_CROSSCOMPILE_HOST_OS="${host_os}"
 else
 	KC_CROSSCOMPILE='0'
-	KC_CROSSCOMPILE_HOST_OS=''
 fi
+KC_CROSSCOMPILE_HOST_OS="${host_os}"
 export KC_CROSSCOMPILE KC_CROSSCOMPILE_HOST_OS
+unset kitsh_dir
 
 # Set default target
 KITTARGET="kitsh"
