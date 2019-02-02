@@ -167,6 +167,11 @@ nano/build.log
 nano/inst
 nano/out
 nano/src
+duktape/build
+duktape/build.log
+duktape/inst
+duktape/out
+duktape/src
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test
