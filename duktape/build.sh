@@ -2,15 +2,7 @@
 
 # BuildCompatible: KitCreator
 
-version='0.6.0'
+version='0.6.1'
 url="https://github.com/dbohdan/tcl-duktape/archive/v${version}.tar.gz"
-sha256='14d52c0ab6445e00217046d5a6b09406776e74fd35147003d7b9bbbcc6b40668'
+sha256='365be33e359be54f4e2e9208dbb20160aea50e01a274ac5a68b3e57ea05fb328'
 tclpkg_initfunc='Tclduktape_Init'
-
-# tcl-duktape does not ship complete releases :-(
-function preconfigure() {
-	if [ ! -e configure ]; then
-		./autogen.sh
-	fi
-	sed -i 's@Tclduktape_Init@Tclduktape@g' lib/pkgIndex.tcl.in
-}
