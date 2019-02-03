@@ -46,6 +46,9 @@ case "${TCLVERS}" in
 	8.6.8)
 		SRCHASH='49e7bca08dde95195a27f594f7c850b088be357a7c7096e44e1158c7a5fd7b33'
 		;;
+	8.6.9)
+		SRCHASH='d3f9161e8ba0f107fe8d4df1f6d3a14c30cc3512dfc12a795daa367a27660dac'
+		;;
 esac
 
 # Set configure options for this sub-project
