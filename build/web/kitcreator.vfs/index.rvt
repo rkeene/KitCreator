@@ -3,6 +3,24 @@
 
 	load_response args
 
+	proc versionEncoded {versionString} {
+		set output 0
+
+		if {$versionString eq "trunk"} {
+			return [versionEncoded "255.255.255"]
+		}
+
+		foreach element [lrange [split $versionString .] 0 2] {
+			if {![string is integer -strict $element]} {
+				return "\"$versionString\""
+			}
+
+			set output [expr {($output << 8) | $element}]
+		}
+
+		return $output
+	}
+
 	set sourcedir "/web/rkeene/devel/kitcreator/all"
 	set queue "/home/rkeene/devel/kitcreator/build/web/queue"
 	set secretfile "/home/rkeene/etc/kitcreator-web-secret"
@@ -93,6 +111,13 @@
 		platform macosx-amd64 {package_dbus package_tuapi}
 		platform win32 {package_tuapi}
 		platform win64 {package_tuapi}
+		kitcreator_version <0.8.0 {package_dbus package_tls staticlibssl buildlibssl}
+		kitcreator_version <0.9.0 {package_tcc4tcl}
+		kitcreator_version <0.9.2 {package_tcllib package_tclx package_udp package_yajltcl}
+		kitcreator_version <0.9.3 {package_nsf}
+		kitcreator_version <0.10.0 {package_tdom package_tuapi}
+		kitcreator_version <0.11.0 {package_tclcurl package_lmdb}
+		kitcreator_version <trunk {package_duktape}
 	}
 
 	set specific {
@@ -271,6 +296,9 @@
 		var obj;
 
 		obj = document.getElementById('option_' + option);
+		if (!obj) {
+			return;
+		}
 		obj.disabled = false;
 	}
 
@@ -278,8 +306,35 @@
 		var obj;
 
 		obj = document.getElementById('option_' + option);
+		if (!obj) {
+			return;
+		}
 		obj.checked = false;
 		obj.disabled = true;
+	}
+
+	function versionEncoded(versionString) {
+		var output = 0;
+
+		if (versionString === "trunk") {
+			return(versionEncoded("255.255.255"));
+		}
+
+		try {
+			versionString.split(".").slice(0, 3).forEach(function(element) {
+				element = parseInt(element);
+				if (isNaN(element)) {
+					throw new Error("Invalid version string");
+				}
+
+				output <<= 8;
+				output |= element;
+			});
+		} catch (e) {
+			output = versionString;
+		}
+
+		return(output);
 	}
 
 	function verifyOptions() {
@@ -306,7 +361,31 @@
 		}
 
 		foreach {keyword value disableoptions} $disable {
-			puts "\t\tif ($keyword == \"$value\") \{"
+			set comparator [string index $value 0]
+			set value [string range $value 1 end]
+			switch -exact -- $comparator {
+				"<" - ">" {
+				}
+				"=" {
+					set comparator "==="
+				}
+				"!" {
+					set comparator "!=="
+				}
+				default {
+					set value "${comparator}${value}"
+					set comparator "=="
+				}
+			}
+
+			if {$keyword in {tcl_version kitcreator_version}} {
+				set keyword "versionEncoded($keyword)"
+				set value [versionEncoded $value]
+			} else {
+				set value "\"$value\""
+			}
+
+			puts "\t\tif ($keyword $comparator $value) \{"
 
 			foreach option $disableoptions {
 				puts "\t\t\tdisableOption(\"$option\");"
@@ -384,21 +463,21 @@
 <?  foreach package [lsort -dictionary [array names packages]] { ?>
             <input type="checkbox" name="option_package_<? puts -nonewline $package ?>" id="option_package_<? puts -nonewline $package ?>">Package: <? puts -nonewline $packages($package) ?><br>
 <? } ?>
-            <input type="checkbox" name="option_threaded">Kit: Threaded<br>
-            <input type="checkbox" name="option_debug">Kit: Debugging Build<br>
+            <input type="checkbox" name="option_threaded" id="option_threaded">Kit: Threaded<br>
+            <input type="checkbox" name="option_debug" id="option_debug">Kit: Debugging Build<br>
             <input type="checkbox" name="option_kitdll" id="option_kitdll">Kit: Build Library (KitDLL)<br>
             <input type="checkbox" name="option_dynamictk" id="option_dynamictk">Kit: Always link Tk dynamically (if Tk is built)<br>
-            <input type="checkbox" name="option_minbuild">Kit: "Minimal" build (remove extra packages shipped as part of Tcl and reduce encodings)<br>
-            <input type="checkbox" name="option_staticpkgs">Kit: Statically link packages in pkgs directory<br>
-            <input type="checkbox" name="option_tclutfmax6">Kit: TCL_UTF_MAX=6 (incompatibility with standard Tcl)<br>
-            <input type="checkbox" name="option_staticlibssl">TLS: Statically link to LibSSL<br>
-            <input type="checkbox" name="option_buildlibssl">TLS: Build LibreSSL for this platform
+            <input type="checkbox" name="option_minbuild" id="option_minbuild">Kit: "Minimal" build (remove extra packages shipped as part of Tcl and reduce encodings)<br>
+            <input type="checkbox" name="option_staticpkgs" id="option_staticpkgs">Kit: Statically link packages in pkgs directory<br>
+            <input type="checkbox" name="option_tclutfmax6" id="option_tclutfmax6">Kit: TCL_UTF_MAX=6 (incompatibility with standard Tcl)<br>
+            <input type="checkbox" name="option_staticlibssl" id="option_staticlibssl">TLS: Statically link to LibSSL<br>
+            <input type="checkbox" name="option_buildlibssl" id="option_buildlibssl">TLS: Build LibreSSL for this platform
           </td>
         </tr>
 	<tr>
 		<td>Kit Storage:</td>
 		<td>
-			<select name="option_storage">
+			<select name="option_storage" id="option_storage">
 				<option value="auto">Automatically Determined</option>
 				<option value="mk4">Metakit</option>
 				<option value="zip">Zip</option>
