@@ -1,0 +1,68 @@
+#! /usr/bin/env bash
+
+# Define endpoint
+endpoint_url="https://kitcreator.rkeene.org/kitcreator"
+
+# Set arguments
+declare -A jsonArgs
+jsonArgs["platform"]="$(uname -s)-$(uname -m)"
+
+nextArg=''
+kit_filename=''
+for arg in "$@"; do
+	if [ -n "${nextArg}" ]; then
+		jsonArgs["${nextArg}"]="${arg}"
+		nextArg=''
+		continue
+	fi
+
+	case "${arg}" in
+		--platform|--tcl-version|--kitcreator-version)
+			nextArg="${arg:2}"
+			nextArg="${nextArg//-/_}"
+			;;
+	esac
+done
+
+# Convert arguments into a request
+jqArgs=()
+jqSettings=''
+for jsonArg in "${!jsonArgs[@]}"; do
+	jqArgs+=(--arg "${jsonArg}" "${jsonArgs[${jsonArg}]}")
+	jqSettings="${jqSettings} | .${jsonArg} = \$${jsonArg}"
+done
+jqArgs+=("${jqSettings:3}")
+
+jsonRequest="$(jq -crM "${jqArgs[@]}" <<<'{"action":"build"}')"
+
+# Make the request
+results="$(curl -sSL -d "json=${jsonRequest}" "${endpoint_url}")"
+url="$(jq -crM .url <<<"${results}")"
+while true; do
+	info="$(curl -sSL "${url}")"
+	terminal="$(jq -crM .terminal <<<"${info}")"
+
+	if [ "${terminal}" = 'true' ]; then
+		break
+	fi
+
+	sleep 30
+done
+
+status="$(jq -crM .status <<<"${info}")"
+if [ "${status}" != "complete" ]; then
+	echo "failed: ${status}" >&2
+
+	exit 1
+fi
+
+kit_url="$(jq -crM .kit_url <<<"${info}")"
+if [ -z "${kit_filename}" ]; then
+	kit_filename="${kit_url//*\//}"
+fi
+
+curl -sSL "${kit_url}" > "${kit_filename}"
+chmod 755 "${kit_filename}"
+
+echo "Wrote: ${kit_filename}"
+exit 0
