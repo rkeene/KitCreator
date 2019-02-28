@@ -16,6 +16,12 @@ if {[llength $info] > 1} {
 	set resultFormat [lindex $info 0]
 }
 
+set scheme http
+if {[info exists ::env(HTTPS)]} {
+	set scheme https
+}
+set base_url "${scheme}://kitcreator.rkeene.org/kits/$key"
+
 set status "Unknown"
 set terminal 0
 if {![regexp {^[0-9a-f]+$} $key]} {
@@ -114,11 +120,12 @@ if {[info exists buildinfo]} {
 }
 
 if {[info exists outfile]} {
+	set build_log_url "${base_url}/${filename}.log"
 	if {[file exists $outfile]} {
 		set status "Complete"
 		set terminal 1
 
-		set url "http://kitcreator.rkeene.org/kits/$key/$filename"
+		set url "${base_url}/$filename"
 	} elseif {[file exists "${outfile}.buildfail"]} {
 		set status "Failed"
 		set terminal 1
@@ -129,6 +136,17 @@ if {[info exists outfile]} {
 
 if {$resultFormat in {json dict}} {
 	set terminalBoolean [lindex {false true} $terminal]
+
+	set resultsDict [dict create \
+		status [string tolower $status] \
+		terminal $terminalBoolean \
+	]
+	if {[string tolower $status] eq "complete"} {
+		dict set resultsDict kit_url $url
+	}
+	if {[string tolower $status] in {complete building}} {
+		dict set resultsDict build_log_url $build_log_url
+	}
 }
 
 switch -exact -- $resultFormat {
@@ -138,28 +156,25 @@ switch -exact -- $resultFormat {
 	"json" {
 		puts "Content-Type: application/json"
 		puts ""
-		if {$status eq "Complete"} {
-			puts "{\"status\":\"[string tolower $status]\", \"terminal\": $terminalBoolean, \"kit_url\":\"$url\"}"
-		} else {
-			puts "{\"status\":\"[string tolower $status]\", \"terminal\": $terminalBoolean}"
+		set resultsJSONItems [list]
+		foreach {key value} $resultsDict {
+			switch -exact -- $key {
+				"terminal" {
+				}
+				default {
+					set value "\"$value\""
+				}
+			}
+			lappend resultsJSONItems "\"$key\": $value"
 		}
+		set resultsJSON "{[join $resultsJSONItems {, }]}"
+		puts $resultsJSON
 		exit 0
 	}
 	"dict" {
 		puts "Content-Type: text/plain"
 		puts ""
-		if {$status eq "Complete"} {
-			puts [dict create \
-				status [string tolower $status] \
-				terminal $terminalBoolean \
-				kit_url $url \
-			]
-		} else {
-			puts [dict create \
-				status [string tolower $status] \
-				terminal $terminalBoolean \
-			]
-		}
+		puts $resultsDict
 		exit 0
 	}
 	default {
