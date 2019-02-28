@@ -183,6 +183,14 @@
 			build {
 				# Do nothing, handled below
 			}
+			storages {
+				set apiResultDict {
+					mk4 {Metakit}
+					zip {Zip}
+					cvfs {C-VFS}
+					auto {Automatically Determine}
+				}
+			}
 			platforms {
 				set apiResultDict [array get platforms]
 			}
@@ -203,6 +211,7 @@
 			help {
 				set apiResultDict {
 					build {Build a TclKit.  Accepts arguments: platform [mandatory, string], tcl_version [string], kitcreator_version [string], storage [string, one of mk4, cvfs, zip], options [array], packages [array]}
+					storages {Get a list of supported storage mechanisms to use as the "storage" argument to build}
 					platforms {Get a list of platforms to use as the "platform" argument to build}
 					tcl_versions {Get a list of Tcl versions and their descriptions to use as the "tcl_version" argument to build}
 					kitcreator_versions {Get a list of KitCreator versions and their descriptions to use as the "kitcreator_version" argument to build}
@@ -450,7 +459,6 @@
 		close $fd
 
 		set url "http://kitcreator.rkeene.org/kits/building/$key/"
-		set kiturl "http://kitcreator.rkeene.org/kits/$key/$filename"
 
 		if {!$resultIsAPI} {
 			headers redirect $url
@@ -465,12 +473,14 @@
 </html>
 <?
 		} else {
+			set kiturl "http://kitcreator.rkeene.org/kits/building/$apiReturnFormat/$key/"
+
 			switch -exact -- $apiReturnFormat {
 				"json" {
-					puts "{\"kit_url\": \"${kiturl}\"}"
+					puts "{\"url\": \"${kiturl}\"}"
 				}
 				"dict" {
-					puts [dict create kit_url $kiturl]
+					puts [dict create url $kiturl]
 				}
 			}
 		}

@@ -1,15 +1,26 @@
 #! /usr/bin/env tclsh
 
 set outdir "/web/customers/kitcreator.rkeene.org/kits"
-set key ""
+set info [list]
 if {[info exists ::env(PATH_INFO)]} {
-	set key [lindex [split $::env(PATH_INFO) "/"] 1]
+	set info [lmap item [split $::env(PATH_INFO) /] {
+		if {$item eq ""} {
+			continue
+		}
+		return -level 0 $item
+	}]
+}
+set key [lindex $info end]
+set resultFormat "html"
+if {[llength $info] > 1} {
+	set resultFormat [lindex $info 0]
 }
 
 set status "Unknown"
 set terminal 0
 if {![regexp {^[0-9a-f]+$} $key]} {
 	set status "Invalid Key"
+	set terminal 1
 
 	unset key
 }
@@ -113,6 +124,46 @@ if {[info exists outfile]} {
 		set terminal 1
 	} else {
 		set status "Building"
+	}
+}
+
+if {$resultFormat in {json dict}} {
+	set terminalBoolean [lindex {false true} $terminal]
+}
+
+switch -exact -- $resultFormat {
+	"html" {
+		# Handled below
+	}
+	"json" {
+		puts "Content-Type: application/json"
+		puts ""
+		if {$status eq "Complete"} {
+			puts "{\"status\":\"[string tolower $status]\", \"terminal\": $terminalBoolean, \"kit_url\":\"$url\"}"
+		} else {
+			puts "{\"status\":\"[string tolower $status]\", \"terminal\": $terminalBoolean}"
+		}
+		exit 0
+	}
+	"dict" {
+		puts "Content-Type: text/plain"
+		puts ""
+		if {$status eq "Complete"} {
+			puts [dict create \
+				status [string tolower $status] \
+				terminal $terminalBoolean \
+				kit_url $url \
+			]
+		} else {
+			puts [dict create \
+				status [string tolower $status] \
+				terminal $terminalBoolean \
+			]
+		}
+		exit 0
+	}
+	default {
+		exit 1
 	}
 }
 
