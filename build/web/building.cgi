@@ -146,6 +146,9 @@ if {$resultFormat in {json dict}} {
 	}
 	if {[string tolower $status] in {complete building}} {
 		dict set resultsDict build_log_url $build_log_url
+		dict set resultsDict tcl_version $buildinfo(tcl_version)
+		dict set resultsDict kitcreator_version $buildinfo(kitcreator_version)
+		dict set resultsDict platform $buildinfo(platform)
 	}
 }
 

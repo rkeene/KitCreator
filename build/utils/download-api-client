@@ -59,6 +59,19 @@ fi
 kit_url="$(jq -crM .kit_url <<<"${info}")"
 if [ -z "${kit_filename}" ]; then
 	kit_filename="${kit_url//*\//}"
+	case "${kit_filename}" in
+		*.*)
+			kit_filename_base="${kit_filename//.*/}"
+			kit_filename_ext=".${kit_filename//*./}"
+			;;
+		*)
+			kit_filename_base="${kit_filename}"
+			kit_filename_ext=''
+			;;
+	esac
+	kit_filename_platform="$(jq -crM .platform <<<"${info}")"
+	kit_filename_tcl_version="$(jq -crM .tcl_version <<<"${info}")"
+	kit_filename="${kit_filename_base}-${kit_filename_platform}-${kit_filename_tcl_version}${kit_filename_ext}"
 fi
 
 curl -sSL "${kit_url}" > "${kit_filename}"
