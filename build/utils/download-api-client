@@ -9,6 +9,7 @@ jsonArgs["platform"]="$(uname -s)-$(uname -m)"
 
 nextArg=''
 kit_filename=''
+options=()
 for arg in "$@"; do
 	if [ -n "${nextArg}" ]; then
 		jsonArgs["${nextArg}"]="${arg}"
@@ -21,14 +22,33 @@ for arg in "$@"; do
 			nextArg="${arg:2}"
 			nextArg="${nextArg//-/_}"
 			;;
+		--kitdll|--threaded)
+			options+=("${arg:2}")
+			;;
 	esac
 done
+
+if [ -n "${options[*]}" ]; then
+	jsonArgs["options"]="${options[@]}"
+fi
 
 # Convert arguments into a request
 jqArgs=()
 jqSettings=''
 for jsonArg in "${!jsonArgs[@]}"; do
-	jqArgs+=(--arg "${jsonArg}" "${jsonArgs[${jsonArg}]}")
+	case "${jsonArg}" in
+		options)
+			requestArray='[]'
+			for value in ${jsonArgs[${jsonArg}]}; do
+				requestArray="$(jq -crM --arg value "${value}" '. + [ $value ]' <<<"${requestArray}")"
+			done
+			jqArgs+=(--argjson "${jsonArg}" "${requestArray}")
+			;;
+		*)
+			jqArgs+=(--arg "${jsonArg}" "${jsonArgs[${jsonArg}]}")
+			;;
+	esac
+
 	jqSettings="${jqSettings} | .${jsonArg} = \$${jsonArg}"
 done
 jqArgs+=("${jqSettings:3}")
@@ -46,10 +66,21 @@ while true; do
 		break
 	fi
 
-	sleep 30
-done
+	if [ -z "${buildStatusWroteHeader}" ]; then
+		buildStatusWroteHeader='1'
+		echo -n 'Building...'
+	fi
 
+	sleep 30
+
+	echo -n '.'
+done
 status="$(jq -crM .status <<<"${info}")"
+
+if [ -n "${buildStatusWroteHeader}" ]; then
+	echo " ${status}"
+fi
+
 if [ "${status}" != "complete" ]; then
 	echo "failed: ${status}" >&2
 
