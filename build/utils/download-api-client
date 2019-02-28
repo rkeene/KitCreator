@@ -3,6 +3,16 @@
 # Define endpoint
 endpoint_url="https://kitcreator.rkeene.org/kitcreator"
 
+# Help
+function print_help() {
+	echo 'download-api-client [--platform <platform>] [--tcl-version <version>]'
+	echo '                    [--kitcreator-version <version>] [--kitdll]'
+	echo '                    [--threaded] [--debug] [--dynamictk]'
+	echo '                    [--staticpkgs]'
+	echo 'download-api-client {--help|--platforms|--tcl-versions|'
+	echo '                     --kitcreator-versions|--packages}'
+}
+
 # Set arguments
 declare -A jsonArgs
 jsonArgs["platform"]="$(uname -s)-$(uname -m)"
@@ -22,9 +32,29 @@ for arg in "$@"; do
 			nextArg="${arg:2}"
 			nextArg="${nextArg//-/_}"
 			;;
-		--kitdll|--threaded)
+		--kitdll|--threaded|--debug|--dynamictk|--staticpkgs)
 			options+=("${arg:2}")
 			;;
+		--platforms|--tcl-versions|--kitcreator-versions|--packages|--options)
+			action="${arg:2}"
+			action="${action//-/_}"
+
+			formatString='%-20s | %s\n'
+			printf "${formatString}" Name Description
+			printf '%s+%s\n' --------------------- ---------------------
+			curl -sSL -d "json={\"action\":\"${action}\"}" "${endpoint_url}" | jq -crM 'keys[] as $k | "\($k) \(.[$k])"' | while read -r platform description; do
+				printf "${formatString}" "${platform}" "${description}"
+			done
+			exit 0
+			;;
+		--help)
+			print_help
+			exit 0
+			;;
+		*)
+			echo "Invalid option \"${arg}\"" >&2
+			print_help >&2
+			exit 1
 	esac
 done
 
@@ -76,6 +106,7 @@ while true; do
 	echo -n '.'
 done
 status="$(jq -crM .status <<<"${info}")"
+build_log_url="$(jq -crM .build_log_url <<<"${info}")"
 
 if [ -n "${buildStatusWroteHeader}" ]; then
 	echo " ${status}"
@@ -83,6 +114,7 @@ fi
 
 if [ "${status}" != "complete" ]; then
 	echo "failed: ${status}" >&2
+	curl -sSL "${build_log_url}" >&2
 
 	exit 1
 fi

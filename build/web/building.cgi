@@ -144,7 +144,7 @@ if {$resultFormat in {json dict}} {
 	if {[string tolower $status] eq "complete"} {
 		dict set resultsDict kit_url $url
 	}
-	if {[string tolower $status] in {complete building}} {
+	if {[string tolower $status] in {complete building failed}} {
 		dict set resultsDict build_log_url $build_log_url
 		catch {
 			dict set resultsDict tcl_version $buildinfo(tcl_version)
