@@ -3,6 +3,19 @@
 
 	load_response args
 
+	proc normalize_platform {platform platform_names} {
+		set platform [string tolower $platform]
+		if {$platform in $platform_names} {
+			return $platform
+		}
+
+		set platform [regsub {[-]x86_64$} $platform {-amd64}]
+		set platform [regsub {[-]sun4[muv]$} $platform {-sparc}]
+		if {$platform in $platform_names} {
+			return $platform
+		}
+	}
+
 	proc versionEncoded {versionString} {
 		set output 0
 
@@ -25,6 +38,7 @@
 	set queue "/home/rkeene/devel/kitcreator/build/web/queue"
 	set secretfile "/home/rkeene/etc/kitcreator-web-secret"
 
+	# KitCreator Versions
 	foreach file [glob -tails -nocomplain -directory $sourcedir "kitcreator-*.tar.gz"] {
 		regexp {^kitcreator-(.*).tar.gz$} $file -> vers
 		set kitcreator_versions($vers) $vers
@@ -33,6 +47,7 @@
 
 	set kitcreator_versions(trunk) "Fossil Trunk Tip"
 
+	# Tcl Versions
 	set tcl_versions(8.5.15) 8.5.15
 	set tcl_versions(8.5.16) 8.5.16
 	set tcl_versions(8.5.17) 8.5.17
@@ -49,6 +64,10 @@
 	set tcl_versions(8.6.9) 8.6.9
 	set tcl_versions(fossil_trunk) "Fossil Trunk Tip"
 
+	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
+	set tcl_version_selected [lindex $tcl_version_list end-1]
+
+	# Platforms
 	set platforms(android-arm) "Android/ARM"
 	set platforms(freebsd-amd64) "FreeBSD/amd64"
 	set platforms(hpux-hppa64) "HP-UX/PA-RISC 2.0"
@@ -90,6 +109,16 @@
 	set packages(tclcurl) "cURL"
 	set packages(duktape) "Duktape"
 
+	set options_info(threaded) "Kit: Threaded"
+	set options_info(kitdll) "Kit: Build Library (KitDLL)"
+	set options_info(debug) "Kit: Debugging Build"
+	set options_info(dynamictk) "Kit: Always link Tk dynamically (if Tk is built)"
+	set options_info(minbuild) "Kit: \"Minimal\" build (remove extra packages shipped as part of Tcl and reduce encodings)"
+	set options_info(staticlibssl) "TLS: Statically link to LibSSL"
+	set options_info(buildlibssl) "TLS: Build LibreSSL for this platform"
+	set options_info(staticpkgs) "Kit: Statically link packages in pkgs directory"
+	set options_info(tclutfmax6) "Kit: TCL_UTF_MAX=6 (incompatibility with standard Tcl)"
+
 	set disable {
 		platform linux-mipsel {package_tk package_tcc4tcl package_tclx kitdll}
 		platform android-arm {package_tk package_tclx}
@@ -127,12 +156,159 @@
 		platform win64 text description {Description}
 	}
 
+	if {[info exists args(dict)] || [info exists args(json)]} {
+		package require json
+		package require json::write
+	}
+
+	if {[info exists args(json)]} {
+		set args(dict) [::json::json2dict $args(json)]
+		unset args(json)
+		set apiReturnFormat json
+	}
+
+	set resultIsAPI false
+	if {[info exists args(dict)]} {
+		headers set "Access-Control-Allow-Origin" "*"
+		if {![info exists apiReturnFormat]} {
+			set apiReturnFormat dict
+		}
+
+		set apiMethod build
+		catch {
+			set apiMethod [dict get $args(dict) action]
+		}
+
+		switch -exact -- $apiMethod {
+			build {
+				# Do nothing, handled below
+			}
+			platforms {
+				set apiResultDict [array get platforms]
+			}
+			tcl_versions {
+				set apiResultDict [array get tcl_versions]
+				dict set apiResultDict default $tcl_version_selected
+			}
+			kitcreator_versions {
+				set apiResultDict [array get kitcreator_versions]
+				dict set apiResultDict default $kitcreator_version_selected
+			}
+			options {
+				set apiResultDict [array get options_info]
+			}
+			packages {
+				set apiResultDict [array get packages]
+			}
+			help {
+				set apiResultDict {
+					build {Build a TclKit.  Accepts arguments: platform [mandatory, string], tcl_version [string], kitcreator_version [string], storage [string, one of mk4, cvfs, zip], options [array], packages [array]}
+					platforms {Get a list of platforms to use as the "platform" argument to build}
+					tcl_versions {Get a list of Tcl versions and their descriptions to use as the "tcl_version" argument to build}
+					kitcreator_versions {Get a list of KitCreator versions and their descriptions to use as the "kitcreator_version" argument to build}
+					options {Get a list of options and their descriptions}
+					packages {Get a list of packages and their descriptions}
+					examples {A few examples}
+					help {This help}
+				}
+			}
+			examples {
+				set apiResultDict {
+					simple {curl -d 'json={"action": "build", "platform": "linux-amd64"}' http://kitcreator.rkeene.org/kitcreator}
+				}
+			}
+			default {
+				set apiResultDict [dict create error "Invalid action \"$apiMethod\""]
+			}
+		}
+
+		if {$apiMethod eq "build" && ![dict exists $args(dict) platform]} {
+			set apiMethod error
+			set apiResultDict [dict create error "The argument \"platform\" must be supplied when building"]
+		}
+
+		if {$apiMethod ne "build"} {
+			if {[dict exists $apiResultDict error]} {
+				headers numeric 500
+			}
+
+			switch -exact -- $apiReturnFormat {
+				"json" {
+					headers type application/json
+
+					set apiResultDictEncoded [list]
+					foreach {key value} $apiResultDict {
+						lappend apiResultDictEncoded $key [json::write string $value]
+					}
+					set apiResultJSON [json::write object {*}$apiResultDictEncoded]
+					puts $apiResultJSON
+				}
+				"dict" {
+					headers type text/plain
+					
+					puts [dict create {*}$apiResultDict]
+				}
+			}
+
+			rivet_flush
+			abort_page
+		}
+
+		set resultIsAPI true
+		set args(platform) [dict get $args(dict) platform]
+		set args(tcl_version) $tcl_version_selected
+		set args(kitcreator_version) $kitcreator_version_selected
+
+		foreach arg {tcl_version kitcreator_version option_storage} {
+			set dictArg $arg
+			switch -exact -- $arg {
+				option_storage {
+					set dictArg "storage"
+				}
+			}
+
+			catch {
+				set args($arg) [dict get $args(dict) $dictArg]
+			}
+		}
+
+		set selectedPackages [list]
+		catch {
+			set selectedPackages [dict get $args(dict) packages]
+		}
+		foreach arg $selectedPackages {
+			set args(option_package_$arg) true
+		}
+
+		set selectedOptions [list]
+		catch {
+			set selectedOptions [dict get $args(dict) options]
+		}
+		foreach arg $selectedOptions {
+			switch -glob -- $arg {
+				"package_*" {
+					continue
+				}
+			}
+
+			set args(option_$arg) true
+		}
+	}
+
 	if {[info exists args(platform)] && [info exists args(tcl_version)] && [info exist args(kitcreator_version)]} {
 		# Read in arguments
 		## Mandatory arguments
-		set build_platform $args(platform)
+		set build_platform [normalize_platform $args(platform) [array names platforms]]
 		set build_tcl_version $args(tcl_version)
 		set build_kitcreator_version $args(kitcreator_version)
+
+		if {$build_tcl_version eq "default"} {
+			set build_tcl_version $tcl_version_selected
+		}
+
+		if {$build_kitcreator_version eq "default"} {
+			set build_kitcreator_version $kitcreator_version_selected
+		}
 
 		## Optional Arguments
 		set build_packages [list]
@@ -274,8 +450,10 @@
 		close $fd
 
 		set url "http://kitcreator.rkeene.org/kits/building/$key/"
+		set kiturl "http://kitcreator.rkeene.org/kits/$key/$filename"
 
-		headers redirect $url
+		if {!$resultIsAPI} {
+			headers redirect $url
 ?><html>
 	<head>
 		<title>KitCreator, Web Interface</title>
@@ -286,6 +464,16 @@
 	</body>
 </html>
 <?
+		} else {
+			switch -exact -- $apiReturnFormat {
+				"json" {
+					puts "{\"kit_url\": \"${kiturl}\"}"
+				}
+				"dict" {
+					puts [dict create kit_url $kiturl]
+				}
+			}
+		}
 	} else {
 ?><html>
   <head>
@@ -427,8 +615,6 @@
           <td>
             <select name="tcl_version" onChange="verifyOptions();">
 <?
-	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
-	set tcl_version_selected [lindex $tcl_version_list end-1]
 	foreach tcl_version $tcl_version_list {
 		set tcl_version_name $tcl_versions($tcl_version)
 
