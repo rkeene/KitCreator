@@ -8,7 +8,7 @@ function print_help() {
 	echo 'download-api-client [--platform <platform>] [--tcl-version <version>]'
 	echo '                    [--kitcreator-version <version>] [--kitdll]'
 	echo '                    [--threaded] [--debug] [--dynamictk]'
-	echo '                    [--staticpkgs]'
+	echo '                    [--staticpkgs] [--verbose]'
 	echo 'download-api-client {--help|--platforms|--tcl-versions|'
 	echo '                     --kitcreator-versions|--packages}'
 }
@@ -20,6 +20,7 @@ jsonArgs["platform"]="$(uname -s)-$(uname -m)"
 nextArg=''
 kit_filename=''
 options=()
+internalOptionsVerbose='false'
 for arg in "$@"; do
 	if [ -n "${nextArg}" ]; then
 		jsonArgs["${nextArg}"]="${arg}"
@@ -28,6 +29,9 @@ for arg in "$@"; do
 	fi
 
 	case "${arg}" in
+		--verbose)
+			internalOptionsVerbose='true'
+			;;
 		--platform|--tcl-version|--kitcreator-version)
 			nextArg="${arg:2}"
 			nextArg="${nextArg//-/_}"
@@ -113,8 +117,10 @@ if [ -n "${buildStatusWroteHeader}" ]; then
 fi
 
 if [ "${status}" != "complete" ]; then
-	echo "failed: ${status}" >&2
-	curl -sSL "${build_log_url}" >&2
+	echo "${status}: Build terminated in error" >&2
+	if [ "${internalOptionsVerbose}" = 'true' ]; then
+		curl -sSL "${build_log_url}" >&2
+	fi
 
 	exit 1
 fi
