@@ -11,9 +11,9 @@ function buildSSLLibrary() {
 	local version url hash
 	local archive
 
-	version='2.6.4'
+	version='2.9.0'
 	url="http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-${version}.tar.gz"
-	hash='638a20c2f9e99ee283a841cd787ab4d846d1880e180c4e96904fc327d419d11f'
+	hash='eb5f298408b723f11a0ca0192c122ecb79b4855bfdf7eea183a6264296a13cf4'
 
 	archive="src/libressl-${version}.tar.gz"
 
