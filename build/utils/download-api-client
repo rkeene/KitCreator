@@ -20,6 +20,7 @@ jsonArgs["platform"]="$(uname -s)-$(uname -m)"
 nextArg=''
 kit_filename=''
 options=()
+packages=()
 internalOptionsVerbose='false'
 for arg in "$@"; do
 	if [ -n "${nextArg}" ]; then
@@ -38,6 +39,9 @@ for arg in "$@"; do
 			;;
 		--kitdll|--threaded|--debug|--dynamictk|--staticpkgs)
 			options+=("${arg:2}")
+			;;
+		--mk4tcl|--tcc4tcl|--tclcurl|--tk|--tls|--tuapi|--itcl|--duktape|--lmdb|--udp)
+			packages+=("${arg:2}")
 			;;
 		--platforms|--tcl-versions|--kitcreator-versions|--packages|--options)
 			action="${arg:2}"
@@ -63,7 +67,11 @@ for arg in "$@"; do
 done
 
 if [ -n "${options[*]}" ]; then
-	jsonArgs["options"]="${options[@]}"
+	jsonArgs["options"]="${options[*]}"
+fi
+
+if [ -n "${packages[*]}" ]; then
+	jsonArgs["packages"]="${packages[*]}"
 fi
 
 # Convert arguments into a request
@@ -71,7 +79,7 @@ jqArgs=()
 jqSettings=''
 for jsonArg in "${!jsonArgs[@]}"; do
 	case "${jsonArg}" in
-		options)
+		options|packages)
 			requestArray='[]'
 			for value in ${jsonArgs[${jsonArg}]}; do
 				requestArray="$(jq -crM --arg value "${value}" '. + [ $value ]' <<<"${requestArray}")"
