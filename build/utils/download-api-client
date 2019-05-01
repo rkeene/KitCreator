@@ -8,9 +8,11 @@ function print_help() {
 	echo 'download-api-client [--platform <platform>] [--tcl-version <version>]'
 	echo '                    [--kitcreator-version <version>] [--kitdll]'
 	echo '                    [--threaded] [--debug] [--dynamictk]'
-	echo '                    [--staticpkgs] [--verbose]'
+	echo '                    [--staticpkgs] [--verbose] [--pkg-<package>...]'
+	echo '                    [--opt-<option>...] [--empty-packages]'
 	echo 'download-api-client {--help|--platforms|--tcl-versions|'
-	echo '                     --kitcreator-versions|--packages}'
+	echo '                     --kitcreator-versions|--packages|'
+	echo '                     --options}'
 }
 
 # Set arguments
@@ -22,6 +24,7 @@ kit_filename=''
 options=()
 packages=()
 internalOptionsVerbose='false'
+noPackages='false'
 for arg in "$@"; do
 	if [ -n "${nextArg}" ]; then
 		jsonArgs["${nextArg}"]="${arg}"
@@ -40,8 +43,16 @@ for arg in "$@"; do
 		--kitdll|--threaded|--debug|--dynamictk|--staticpkgs)
 			options+=("${arg:2}")
 			;;
-		--mk4tcl|--tcc4tcl|--tclcurl|--tk|--tls|--tuapi|--itcl|--duktape|--lmdb|--udp)
-			packages+=("${arg:2}")
+		--opt-*)
+			options+=("${arg:6}")
+			;;
+		--pkg-*)
+			packages+=("${arg:6}")
+			noPackages='false'
+			;;
+		--empty-packages)
+			packages=()
+			noPackages='true'
 			;;
 		--platforms|--tcl-versions|--kitcreator-versions|--packages|--options)
 			action="${arg:2}"
@@ -70,7 +81,7 @@ if [ -n "${options[*]}" ]; then
 	jsonArgs["options"]="${options[*]}"
 fi
 
-if [ -n "${packages[*]}" ]; then
+if [ -n "${packages[*]}" -o "${noPackages}" = 'true' ]; then
 	jsonArgs["packages"]="${packages[*]}"
 fi
 
