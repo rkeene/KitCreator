@@ -167,6 +167,11 @@ nano/build.log
 nano/inst
 nano/out
 nano/src
+nsf/build
+nsf/build.log
+nsf/inst
+nsf/out
+nsf/src
 duktape/build
 duktape/build.log
 duktape/inst
