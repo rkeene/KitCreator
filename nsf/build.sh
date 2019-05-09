@@ -23,11 +23,11 @@ if echo "${TCLVERS}" | grep '^fossil_' >/dev/null; then
     SRCURL="http://fisheye.openacs.org/browse/~tarball=zip,br=${GITTAG}/nsf/nsf.zip"
     SRCHASH='-'
 else
-    NSFVERS="2.2.0"
+    NSFVERS="2.3.0"
     NSFVERSEXTRA=""
     SRC="src/nsf${NSFVERS}.tar.gz"
     SRCURL="http://sourceforge.net/projects/next-scripting/files/${NSFVERS}/nsf${NSFVERS}.tar.gz/download"
-    SRCHASH='ee50e594837ad241dc8012e88af7b878f5437607'
+    SRCHASH='dec695b908f286dda128b62be717a4248ebd31e7'
 fi
 
 BUILDDIR="$(pwd)/build/nsf${NSFVERS}"
