@@ -152,6 +152,8 @@ function configure() {
 	local isshared
 	local save_cflags
 	local base_var kc_var
+	local configure_opt configure_opts configure_opts_new
+	local ignore_opt ignore_this_opt
 
 	# Determine if the user decided this should be static or not
 	staticpkgvar="$(echo "STATIC${internalpkgname}" | dd conv=ucase 2>/dev/null)"
@@ -174,22 +176,24 @@ function configure() {
 
 	# Determine if we should enable shared or not
 	if [ "${staticpkg}" = "0" ]; then
-		tryopts="--enable-shared --disable-shared"
+		tryopts=("--enable-shared" "--disable-shared")
 	elif [ "${staticpkg}" = "-1" ]; then
-		tryopts="--enable-shared"
+		tryopts=("--enable-shared")
+	elif [ "${pkg_no_support_for_static}" = '1' ]; then
+		tryopts=('')
 	else
-		tryopts="--disable-shared"
+		tryopts=("--disable-shared")
 	fi
 
 	save_cflags="${CFLAGS}"
-	for tryopt in $tryopts __fail__; do
+	for tryopt in "${tryopts[@]}" __fail__; do
 		if [ "${tryopt}" = "__fail__" ]; then
 			return 1
 		fi
 
 		# Clean up, if needed
 		make distclean >/dev/null 2>/dev/null
-		if [ "${tryopt}" == "--enable-shared" ]; then
+		if [ "${tryopt}" = "--enable-shared" -o "${tryopt}" = '' ]; then
 			isshared="1"
 		else
 			isshared="0"
@@ -225,7 +229,27 @@ function configure() {
 			rm -f configure.new
 		fi
 
-		./configure $tryopt --prefix="${installdir}" --exec-prefix="${installdir}" --libdir="${installdir}/lib" --with-tcl="${TCLCONFIGDIR}" "${configure_extra[@]}" ${CONFIGUREEXTRA} && break
+		configure_opts=($tryopt --prefix="${installdir}" --exec-prefix="${installdir}" --libdir="${installdir}/lib" --with-tcl="${TCLCONFIGDIR}" "${configure_extra[@]}" ${CONFIGUREEXTRA})
+		configure_opts_new=()
+		for configure_opt in "${configure_opts[@]}"; do
+			ignore_this_opt='0'
+			for ignore_opt in "${pkg_ignore_opts[@]}"; do
+				case "${configure_opt}" in
+					"${ignore_opt}"|"${ignore_opt}"=*)
+						ignore_this_opt='1'
+						;;
+				esac
+			done
+
+			if [ "${ignore_this_opt}" = '1' ]; then
+				continue
+			fi
+
+			configure_opts_new+=("${configure_opt}")
+		done
+		configure_opts=("${configure_opts_new[@]}")
+
+		"${pkg_path_to_configure:-./configure}" "${configure_opts[@]}" && break
 	done
 
 	return 0
@@ -253,7 +277,7 @@ function preinstall() {
 
 function install() {
 	mkdir -p "${installdir}/lib" || return 1
-	${MAKE:-make} tcllibdir="${installdir}/lib" "${make_extra[@]}" install || return 1
+	${MAKE:-make} tcllibdir="${installdir}/lib" TCL_PACKAGE_PATH="${installdir}/lib" "${make_extra[@]}" install || return 1
 }
 
 function postinstall() {
