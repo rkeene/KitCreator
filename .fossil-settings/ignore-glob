@@ -157,6 +157,11 @@ lmdb/build.log
 lmdb/inst
 lmdb/out
 lmdb/src
+tclpkcs11/build
+tclpkcs11/build.log
+tclpkcs11/inst
+tclpkcs11/out
+tclpkcs11/src
 tclcurl/build
 tclcurl/build.log
 tclcurl/inst

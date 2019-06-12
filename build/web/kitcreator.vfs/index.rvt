@@ -108,6 +108,7 @@
 	set packages(lmdb) "LMDB"
 	set packages(tclcurl) "cURL"
 	set packages(duktape) "Duktape"
+	set packages(tclpkcs11) "TclPKCS#11 (pki::pkcs11)"
 
 	set options_info(threaded) "Kit: Threaded"
 	set options_info(kitdll) "Kit: Build Library (KitDLL)"
@@ -146,7 +147,8 @@
 		kitcreator_version <0.9.3 {package_nsf}
 		kitcreator_version <0.10.0 {package_tdom package_tuapi}
 		kitcreator_version <0.11.0 {package_lmdb}
-		kitcreator_version <trunk {package_tclcurl package_duktape}
+		kitcreator_version <0.11.1 {package_tclcurl package_duktape}
+		kitcreator_version <trunk {package_tclpkcs11}
 	}
 
 	set specific {
