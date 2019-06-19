@@ -2,9 +2,9 @@
 
 # BuildCompatible: KitCreator
 
-version="1.7.17"
+version="1.7.18"
 url="http://tcltls.rkeene.org/uv/tcltls-${version}.tar.gz"
-sha256='1f8c9b1dae25c0dedcdacbb2fa9352cd2d07cfc9d5eaa5fa48e7e266f6f4cef1'
+sha256='6b21e7a4343bf8ae87358f933e98c61ea9c22162b916f35c9433e053a8f19b49'
 configure_extra=('--enable-deterministic')
 
 function buildSSLLibrary() {
