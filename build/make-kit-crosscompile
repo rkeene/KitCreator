@@ -19,6 +19,11 @@ if [ -z "${STRIP}" ]; then
 fi
 export PATH AR CC CXX RANLIB STRIP
 
+PKG_CONFIG_PATH='/dev/null/null'
+PKG_CONFIG_DIR='/dev/null/null';
+PKG_CONFIG_LIBDIR="/home/rkeene/root/cross-compilers/${CROSS}/${CROSS}/lib/pkgconfig";
+export PKG_CONFIG_PATH PKG_CONFIG_DIR PKG_CONFIG_LIBDIR
+
 # When cross-compiling Tcl it cannot detect these things and so assumes failure
 # This in turn creates linking issues because it will define the replacements
 # in the main library and stubs library, which we may both link to

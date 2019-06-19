@@ -8,4 +8,9 @@ RC=x86_64-w64-mingw32-windres
 STRIP="${STRIP:-x86_64-w64-mingw32-strip}"
 export AR CC CXX RANLIB RC STRIP
 
+PKG_CONFIG_PATH='/dev/null/null'
+PKG_CONFIG_DIR='/dev/null/null';
+PKG_CONFIG_LIBDIR='/home/rkeene/root/cross-compilers/x86_64-w64-mingw32/x86_64-w64-mingw32/lib/pkgconfig';
+export PKG_CONFIG_PATH PKG_CONFIG_DIR PKG_CONFIG_LIBDIR
+
 ./kitcreator "$@" --host=x86_64-w64-mingw32

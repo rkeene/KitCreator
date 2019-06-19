@@ -10,4 +10,9 @@ TEA_PLATFORM='windows'
 KC_TLS_LINKADD='-lws2_32 -lgdi32'
 export AR CC CXX RANLIB RC STRIP TEA_PLATFORM KC_TLS_LINKADD
 
+PKG_CONFIG_PATH='/dev/null/null'
+PKG_CONFIG_DIR='/dev/null/null';
+PKG_CONFIG_LIBDIR='/home/rkeene/root/cross-compilers/i586-mingw32msvc/i586-mingw32msvc/lib/pkgconfig';
+export PKG_CONFIG_PATH PKG_CONFIG_DIR PKG_CONFIG_LIBDIR
+
 ./kitcreator "$@" --host=i586-mingw32msvc
