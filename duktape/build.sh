@@ -2,7 +2,7 @@
 
 # BuildCompatible: KitCreator
 
-version='0.6.1'
+version='0.7.0'
 url="https://github.com/dbohdan/tcl-duktape/archive/v${version}.tar.gz"
-sha256='365be33e359be54f4e2e9208dbb20160aea50e01a274ac5a68b3e57ea05fb328'
+sha256='52acbed51d17bf0bc788b500135755a368930febdf5b849fb1ab541cd244ce27'
 tclpkg_initfunc='Tclduktape_Init'
