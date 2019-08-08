@@ -4,7 +4,7 @@
 
 version='0.6'
 url="http://rkeene.org/devel/tuapi-${version}.tar.gz"
-sha256='-'
+sha256='9e5d8cac9a6962b8afe9f88a0aa44303abbbfc5c0980d27ff7c0351a9c297d0b'
 
 function configure() {
 	:
