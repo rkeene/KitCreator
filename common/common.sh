@@ -149,7 +149,7 @@ function preconfigure() {
 function configure() {
 	local tryopts tryopt
 	local staticpkg staticpkgvar
-	local isshared
+	local isshared disable_stubs
 	local save_cflags
 	local base_var kc_var
 	local configure_opt configure_opts configure_opts_new
@@ -214,12 +214,14 @@ function configure() {
 			pkg_configure_shared_build='1'
 		fi
 
+		disable_stubs='0'
 		if [ "${isshared}" = '0' ]; then
-			tryopt="${tryopt} --disable-stubs --enable-static"
+			tryopt="${tryopt} --enable-static"
+			disable_stubs='1'
 		fi
 
 		if ! grep '[-]-disable-stubs' configure >/dev/null 2>/dev/null; then
-			if [ "${isshared}" = '0' ]; then
+			if [ "${disable_stubs}" = '1' ]; then
 				sed 's@USE_TCL_STUBS@XXX_TCL_STUBS@g' configure > configure.new
 			else
 				sed 's@XXX_TCL_STUBS@USE_TCL_STUBS@g' configure > configure.new
@@ -227,6 +229,10 @@ function configure() {
 
 			cat configure.new > configure
 			rm -f configure.new
+		else
+			if [ "${disable_stubs}" = '1' ]; then
+				tryopt="${tryopt} --disable-stubs"
+			fi
 		fi
 
 		configure_opts=($tryopt --prefix="${installdir}" --exec-prefix="${installdir}" --libdir="${installdir}/lib" --with-tcl="${TCLCONFIGDIR}" "${configure_extra[@]}" ${CONFIGUREEXTRA})
