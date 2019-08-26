@@ -109,6 +109,7 @@
 	set packages(tclcurl) "cURL"
 	set packages(duktape) "Duktape"
 	set packages(tclpkcs11) "TclPKCS#11 (pki::pkcs11)"
+	set packages(tcllux) "TclLuX (Tcl UNIX Utilities)"
 
 	set options_info(threaded) "Kit: Threaded"
 	set options_info(kitdll) "Kit: Build Library (KitDLL)"
@@ -148,7 +149,7 @@
 		kitcreator_version <0.10.0 {package_tdom package_tuapi}
 		kitcreator_version <0.11.0 {package_lmdb}
 		kitcreator_version <0.11.1 {package_tclcurl package_duktape}
-		kitcreator_version <trunk {package_tclpkcs11}
+		kitcreator_version <trunk {package_tclpkcs11 package_tcllux}
 	}
 
 	set specific {

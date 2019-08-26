@@ -182,6 +182,11 @@ duktape/build.log
 duktape/inst
 duktape/out
 duktape/src
+tcllux/build
+tcllux/build.log
+tcllux/inst
+tcllux/out
+tcllux/src
 kitdll/buildsrc/kitdll-0.0/starpack.vfs
 kitdll/buildsrc/kitdll-0.0/starpack.vfs/*
 kitdll/buildsrc/kitdll-0.0/test

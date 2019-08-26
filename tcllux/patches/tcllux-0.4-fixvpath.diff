@@ -1,0 +1,230 @@
+diff --no-dereference -uNr tcllux-0.4.orig/configure tcllux-0.4-fixvpath/configure
+--- tcllux-0.4.orig/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/configure	2019-08-26 09:06:52.324294251 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/chan/configure tcllux-0.4-fixvpath/lux/chan/configure
+--- tcllux-0.4.orig/lux/chan/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/chan/configure	2019-08-26 09:06:52.355294251 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/chroot/configure tcllux-0.4-fixvpath/lux/chroot/configure
+--- tcllux-0.4.orig/lux/chroot/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/chroot/configure	2019-08-26 09:06:52.431294251 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/itimer/configure tcllux-0.4-fixvpath/lux/itimer/configure
+--- tcllux-0.4.orig/lux/itimer/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/itimer/configure	2019-08-26 09:06:52.495294252 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/process/configure tcllux-0.4-fixvpath/lux/process/configure
+--- tcllux-0.4.orig/lux/process/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/process/configure	2019-08-26 09:06:52.569294252 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/rusage/configure tcllux-0.4-fixvpath/lux/rusage/configure
+--- tcllux-0.4.orig/lux/rusage/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/rusage/configure	2019-08-26 09:06:52.592294252 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/signal/configure tcllux-0.4-fixvpath/lux/signal/configure
+--- tcllux-0.4.orig/lux/signal/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/signal/configure	2019-08-26 09:06:52.373294251 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/umask/configure tcllux-0.4-fixvpath/lux/umask/configure
+--- tcllux-0.4.orig/lux/umask/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/umask/configure	2019-08-26 09:06:52.509294252 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/uname/configure tcllux-0.4-fixvpath/lux/uname/configure
+--- tcllux-0.4.orig/lux/uname/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/uname/configure	2019-08-26 09:06:52.538294252 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
+diff --no-dereference -uNr tcllux-0.4.orig/lux/user/configure tcllux-0.4-fixvpath/lux/user/configure
+--- tcllux-0.4.orig/lux/user/configure	2019-07-24 06:33:39.000000000 -0500
++++ tcllux-0.4-fixvpath/lux/user/configure	2019-08-26 09:06:52.409294251 -0500
+@@ -232,8 +232,8 @@
+ 
+ BLDSRC_FATAL=whine
+ 
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
+-VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin:${srcdir}/doc'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/library:${srcdir}/src:${srcdir}/bin'
++VPATH='${srcdir}/generic:${srcdir}/unix:${srcdir}/src:${srcdir}/bin'
+ 
+ if test X"$1" != X"" && test X"$1" != X"-?" && ! expr X"$1" : X'--..*$' > /dev/null; then
+   spoto_conf_file=$1
+@@ -701,7 +701,7 @@
+ if test X"$DOCFMT" != X"" && test X"$DOC" != X""; then
+   docname=`expr $DOC : '\(..*\)\..*$'`
+   DOCSRC=$docname.man
+-  VPATH="$VPATH"':${srcdir}/doc'
++VPATH="$VPATH"''
+   if test X"$DOCFMT" = X"nroff"; then
+     DOC_INSTALL_DIR='${mandir}'
+     if expr "$docext" : '^[1-9n]$' >/dev/null; then
