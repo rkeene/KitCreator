@@ -32,6 +32,11 @@ mkdir 'out' 'inst' || exit 1
 	cp -rp 'buildsrc' 'build'
 	cd "${BUILDDIR}" || exit 1
 
+	if [ "${KITTARGET}" = "kitdll" ]; then
+		CFLAGS="${CFLAGS} -fPIC"
+		export CFLAGS
+	fi
+
 	echo "Running: ./configure --disable-shared --prefix=\"${INSTDIR}\" --exec-prefix=\"${INSTDIR}\" --libdir=\"${INSTDIR}/lib\" --with-tcl=\"${TCLCONFIGDIR}\" ${CONFIGUREEXTRA}"
 	./configure --disable-shared --prefix="${INSTDIR}" --exec-prefix="${INSTDIR}" --libdir="${INSTDIR}/lib" --with-tcl="${TCLCONFIGDIR}" ${CONFIGUREEXTRA} || continue
 
