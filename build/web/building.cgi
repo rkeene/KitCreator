@@ -126,6 +126,9 @@ if {[info exists outfile]} {
 		set terminal 1
 
 		set url "${base_url}/$filename"
+		if {[info exists buildinfo(sdkfilename)]} {
+			set sdk_url "${base_url}/$buildinfo(sdkfilename)"
+		}
 	} elseif {[file exists "${outfile}.buildfail"]} {
 		set status "Failed"
 		set terminal 1
@@ -143,6 +146,10 @@ if {$resultFormat in {json dict}} {
 	]
 	if {[string tolower $status] eq "complete"} {
 		dict set resultsDict kit_url $url
+
+		if {[info exists sdk_url]} {
+			dict set resultsDict kit_sdk_url $sdk_url
+		}
 	}
 	if {[string tolower $status] in {complete building failed}} {
 		dict set resultsDict build_log_url $build_log_url

@@ -433,6 +433,7 @@
 		set key [string tolower [sha1::sha1 -hex $key]]
 
 		# Determine filename
+		set extra_keys [list]
 		if {$build_options(kitdll)} {
 			set extension "so"
 			switch -- $build_platform {
@@ -446,6 +447,8 @@
 
 			## XXX: TODO: The version here needs to match what's in the SONAME
 			set filename "libtclkit[string map [list "." ""] ${cache_tcl_version}].${extension}"
+			set sdkfilename "libtclkit[string map [list "." ""] ${cache_tcl_version}]-${build_platform}-sdk.tar.gz"
+			lappend extra_keys sdkfilename $sdkfilename
 		} else {
 			set filename "tclkit"
 
@@ -458,7 +461,7 @@
 
 		# Queue build up and wait for it to complete
 		set fd [open $queue a+]
-		puts $fd [list filename $filename key $key platform $build_platform tcl_version $build_tcl_version kitcreator_version $build_kitcreator_version packages $build_packages options [array get build_options]]
+		puts $fd [list filename $filename key $key platform $build_platform tcl_version $build_tcl_version kitcreator_version $build_kitcreator_version packages $build_packages options [array get build_options] {*}$extra_keys]
 		close $fd
 
 		set url "http://kitcreator.rkeene.org/kits/building/$key/"

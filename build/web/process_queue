@@ -19,16 +19,40 @@ close $fd
 
 set ::env(TCLKIT) "/home/rkeene/bin/tclkit"
 
+proc handleSDK {workdir input output} {
+	set workdir [file join $workdir "sdk-rewrite"]
+	set dirNewName [regsub {\.tar\.gz$} [file tail $output] {}]
+
+	file mkdir $workdir
+	exec gzip -dc $input | tar -C $workdir -xf -
+
+	set dirName [glob -nocomplain -directory $workdir *]
+	if {[llength $dirName] != 1} {
+		return -code error "Multiple directories found: $dirName"
+	}
+
+	set dirName [lindex $dirName 0]
+
+	file rename $dirName [file join $workdir $dirNewName]
+	exec tar -C $workdir -cf - $dirNewName | gzip -9c > [file join $workdir sdk.tar.gz]
+
+	file copy [file join $workdir sdk.tar.gz] $output
+}
+
 foreach line [split $data "\n"] {
 	if {$line == ""} {
 		continue
 	}
 
 	unset -nocomplain buildinfo
+	unset -nocomplain outsdkfile
 
 	array set buildinfo $line
 
 	set outfile [file join $outdir $buildinfo(key) $buildinfo(filename)]
+	if {[info exists buildinfo(sdkfilename)]} {
+		set outsdkfile [file join $outdir $buildinfo(key) $buildinfo(sdkfilename)]
+	}
 
 	# Skip if build completed
 	if {[file exists $outfile]} {
@@ -163,12 +187,28 @@ foreach line [split $data "\n"] {
 	}
 
 	foreach file [list tclkit-$buildinfo(tcl_version) {*}[glob -nocomplain libtclkit*]] {
+		set isSDK false
 		switch -glob -- $file {
 			"*.dylib" - "*.so" - "*.sl" - "*.dll" { }
 			"tclkit-*" {}
+			"libtclkit-sdk-*.tar.gz" {
+				set isSDK true
+			}
 			default {
 				continue
 			}
+		}
+
+		if {$isSDK} {
+			if {[info exists outsdkfile]} {
+				if {[catch {
+					handleSDK $workdir $file $outsdkfile
+				}]} {
+					puts stderr "Error creating SDK: $::errorInfo"
+				}
+			}
+
+			continue
 		}
 
 		if {[file exists $file]} {

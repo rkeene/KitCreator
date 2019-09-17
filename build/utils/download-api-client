@@ -25,6 +25,7 @@ options=()
 packages=()
 internalOptionsVerbose='false'
 noPackages='false'
+downloadSDK='false'
 for arg in "$@"; do
 	if [ -n "${nextArg}" ]; then
 		jsonArgs["${nextArg}"]="${arg}"
@@ -42,6 +43,9 @@ for arg in "$@"; do
 			;;
 		--kitdll|--threaded|--debug|--dynamictk|--staticpkgs)
 			options+=("${arg:2}")
+			;;
+		--sdk)
+			downloadSDK='true'
 			;;
 		--opt-*)
 			options+=("${arg:6}")
@@ -144,26 +148,35 @@ if [ "${status}" != "complete" ]; then
 	exit 1
 fi
 
-kit_url="$(jq -crM .kit_url <<<"${info}")"
-if [ -z "${kit_filename}" ]; then
-	kit_filename="${kit_url//*\//}"
-	case "${kit_filename}" in
-		*.*)
-			kit_filename_base="${kit_filename//.*/}"
-			kit_filename_ext=".${kit_filename//*./}"
-			;;
-		*)
-			kit_filename_base="${kit_filename}"
-			kit_filename_ext=''
-			;;
-	esac
-	kit_filename_platform="$(jq -crM .platform <<<"${info}")"
-	kit_filename_tcl_version="$(jq -crM .tcl_version <<<"${info}")"
-	kit_filename="${kit_filename_base}-${kit_filename_platform}-${kit_filename_tcl_version}${kit_filename_ext}"
-fi
+if [ "${downloadSDK}" = 'false' ]; then
+	kit_url="$(jq -crM .kit_url <<<"${info}")"
+	if [ -z "${kit_filename}" ]; then
+		kit_filename="${kit_url//*\//}"
+		case "${kit_filename}" in
+			*.*)
+				kit_filename_base="${kit_filename//.*/}"
+				kit_filename_ext=".${kit_filename//*./}"
+				;;
+			*)
+				kit_filename_base="${kit_filename}"
+				kit_filename_ext=''
+				;;
+		esac
+		kit_filename_platform="$(jq -crM .platform <<<"${info}")"
+		kit_filename_tcl_version="$(jq -crM .tcl_version <<<"${info}")"
+		kit_filename="${kit_filename_base}-${kit_filename_platform}-${kit_filename_tcl_version}${kit_filename_ext}"
+	fi
 
-curl -sSL "${kit_url}" > "${kit_filename}"
-chmod 755 "${kit_filename}"
+	curl -sSL "${kit_url}" > "${kit_filename}"
+	chmod 755 "${kit_filename}"
+else
+	kit_sdk_url="$(jq -crM .kit_sdk_url <<<"${info}")"
+	if [ -z "${kit_filename}" ]; then
+		kit_filename="${kit_sdk_url//*\//}"
+	fi
+
+	curl -sSL "${kit_sdk_url}" > "${kit_filename}"
+fi
 
 echo "Wrote: ${kit_filename}"
 exit 0
