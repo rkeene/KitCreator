@@ -150,6 +150,14 @@ fi
 
 if [ "${downloadSDK}" = 'false' ]; then
 	kit_url="$(jq -crM .kit_url <<<"${info}")"
+	if [ "${kit_url}" = 'null' ]; then
+		kit_url=''
+	fi
+	if [ "${kit_url}" = '' ]; then
+		echo "No download available." >&2
+
+		exit 1
+	fi
 	if [ -z "${kit_filename}" ]; then
 		kit_filename="${kit_url//*\//}"
 		case "${kit_filename}" in
@@ -171,6 +179,13 @@ if [ "${downloadSDK}" = 'false' ]; then
 	chmod 755 "${kit_filename}"
 else
 	kit_sdk_url="$(jq -crM .kit_sdk_url <<<"${info}")"
+	if [ "${kit_sdk_url}" = 'null' ]; then
+		kit_sdk_url=''
+	fi
+	if [ "${kit_sdk_url}" = '' ]; then
+		echo "No SDK available." >&2
+		exit 1
+	fi
 	if [ -z "${kit_filename}" ]; then
 		kit_filename="${kit_sdk_url//*\//}"
 	fi
