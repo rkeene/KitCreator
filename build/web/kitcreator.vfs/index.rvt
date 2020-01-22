@@ -150,7 +150,7 @@
 		kitcreator_version <0.10.0 {package_tdom package_tuapi}
 		kitcreator_version <0.11.0 {package_lmdb}
 		kitcreator_version <0.11.1 {package_tclcurl package_duktape}
-		kitcreator_version <trunk {package_tclpkcs11 package_tcllux}
+		kitcreator_version <0.12.0 {package_tclpkcs11 package_tcllux}
 	}
 
 	set specific {
