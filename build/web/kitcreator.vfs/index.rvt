@@ -23,6 +23,10 @@
 			return [versionEncoded "255.255.255"]
 		}
 
+		if {$versionString eq "core-8-7a3"} {
+			return [versionEncoded "8.6.253"]
+		}
+
 		foreach element [lrange [split $versionString .] 0 2] {
 			if {![string is integer -strict $element]} {
 				return "\"$versionString\""
@@ -63,10 +67,12 @@
 	set tcl_versions(8.6.8) 8.6.8
 	set tcl_versions(8.6.9) 8.6.9
 	set tcl_versions(8.6.10) 8.6.10
-	set tcl_versions(fossil_trunk) "Fossil Trunk Tip"
-
 	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
-	set tcl_version_selected [lindex $tcl_version_list end-1]
+	set tcl_version_selected [lindex $tcl_version_list end]
+
+	set tcl_versions(fossil_trunk) "Fossil Trunk Tip"
+	set tcl_versions(fossil_core-8-7a3) "Tcl 8.7a3"
+	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
 
 	# Platforms
 	set platforms(android-arm) "Android/ARM"
@@ -111,6 +117,7 @@
 	set packages(duktape) "Duktape"
 	set packages(tclpkcs11) "TclPKCS#11 (pki::pkcs11)"
 	set packages(tcllux) "TclLuX (Tcl UNIX Utilities)"
+	set packages(critcl) "critcl"
 
 	set options_info(threaded) "Kit: Threaded"
 	set options_info(kitdll) "Kit: Build Library (KitDLL)"
@@ -151,6 +158,7 @@
 		kitcreator_version <0.11.0 {package_lmdb}
 		kitcreator_version <0.11.1 {package_tclcurl package_duktape}
 		kitcreator_version <0.12.0 {package_tclpkcs11 package_tcllux}
+		kitcreator_version <trunk {package_critcl}
 	}
 
 	set specific {
@@ -399,8 +407,8 @@
 		# Resolve version numbers to checkin IDs
 		## XXX: TODO
 		set cache_tcl_version $build_tcl_version
-		if {$build_tcl_version == "fossil_trunk"} {
-			set cache_tcl_version [clock format [clock seconds] -format {%Y%m%d}]
+		if {[string match "fossil_*" $build_tcl_version]} {
+			set cache_tcl_version "${build_tcl_version}_[clock format [clock seconds] -format {%Y%m%d}]"
 		}
 
 		set cache_kitcreator_version $build_kitcreator_version
@@ -515,6 +523,10 @@
 
 		if (versionString === "trunk") {
 			return(versionEncoded("255.255.255"));
+		}
+
+		if (versionString === "core-8-7a3") {
+			return(versionEncoded("8.6.253"));
 		}
 
 		try {
