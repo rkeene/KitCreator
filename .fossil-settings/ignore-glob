@@ -87,6 +87,11 @@ zlib/out
 zlib/out/*
 zlib/src
 zlib/src/*
+critcl/build/*
+critcl/build.log
+critcl/inst/*
+critcl/out/*
+critcl/src/*
 tcc4tcl/build
 tcc4tcl/build/*
 tcc4tcl/build.log

@@ -1,0 +1,36 @@
+diff -uNr andreas-kupries-critcl-f7fdaa5.orig/build.tcl andreas-kupries-critcl-f7fdaa5-usetclmd5/build.tcl
+--- andreas-kupries-critcl-f7fdaa5.orig/build.tcl	2020-02-18 22:07:06.000000000 -0600
++++ andreas-kupries-critcl-f7fdaa5-usetclmd5/build.tcl	2020-04-15 00:14:19.173179709 -0500
+@@ -486,6 +486,10 @@
+ 
+ 	puts "${prefix}Installed application:  $theapp"
+ 
++	# Critcl does not meaningfully support cross-compilation, elide
++	# these packages when being cross-compiled
++if {$target eq {}} {
++
+ 	# Special package: critcl_md5c
+ 	# Local MD5 hash implementation.
+ 
+@@ -558,6 +562,7 @@
+ 	puts "${prefix}Installed package:      $dst"
+ 	puts "${prefix}Installed headers:      [
+ 	    file join $dsti critcl_callback]"
++}
+ 
+     } msg]} {
+ 	if {![string match {*permission denied*} $msg]} {
+diff -uNr andreas-kupries-critcl-f7fdaa5.orig/lib/critcl/critcl.tcl andreas-kupries-critcl-f7fdaa5-usetclmd5/lib/critcl/critcl.tcl
+--- andreas-kupries-critcl-f7fdaa5.orig/lib/critcl/critcl.tcl	2020-02-18 22:07:06.000000000 -0600
++++ andreas-kupries-critcl-f7fdaa5-usetclmd5/lib/critcl/critcl.tcl	2020-04-15 00:15:51.782180320 -0500
+@@ -55,8 +55,8 @@
+     if {$v::uuidcounter} {
+ 	return [format %032d [incr v::uuidcounter]]
+     }
+-    package require critcl_md5c
+-    binary scan [md5c $s] H* md; return $md
++    package require md5
++    binary scan [::md5 $s] H* md; return $md
+ }
+ 
+ # # ## ### ##### ######## ############# #####################
