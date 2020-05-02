@@ -218,6 +218,10 @@ puts "\t\t<h1>KitCreator Web Interface</h1>"
 puts "\t\t<p><b>Status:</b> $status"
 if {[info exists url]} {
 	puts "\t\t<p><b>URL:</b> <a href=\"$url\">$url</a>"
+
+	if {[info exists sdk_url]} {
+		puts "\t\t<p><b>SDK URL:</b> <a href=\"$sdk_url\">$sdk_url</a>"
+	}
 }
 if {[info exists description]} {
 	puts "\t\t<p><b>Description:</b> $description"

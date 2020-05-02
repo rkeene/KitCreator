@@ -96,7 +96,7 @@ foreach line [split $data "\n"] {
 		switch -- $option {
 			"kitdll" {
 				if {$value} {
-					set ::env(KITCREATOR_PKGS) "$::env(KITCREATOR_PKGS) kitdll"
+					set ::env(KITCREATOR_PKGS) "$::env(KITCREATOR_PKGS) kitdll "
 				}
 			}
 			"threaded" {
@@ -186,6 +186,7 @@ foreach line [split $data "\n"] {
 		exec grep ^ {*}[lsort -dictionary [glob */build.log]] >> "${outfile}.log"
 	}
 
+	set errfd [open "${outfile}.log" a+]
 	foreach file [list tclkit-$buildinfo(tcl_version) {*}[glob -nocomplain libtclkit*]] {
 		set isSDK false
 		switch -glob -- $file {
@@ -204,6 +205,7 @@ foreach line [split $data "\n"] {
 				if {[catch {
 					handleSDK $workdir $file $outsdkfile
 				}]} {
+					puts $errfd "Error creating SDK: $::errorInfo"
 					puts stderr "Error creating SDK: $::errorInfo"
 				}
 			}
@@ -217,6 +219,14 @@ foreach line [split $data "\n"] {
 			break
 		}
 	}
+
+	if {[info exists outsdkfile]} {
+		if {![file exists $outsdkfile]} {
+			puts $errfd "Error: Should have built an SDK, but didn't ?!?"
+		}
+	}
+
+	close $errfd
 
 	if {![file exists $outfile]} {
 		set fd [open $outfile.buildfail "w+"]
