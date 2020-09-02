@@ -33,7 +33,8 @@ fi
 BUILDDIR="$(pwd)/build/nsf${NSFVERS}"
 OUTDIR="$(pwd)/out"
 INSTDIR="$(pwd)/inst"
-export NSFVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR
+PATCHDIR="$(pwd)/patches"
+export NSFVERS SRC SRCURL BUILDDIR OUTDIR INSTDIR PATCHDIR
 
 # Set configure options for this sub-project
 LDFLAGS="${LDFLAGS} ${KC_NSF_LDFLAGS}"
@@ -74,6 +75,15 @@ fi
 	autoconf || exit 1
     fi
 
+    # Apply patches if needed
+    for patch in "${PATCHDIR}/all"/nsf-${NSFVERS}-*.diff "${PATCHDIR}/all"/nsf-all-*.diff "${PATCHDIR}/${NSFVERS}"/nsf-${NSFVERS}-*.diff; do
+	if [ ! -f "${patch}" ]; then
+	    continue
+	fi
+        
+	echo "Applying: ${patch}"
+	${PATCH:-patch} -p1 < "${patch}"
+    done
 
     # There's a STATIC<packageInAllUpperCase>=-1,0,1
     # ... where -1 means no (i.e., shared),

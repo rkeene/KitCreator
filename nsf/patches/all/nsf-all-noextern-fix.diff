@@ -1,0 +1,23 @@
+--- nsf2.3.0/generic/nsf.h.orig	2020-09-02 17:32:45.000000000 +0200
++++ nsf2.3.0/generic/nsf.h	2020-09-02 17:34:08.000000000 +0200
+@@ -40,6 +40,20 @@
+ 
+ #include "tcl.h"
+ 
++/*
++ * Make sure EXTERN isn't defined elsewhere.
++ */
++
++#ifdef EXTERN
++#   undef EXTERN
++#endif /* EXTERN */
++
++#ifdef __cplusplus
++#   define EXTERN extern "C" TCL_STORAGE_CLASS
++#else
++#   define EXTERN extern TCL_STORAGE_CLASS
++#endif
++
+ #undef TCL_STORAGE_CLASS
+ #ifdef BUILD_nsf
+ # define TCL_STORAGE_CLASS DLLEXPORT
