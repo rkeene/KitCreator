@@ -2,6 +2,6 @@
 
 # BuildCompatible: KitCreator
 
-version='1.18'
+version='1.20'
 url="http://sourceforge.net/projects/tcllib/files/tcllib/${version}/tcllib-${version}.tar.bz2"
-sha256='73ee3067e20663e9401d0291028f9a5ffab8e71c7bbe1673c79edb5f266cfe7c'
+sha256='3a33f212f35235f9dca4425c5c5692186515be169b0b6e3ca498e7c344ea83b8'
