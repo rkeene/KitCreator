@@ -37,6 +37,9 @@ proc copy_file {srcfile destfile} {
 			set ifd [open $srcfile r]
 			set ofd [open $destfile w]
 
+			# Force tcl files to have lf line endings inside tclkit.
+			fconfigure $ofd -translation lf
+
 			set ret [fcopy $ifd $ofd]
 
 			close $ofd
