@@ -1,6 +1,6 @@
 #! /bin/bash
 
-VERSIONS="8.5.19 8.6.10 fossil_trunk"
+VERSIONS="8.5.19 8.6.11 fossil_trunk"
 
 # Find the base directory
 for x in 1 2 3 4 __fail__; do
