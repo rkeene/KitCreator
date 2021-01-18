@@ -87,6 +87,42 @@ proc tclInit {} {
 					uplevel #0 $s
 				}
 			}
+			"vlerq" {
+				# use raw Vlerq calls if Mk4tcl is not available
+				# $::vlerq::starkit_root is set in the init script in kitInit.c
+				set rootv [vlerq get $::vlerq::starkit_root 0 dirs]
+				set dname [vlerq get $rootv * name]
+				set prows [vlerq get $rootv * parent]
+				foreach r [lsearch -int -all $prows 0] {
+					if {[lindex $dname $r] eq "lib"} break
+				}
+
+				# glob for a subdir in "lib", then source the specified file inside it
+				foreach {d f} {
+					vfs* vfsUtils.tcl vfs* vfslib.tcl vqtcl4* mkclvfs.tcl
+				} {
+					foreach z [lsearch -int -all $prows $r] {
+						if {[string match $d [lindex $dname $z]]} break
+					}
+
+					set files [vlerq get $rootv $z files]
+					set names [vlerq get $files * name]
+
+					set n [lsearch $names $f]
+					if {$n < 0} { error "$d/$f: cannot find startup script"}
+
+					set s [vlerq get $files $n contents]
+					catch {set s [zlib decompress $s]}
+					uplevel #0 $s
+				}
+
+				# hack the mkcl info so it will know this mount point as "exe"
+				set vfs::mkcl::v::rootv(exe) $rootv
+				set vfs::mkcl::v::dname(exe) $dname
+				set vfs::mkcl::v::prows(exe) $prows
+
+				set vfsHandler [list ::vfs::mkcl::handler exe]
+			}
 		}
 
 		# mount the executable, i.e. make all runtime files available

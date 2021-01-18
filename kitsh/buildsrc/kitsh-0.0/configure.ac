@@ -138,7 +138,7 @@ dnl Determine which storage mechanism to use
 AC_MSG_CHECKING([which Tclkit Storage mechanism to use])
 
 storage_mech="auto"
-AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4|cvfs}], [Specify storage mechanism to use for built-in VFS (default: auto)]), [
+AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4|cvfs|vlerq}], [Specify storage mechanism to use for built-in VFS (default: auto)]), [
 	AS_CASE(["$enableval"],
 		mk4, [
 			storage_mech="mk4"
@@ -148,6 +148,9 @@ AC_ARG_ENABLE(kit-storage, AC_HELP_STRING([--enable-kit-storage={zip|mk4|cvfs}],
 		],
 		cvfs, [
 			storage_mech="cvfs"
+		],
+		vlerq, [
+			storage_mech="vlerq"
 		],
 		yes, [
 			# If they just want to enable kit storage, but nothing specifically, do nothing
@@ -208,6 +211,9 @@ AS_CASE([$storage_mech],
 
 		dnl Set any flags as required
 		DC_SET_DIR2C_FLAGS
+	],
+	vlerq, [
+		AC_DEFINE([KIT_STORAGE_VLERQ], [1], [Define if you are going to use vlerq for kit storage])
 	]
 )
 

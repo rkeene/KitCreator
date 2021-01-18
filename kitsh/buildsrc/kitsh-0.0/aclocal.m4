@@ -260,6 +260,16 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			subprojs=""
 		fi
 
+		if test "${proj}" = "vqtcl"; then
+			if test -n "${projlibfiles}"; then
+				AC_DEFINE(KIT_INCLUDES_VQTCL, [1], [Specify this if you link against vqtcl])
+
+				kc_cv_feature_kit_includes_vqtcl='1'
+			fi
+
+			subprojs=""
+		fi
+
 		if test "${proj}" = "tk"; then
 			if test "${projlibfilesnostub}" != ""; then
 				DC_DO_TK
