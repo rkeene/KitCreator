@@ -166,6 +166,8 @@ foreach line [split $data "\n"] {
 	catch {
 		set cmd [list $script $buildinfo(tcl_version) {*}$args]
 		set fd [open "${outfile}.log" w+]
+		puts $fd "Started on [clock format [clock seconds] -timezone :UTC]"
+
 		puts $fd "Running: export KITCREATOR_PKGS=\"$::env(KITCREATOR_PKGS)\""
 
 		foreach variable [list STRIP STATICTK KITCREATOR_MINENCODINGS KITCREATOR_MINBUILD KC_TLS_LINKSSLSTATIC KC_TLS_BUILDSSL KC_TCL_STATICPKGS KC_TCL_UTF_MAX KC_TCL_CFLAGS KC_TK_CFLAGS] {
