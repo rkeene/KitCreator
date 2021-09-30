@@ -137,6 +137,15 @@ yajltcl/out
 yajltcl/out/*
 yajltcl/src
 yajltcl/src/*
+rl_json/build
+rl_json/build/*
+rl_json/build.log
+rl_json/inst
+rl_json/inst/*
+rl_json/out
+rl_json/out/*
+rl_json/src
+rl_json/src/*
 dbus/build
 dbus/build.log
 dbus/inst

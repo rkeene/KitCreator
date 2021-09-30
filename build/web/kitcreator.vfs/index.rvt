@@ -114,6 +114,7 @@
 	set packages(itcl) {[incr Tcl]}
 	set packages(tcllib) "Tcllib"
 	set packages(yajltcl) "YAJL-TCL"
+	set packages(rl_json) "RubyLane JSON"
 	set packages(udp) "TclUDP"
 	set packages(nsf) "Next Scripting Framework"
 	set packages(tdom) "tDOM"
@@ -164,7 +165,7 @@
 		kitcreator_version <0.11.0 {package_lmdb}
 		kitcreator_version <0.11.1 {package_tclcurl package_duktape}
 		kitcreator_version <0.12.0 {package_tclpkcs11 package_tcllux}
-		kitcreator_version <trunk {package_critcl}
+		kitcreator_version <trunk {package_critcl package_rl_json}
 	}
 
 	set specific {
