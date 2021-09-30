@@ -23,6 +23,10 @@
 			return [versionEncoded "255.255.255"]
 		}
 
+		if {$versionString eq "core-8-7-a5-rc"} {
+			return [versionEncoded "8.6.254"]
+		}
+
 		if {$versionString eq "core-8-7a3"} {
 			return [versionEncoded "8.6.253"]
 		}
@@ -73,6 +77,7 @@
 
 	set tcl_versions(fossil_trunk) "Fossil Trunk Tip"
 	set tcl_versions(fossil_core-8-7a3) "Tcl 8.7a3"
+	set tcl_versions(fossil_core-8-7-a5-rc) "Tcl 8.7a5"
 	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
 
 	# Platforms
@@ -530,6 +535,9 @@
 			return(versionEncoded("8.6.253"));
 		}
 
+		if (versionString === "core-8-7-a5-rc") {
+			return(versionEncoded("8.6.254"));
+		}
 		try {
 			versionString.split(".").slice(0, 3).forEach(function(element) {
 				element = parseInt(element);
