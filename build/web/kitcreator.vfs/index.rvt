@@ -72,6 +72,7 @@
 	set tcl_versions(8.6.9) 8.6.9
 	set tcl_versions(8.6.10) 8.6.10
 	set tcl_versions(8.6.11) 8.6.11
+	set tcl_versions(8.6.12) 8.6.12
 	set tcl_version_list [lsort -dictionary [array names tcl_versions]]
 	set tcl_version_selected [lindex $tcl_version_list end]
 
