@@ -9,7 +9,7 @@ function print_help() {
 	echo '                    [--kitcreator-version <version>] [--kitdll]'
 	echo '                    [--threaded] [--debug] [--dynamictk]'
 	echo '                    [--staticpkgs] [--verbose] [--pkg-<package>...]'
-	echo '                    [--opt-<option>...] [--empty-packages]'
+	echo '                    [--opt-<option>...] [--sdk] [--empty-packages]'
 	echo 'download-api-client {--help|--platforms|--tcl-versions|'
 	echo '                     --kitcreator-versions|--packages|'
 	echo '                     --options}'
@@ -45,6 +45,7 @@ for arg in "$@"; do
 			options+=("${arg:2}")
 			;;
 		--sdk)
+			options+=(kitdll)
 			downloadSDK='true'
 			;;
 		--opt-*)
