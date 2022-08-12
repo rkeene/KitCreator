@@ -16,6 +16,9 @@ FOSSIL_CHANGE="$(fossil timeline --repository "${KITCREATORFOSSIL}" children tru
 TESTNAME="fossil_${FOSSIL_CHANGE}"
 export FOSSIL_CHANGE TESTNAME
 
+# Use a specific TclKit when one is needed
+export TCLKIT='/home/rkeene/devel/kitcreator/build/web/.tclkit-for-building'
+
 # Verify sanity
 issane=1
 if [ -z "${FOSSIL_CHANGE}" ]; then
