@@ -1,6 +1,7 @@
 build/test/kits
 build/test/kits/*
 build/web/queue
+build/web/.tclkit-for-building
 build/web/kitcreator.cgi
 build/web/kitcreator.kit
 itcl/build

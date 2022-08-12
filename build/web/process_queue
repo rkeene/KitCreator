@@ -17,7 +17,7 @@ set fd [open $queue r]
 set data [read $fd]
 close $fd
 
-set ::env(TCLKIT) "/home/rkeene/bin/tclkit"
+set ::env(TCLKIT) [file join [file dirname $queue] .tclkit-for-building]
 
 proc handleSDK {workdir input output} {
 	set workdir [file join $workdir "sdk-rewrite"]
