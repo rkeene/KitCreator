@@ -1,6 +1,6 @@
 #! /bin/sh
 
-CROSS="x86_64-unknown-netbsd5"
+CROSS="x86_64-unknown-netbsd8"
 CC_ADD="-m32"
 export CROSS CC_ADD
 
