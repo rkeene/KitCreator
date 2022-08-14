@@ -245,7 +245,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 			])
 
 			hide_symbols="0"
-			subprojs="`echo " $projlibfilesnostub " | sed 's@ [[^ ]]*/@ @g;s@ lib@ @g;s@[[0-9\.]]*\.a@ @g;s@ tdbc[[^ ]]*@ @g;s@ sqlite @ sqlite3 @;s@ tcldde[[0-9]][[0-9]]*s*g* @ @g;s@ tclreg[[0-9]][[0-9]]*s*g* @ @g;s@ tcl[[0-9]]*s*g* @ @g;s@^ *@@;s@ *[$]@@'`"
+			subprojs="`echo " $projlibfilesnostub " | sed 's@ [[^ ]]*/@ @g;s@ lib@ @g;s@[[0-9\.]]*\.a@ @g;s@ thread[[0-9]][[A-Za-z0-9]]* @ thread @g;s@ tdbc[[^ ]]*@ @g;s@ sqlite @ sqlite3 @;s@ tcldde[[0-9]][[0-9]]*s*g* @ @g;s@ tclreg[[0-9]][[0-9]]*s*g* @ @g;s@ tcl[[0-9]]*s*g* @ @g;s@^ *@@;s@ *[$]@@'`"
 		fi
 
 		if test "${proj}" = "mk4tcl"; then
@@ -303,6 +303,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 		if test -n "${subprojs}"; then
 			if test -n "${projlibfilesnostub}"; then
 				for subproj in $subprojs; do
+					AC_MSG_CHECKING([for init functions for ${subproj}])
 					subprojucase="`echo ${subproj} | dd conv=ucase 2>/dev/null`"
 					subprojtcase="`echo ${subprojucase} | cut -c 1``echo ${subproj} | cut -c 2-`"
 					lib_init_func="${subprojtcase}_Init"
@@ -314,6 +315,7 @@ AC_DEFUN(DC_FIND_TCLKIT_LIBS, [
 					echo "Tcl_AppInitProc ${lib_init_func};" >> kitInit-libs.h
 
 					libs_init_funcs="${libs_init_funcs} ${lib_init_func}"
+					AC_MSG_RESULT([${lib_init_func}])
 				done
 			fi
 		fi
