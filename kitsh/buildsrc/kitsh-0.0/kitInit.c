@@ -76,6 +76,9 @@ Tcl_AppInitProc Zlib_Init;
 #ifdef KIT_STORAGE_CVFS
 Tcl_AppInitProc Cvfs_data_tcl_Init;
 #endif
+#ifdef KIT_INCLUDES_VQTCL
+Tcl_AppInitProc	Vlerq_Init, Vlerq_SafeInit;
+#endif
 #ifdef TCL_THREADS
 Tcl_AppInitProc	Thread_Init;
 #endif
@@ -149,6 +152,9 @@ static char *preInitCmd =
 #ifdef KIT_INCLUDES_MK4TCL
 	"catch { load {} Mk4tcl }\n"
 #endif
+#ifdef KIT_INCLUDES_VQTCL
+	"catch { load {} vlerq }\n"
+#endif
 	"load {} tclkit::init\n"
 	"::tclkit::init::initInterp\n"
 	"rename ::tclkit::init::initInterp {}\n"
@@ -200,6 +206,26 @@ static char *preInitCmd =
 		"}\n"
 	"}\n"
 #endif /* KIT_STORAGE_CVFS */
+#ifdef KIT_STORAGE_VLERQ
+	"set ::tclKitStorage \"vlerq\"\n"
+	"if {![info exists s]} {\n"
+		"namespace eval ::vlerq {}\n"
+		"if {[catch {vlerq open " TCLKIT_VFSSOURCE "} ::vlerq::starkit_root]} {\n"
+			"set n -1\n"
+		"} else {\n"
+			"set files [vlerq get $::vlerq::starkit_root 0 dirs 0 files]\n"
+			"set n [lsearch [vlerq get $files * name] boot.tcl]\n"
+		"}\n"
+		"if {$n >= 0} {\n"
+			"set s [vlerq get $files $n contents]\n"
+			"if {![string length $s]} { error \"empty boot.tcl\" }\n"
+			"catch {load {} zlib}\n"
+			"if {[vlerq get $files $n size] != [string length $s]} {\n"
+				"set s [zlib decompress $s]\n"
+			"}\n"
+		"}\n"
+	"}\n"
+ #endif
 	"if {![info exists s]} {\n"
 		"set s \"\"\n"
 	"}\n"
@@ -352,6 +378,9 @@ static void _Tclkit_Generic_Init(void) {
 #endif
 #ifdef KIT_STORAGE_CVFS
 	Tcl_StaticPackage(0, "cvfs_data_tcl", Cvfs_data_tcl_Init, NULL);
+#endif
+#ifdef KIT_INCLUDES_VQTCL
+	Tcl_StaticPackage(0, "vlerq", Vlerq_Init, Vlerq_SafeInit);
 #endif
 #ifdef TCL_THREADS
 	Tcl_StaticPackage(0, "Thread", Thread_Init, NULL);

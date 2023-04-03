@@ -29,6 +29,9 @@ if {[string match "*KIT_STORAGE_MK4*" $data]} {
 if {[string match "*KIT_STORAGE_CVFS*" $data]} {
 	set tclKitStorage cvfs
 }
+if {[string match "*KIT_STORAGE_VLERQ*" $data]} {
+	set tclKitStorage vlerq
+}
 
 # Define procedures
 proc copy_file {srcfile destfile} {
@@ -124,5 +127,26 @@ switch -- $tclKitStorage {
 	}
 	"cvfs" {
 		file copy $kitfile $outfile
+	}
+	"vlerq" {
+		file copy $kitfile $outfile
+
+		if {[catch {
+			# Try as if a pre-existing Tclkit, or a tclsh
+			package require vfs::m2m
+		}]} {
+			load "" vlerq
+			load "" vfs
+
+			source [file join $vfsdir lib/vfs/vfsUtils.tcl]
+			source [file join $vfsdir lib/vfs/vfslib.tcl]
+			source [file join [glob [file join $vfsdir lib vqtcl*]] m2mvfs.tcl]
+		}
+
+		set handle [vfs::m2m::Mount $outfile /kit -nocommit]
+
+		recursive_copy $vfsdir /kit
+
+		vfs::unmount /kit
 	}
 }
